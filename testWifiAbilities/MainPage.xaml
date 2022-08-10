@@ -20,10 +20,12 @@
             <StackPanel Padding="0,0,50,50">
                 <TextBlock FontSize="24" FontWeight="Bold">Data Table</TextBlock>
                 <controls:DataGrid x:Name="uiGrid"
-                                   CanUserSortColumns="true"
+                                   CanUserSortColumns="false"
                                    CanUserResizeColumns="true"
                                    IsReadOnly="true"
-                                   Sorting="OnGridSort"
+                                   ClipboardCopyMode="IncludeHeader"
+                                   Sorting="OnGridSort" Tapped="OnGridTapped" DoubleTapped="OnGridDoubleTapped" CurrentCellChanged="OnGridCurrentCellChanged"
+                                   
                                    >
 
                 </controls:DataGrid>

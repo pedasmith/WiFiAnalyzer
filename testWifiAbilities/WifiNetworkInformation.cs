@@ -8,11 +8,11 @@ namespace testWifiAbilities
 {
     public class WifiNetworkInformation
     {
-        public string WiFiSsid { get; set; }
+        public string SSID { get; set; }
         public string Bssid { get; set; }
         public double BeaconInterval { get; set; }
         public double Frequency { get; set; }
-        public bool IsWiFiDirect { get; set; }
+        public string IsWiFiDirect { get; set; }
         public string NetworkKind { get; set; }
         public double Rssi { get; set; }
         public string PhyKind { get; set; }

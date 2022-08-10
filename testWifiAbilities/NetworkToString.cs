@@ -47,7 +47,7 @@ namespace testWifiAbilities
             retval += $"{indent}Roaming={value.Roaming}\n";
             return retval;
         }
-        public static async Task<string> ToStringAsync(string indent, ConnectionProfile value) //TODO: so much more
+        public static string ToString(string indent, ConnectionProfile value) //TODO: so much more
         {
             if (value == null) return $"{indent}ConnectionProfile does not exist\n";
             var retval = $"{indent}ConnectionProfile {value.ProfileName}\n";
@@ -119,7 +119,7 @@ namespace testWifiAbilities
             retval += $"{indent}InboundMaxBitsPerSecond={value.InboundMaxBitsPerSecond}\n";
             retval += $"{indent}OutboundMaxBitsPerSecond={value.OutboundMaxBitsPerSecond}\n";
 
-            retval += await ToStringAsync(indent, profile);
+            retval += ToString(indent, profile);
             retval += ToString(indent, value.NetworkItem);
             return retval;
         }
@@ -188,11 +188,11 @@ namespace testWifiAbilities
         }
         public static void Fill(WifiNetworkInformation data, WiFiAvailableNetwork value)
         {
-            data.WiFiSsid = value.Ssid;
+            data.SSID = value.Ssid;
             data.Bssid = value.Bssid;
             data.BeaconInterval = value.BeaconInterval.TotalSeconds;
             data.Frequency = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
-            data.IsWiFiDirect = value.IsWiFiDirect;
+            data.IsWiFiDirect = value.IsWiFiDirect ? "true" : "false";
             data.NetworkKind = value.NetworkKind.ToString();
             data.Rssi = value.NetworkRssiInDecibelMilliwatts;
             data.PhyKind = value.PhyKind.ToString();
