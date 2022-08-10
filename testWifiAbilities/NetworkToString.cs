@@ -11,6 +11,7 @@ namespace testWifiAbilities
     static class NetworkToString
     {
         static string Tab = "    ";
+
         public static string ToString(string indent, AttributedNetworkUsage value)
         {
             if (value == null) return $"{indent}AttributedNetworkUsage does not exist\n";
@@ -144,6 +145,11 @@ namespace testWifiAbilities
             retval += $"{indent}NetworkEncryptionType={value.NetworkEncryptionType}\n";
             return retval;
         }
+        public static void Fill(WifiNetworkInformation data, NetworkSecuritySettings value)
+        {
+            data.AuthenticationType = value.NetworkAuthenticationType.ToString();
+            data.EncryptionType = value.NetworkEncryptionType.ToString();
+        }
         public static string ToCsvHeaderNetworkSecuritySettings()
         {
             return "AuthenticationType,EncryptionType,";
@@ -179,6 +185,21 @@ namespace testWifiAbilities
 
             retval += $"{ToString(indent, value.SecuritySettings)}\n";
             return retval;
+        }
+        public static void Fill(WifiNetworkInformation data, WiFiAvailableNetwork value)
+        {
+            data.WiFiSsid = value.Ssid;
+            data.Bssid = value.Bssid;
+            data.BeaconInterval = value.BeaconInterval.TotalSeconds;
+            data.Frequency = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
+            data.IsWiFiDirect = value.IsWiFiDirect;
+            data.NetworkKind = value.NetworkKind.ToString();
+            data.Rssi = value.NetworkRssiInDecibelMilliwatts;
+            data.PhyKind = value.PhyKind.ToString();
+            data.SignalBars = value.SignalBars;
+            data.Uptime = value.Uptime;
+
+            Fill(data, value.SecuritySettings);
         }
 
         public static string ToCsvHeaderWiFiAvailableNetwork()
@@ -222,6 +243,16 @@ namespace testWifiAbilities
                 retval += ToCsvData(item) + "\n";
             }
             return retval;
+        }
+
+        public static void Fill(IList<WifiNetworkInformation> list, WiFiNetworkReport value)
+        {
+            foreach (var item in value.AvailableNetworks)
+            {
+                var data = new WifiNetworkInformation();
+                Fill(data, item);
+                list.Add(data);
+            }
         }
         public static string ToString(string indent, WlanConnectionProfileDetails value)
         {

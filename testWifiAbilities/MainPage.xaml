@@ -4,7 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:testWifiAbilities"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -16,7 +17,22 @@
         </Grid.RowDefinitions>
         <TextBlock FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Wi-Fi Testing</TextBlock>
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-            <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
+            <StackPanel Padding="0,0,50,50">
+                <TextBlock FontSize="24" FontWeight="Bold">Data Table</TextBlock>
+                <controls:DataGrid x:Name="uiGrid"
+                                   CanUserSortColumns="true"
+                                   CanUserResizeColumns="true"
+                                   IsReadOnly="true"
+                                   Sorting="OnGridSort"
+                                   >
+
+                </controls:DataGrid>
+                <TextBlock FontSize="24" FontWeight="Bold">Scan Result</TextBlock>
+                <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
+                <TextBlock FontSize="24" FontWeight="Bold">CSV Data Table</TextBlock>
+                <TextBlock x:Name="uiCsv" IsTextSelectionEnabled="True" />
+
+            </StackPanel>
         </ScrollViewer>
         <Grid Grid.Row="2" >
             <Grid.ColumnDefinitions>
