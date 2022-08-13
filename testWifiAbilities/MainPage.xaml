@@ -36,6 +36,7 @@
 
             </StackPanel>
         </ScrollViewer>
+        <local:ProgressRadar Grid.Row="1" x:Name="uiRadar" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
         <Grid Grid.Row="2" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

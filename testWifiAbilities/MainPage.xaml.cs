@@ -35,7 +35,9 @@ namespace testWifiAbilities
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             uiGrid.ItemsSource = NetworkInformationList;
-            await DoScanAsync();
+            // TODO: no automatic scan on startup while I
+            // get the radar display working.
+            // await DoScanAsync();
         }
 
         private void Log(string text)
