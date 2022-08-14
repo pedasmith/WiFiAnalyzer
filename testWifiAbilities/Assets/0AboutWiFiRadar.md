@@ -2,10 +2,22 @@
 
 ## Project current status and todo
 
-* attach hotspots to the radar points. Hotspots should be marked with **?** for first scan, a W for a wireless point on second scan and C for the connected adapter
-* data is combo: found data and user data?
-* data is name+BSSID or full data when hover?
-* convert frequency to band
+* **DONE** attach hotspots to the radar points. Hotspots should be marked with **?** for first scan, a W for a wireless point on second scan and C for the connected adapter
+* **DONE** data is combo: found data and user data?
+* **DONE** data is name+BSSID or full data when hover?
+* **DONE** Show either table OR rings OR Scan Result text OR CSV OR ...
+* Click on towers to show more data
+* Show a central 'dot' (and faint ring radar lines?)(reticule)
+* Better ring size selection -- e.g. the jump from 1 to 2 is bad
+
+## Bugs
+
+* **DONE** Cant click radar->table but can click radar->log->table
+* **DONE** click on grid a column selected results in a crash
+
+## Project far backlog
+* Help system (standard Markdown style, of course)
+* convert frequency to ban+ width
 * Provide recommendation
 * add Map to map out physical strength of specific network
 

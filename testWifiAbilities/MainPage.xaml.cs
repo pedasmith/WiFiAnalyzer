@@ -34,10 +34,10 @@ namespace testWifiAbilities
 
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-            uiGrid.ItemsSource = NetworkInformationList;
+            uiGrid.ItemsSource = CurrentNetworkInformationList;
             // TODO: no automatic scan on startup while I
             // get the radar display working.
-            // await DoScanAsync();
+            await DoScanAsync();
         }
 
         private void Log(string text)
@@ -49,28 +49,65 @@ namespace testWifiAbilities
         {
             await DoScanAsync();
         }
-        ObservableCollection<WifiNetworkInformation> NetworkInformationList = new ObservableCollection<WifiNetworkInformation>();
+
+        public void ScanFailed(string text)
+        {
+            Log(text); //TODO: do something bigger with this?
+        }
+        ObservableCollection<WifiNetworkInformation> CurrentNetworkInformationList = new ObservableCollection<WifiNetworkInformation>();
+        String CurrentCsv = "";
+        List<Reflector> CurrentReflectorList = new List<Reflector>();
         private async Task DoScanAsync()
         {
             uiReport.Text = $"Scan started at {DateTime.Now}\n\n";
 
-            var list = await WiFiAdapter.FindAllAdaptersAsync();
-            var csv = NetworkToString.ToCsvHeaderWiFiNetworkReport() + "\n";
+            uiRadar.Initialize();
+            uiRadar.AddDummyReflectors();
+
             var dg = uiGrid;
-            NetworkInformationList.Clear(); 
+
+            var list = await WiFiAdapter.FindAllAdaptersAsync();
+            CurrentCsv = NetworkToString.ToCsvHeaderWiFiNetworkReport() + "\n";
+            CurrentNetworkInformationList.Clear(); 
             foreach (var item in list)
             {
                 Log (await NetworkToString.ToStringAsync("", item));
                 item.AvailableNetworksChanged += Item_AvailableNetworksChanged;
-                await item.ScanAsync();
+                try
+                {
+                    await item.ScanAsync(); // TODO: this can throw
+                }
+                catch (Exception e)
+                {
+                    ScanFailed(e.Message);
+                }
                 Log(NetworkToString.ToString("    ", item.NetworkReport));
-                csv += NetworkToString.ToCsvData(item.NetworkReport);
-                NetworkToString.Fill(NetworkInformationList, item.NetworkReport);
+                CurrentCsv += NetworkToString.ToCsvData(item.NetworkReport);
+                NetworkToString.Fill(CurrentNetworkInformationList, item.NetworkReport);
             }
-
+            //DoGridSort(uiGrid, NetworkInformationList, "SSID");
             Log ($"\nScan ended at {DateTime.Now}");
             Log("\n\n");
-            uiCsv.Text = csv;
+            uiCsv.Text = CurrentCsv;
+
+
+            // Add the locations
+            SetupCurrentReflectorList();
+            uiRadar.SetReflectors(CurrentReflectorList); // Update the reflectors to represent the new trust about WiFi
+            await uiRadar.StopAsync();
+        }
+
+        private void SetupCurrentReflectorList()
+        {
+            CurrentReflectorList = new List<Reflector>();
+            foreach (var ninfo in CurrentNetworkInformationList)
+            {
+                var refl = new Reflector();
+                refl.Icon = Reflector.Icon_AP;
+                refl.NetworkInformation = ninfo;
+                CurrentReflectorList.Add(refl);
+            }
+            CurrentReflectorList = CurrentReflectorList.OrderBy(value => value.NetworkInformation.Rssi).ToList();
         }
 
         private void Item_AvailableNetworksChanged(WiFiAdapter sender, object args)
@@ -82,25 +119,30 @@ namespace testWifiAbilities
         private void OnGridSort(object sender, DataGridColumnEventArgs e)
         {
             var dg = uiGrid;
-            var list = NetworkInformationList;
+            var list = CurrentNetworkInformationList;
             var name = e.Column.Header.ToString();
+            DoGridSort(dg, list, name, e);
+        }
+        private void DoGridSort(DataGrid dg, IList<WifiNetworkInformation> list, string name, DataGridColumnEventArgs e)
+        {
             var prop = list[0].GetType().GetProperty(name);
 
-            var direction = (e.Column.SortDirection == null || e.Column.SortDirection == DataGridSortDirection.Descending) ? DataGridSortDirection.Ascending : DataGridSortDirection.Descending;
-            var sorted = direction == DataGridSortDirection.Ascending 
-                ? NetworkInformationList.OrderBy(item => prop.GetValue(item, null)).ToList() 
-                : NetworkInformationList.OrderByDescending(item => prop.GetValue(item, null)).ToList();
+            var direction = (e.Column.SortDirection == null || e.Column.SortDirection == DataGridSortDirection.Descending) 
+                ? DataGridSortDirection.Ascending 
+                : DataGridSortDirection.Descending;
+            var sorted = direction == DataGridSortDirection.Ascending
+                ? CurrentNetworkInformationList.OrderBy(item => prop.GetValue(item, null)).ToList()
+                : CurrentNetworkInformationList.OrderByDescending(item => prop.GetValue(item, null)).ToList();
 
 
-            for (int i=0; i< sorted.Count(); i++)
+            for (int i = 0; i < sorted.Count(); i++)
             {
-                var oldIndex = NetworkInformationList.IndexOf(sorted[i]);
+                var oldIndex = CurrentNetworkInformationList.IndexOf(sorted[i]);
                 if (oldIndex != i)
                 {
-                    NetworkInformationList.Move(oldIndex, i);
+                    CurrentNetworkInformationList.Move(oldIndex, i);
                 }
             }
-
 
             foreach (var col in dg.Columns)
             {
@@ -108,7 +150,6 @@ namespace testWifiAbilities
                 else col.SortDirection = null;
             }
         }
-
         private void OnGridTapped(object sender, TappedRoutedEventArgs e)
         {
             ;
@@ -118,8 +159,10 @@ namespace testWifiAbilities
 
         private void OnGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            var list = NetworkInformationList;
+            var list = CurrentNetworkInformationList;
             var dg = uiGrid;
+            if (dg.CurrentColumn == null) return;
+
             var colName = dg.CurrentColumn.Header.ToString();
             var row = dg.SelectedItem as WifiNetworkInformation;
             var prop = row.GetType().GetProperty(colName);

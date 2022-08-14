@@ -5,7 +5,8 @@
     xmlns:local="using:testWifiAbilities"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls" 
+    xmlns:ctrls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -16,27 +17,36 @@
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         <TextBlock FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Wi-Fi Testing</TextBlock>
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-            <StackPanel Padding="0,0,50,50">
-                <TextBlock FontSize="24" FontWeight="Bold">Data Table</TextBlock>
-                <controls:DataGrid x:Name="uiGrid"
-                                   CanUserSortColumns="false"
+        <Pivot Grid.Row="1">
+            <PivotItem Header="RADAR">
+                <local:ProgressRadar x:Name="uiRadar" 
+                                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            </PivotItem>
+            <PivotItem Header="Table">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+                    <controls:DataGrid x:Name="uiGrid"
+                                   CanUserSortColumns="true"
                                    CanUserResizeColumns="true"
                                    IsReadOnly="true"
                                    ClipboardCopyMode="IncludeHeader"
                                    Sorting="OnGridSort" Tapped="OnGridTapped" DoubleTapped="OnGridDoubleTapped" CurrentCellChanged="OnGridCurrentCellChanged"
                                    
                                    >
+                    </controls:DataGrid>
+                </ScrollViewer>
+            </PivotItem>
+            <PivotItem Header="Log">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+                    <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
+                </ScrollViewer>
+            </PivotItem>
+            <PivotItem Header="CSV">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+                    <TextBlock x:Name="uiCsv" IsTextSelectionEnabled="True" />
+                </ScrollViewer>
+            </PivotItem>
+        </Pivot>
 
-                </controls:DataGrid>
-                <TextBlock FontSize="24" FontWeight="Bold">Scan Result</TextBlock>
-                <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
-                <TextBlock FontSize="24" FontWeight="Bold">CSV Data Table</TextBlock>
-                <TextBlock x:Name="uiCsv" IsTextSelectionEnabled="True" />
-
-            </StackPanel>
-        </ScrollViewer>
-        <local:ProgressRadar Grid.Row="1" x:Name="uiRadar" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
         <Grid Grid.Row="2" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

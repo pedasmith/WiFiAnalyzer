@@ -5,11 +5,14 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Networking.BackgroundTransfer;
 using Windows.UI;
+using Windows.UI.WebUI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -28,9 +31,8 @@ namespace testWifiAbilities
     /// </summary>
     public class Reflector
     {
-        public Reflector(Point center)
+        public Reflector()
         {
-            Center = center;
         }
         public Point Center;
         public string Icon { get; set; } = Icon_Dummy;
@@ -38,175 +40,30 @@ namespace testWifiAbilities
         public const string Icon_AP = ""; // MICROSOFT SYBOL APPBAR GLYPH NETWORKTOWER
         public const string Icon_ConnectedAP = ""; // WIFIHOTSPOT  ""; // MICROSOFT SYMBOL APPBAR GLYPH INTERNETSHARING
 
-        public string Name { get; set; }
+        public string Name { get { return NetworkInformation.SSID; } }
+        public WifiNetworkInformation NetworkInformation { get; set; }
 
+        public List<FrameworkElement> ToBeRemoved = new List<FrameworkElement>();
         public const int PreferredAPPerRing = 7;
         public const int PreferredUnknownRingCount = 1;
 
     }
 
     /// <summary>
-    /// The "Ring" which is going from the central point outwards
-    /// </summary>
-    class Ring
-    {
-        public Ellipse Circle;
-        public Point Center;
-        public double Radius;
-        public double OldRadius;
-        public Brush Stroke;
-        public double Speed;
-        public double MinSize;
-        public double MaxSize;
-        public double Thickness = 7.0;
-        public const double FinalThicknessMultiplier = 10.0;
-
-        public Ring(Canvas parent, Point center, Brush stroke, double speed, double minSize, double maxSize)
-        {
-            Circle = new Ellipse()
-            {
-                Stroke = stroke,
-                StrokeThickness = Thickness,
-            };
-            Center = center;
-            Radius = minSize;
-            Stroke = stroke;
-            Speed = speed;
-            MinSize = minSize;
-            MaxSize = maxSize;
-
-            parent.Children.Add(Circle);
-            Update(0.0);
-        }
-
-        public void Update(double delta)
-        {
-            OldRadius = Radius;
-            Radius += delta * Speed;
-            if (Radius > MaxSize)
-            {
-                Radius = MinSize;
-                OldRadius = Radius;
-            }
-            else if (Radius < MinSize)
-            {
-                Radius = MinSize;
-                OldRadius = Radius;
-            }
-            Circle.Width = Radius*2.0;
-            Circle.Height = Radius*2.0;
-            Canvas.SetLeft(Circle, Center.X - Radius);
-            Canvas.SetTop(Circle, Center.Y - Radius);
-
-            var pct = ((Radius - MinSize) / (MaxSize - MinSize));
-            Circle.Opacity = (1.0 - pct);
-            Circle.StrokeThickness = Thickness + FinalThicknessMultiplier * (Thickness * pct); // will go from Thickness to 2x
-        }
-    }
-
-
-    /// <summary>
-    /// The graphical "bounce back" from the found or dummy APs.
-    /// </summary>
-
-    class Reflection
-    {
-        public bool CycleComplete = false;
-        public Path Arc;
-        public ArcSegment ArcSegmentInternal;
-        PathFigure PathFigureInternal;
-        public Point Center;
-        public double Radius;
-        public Brush Stroke;
-        public double Speed;
-        public double MinSize;
-        public double MaxSize;
-        public double Thickness = 7.0;
-        public const double FinalThicknessMultiplier = 10.0;
-
-        public double AngleDegrees = -45.0; // TODO: need to calculate this
-        const double AngleWidth = .45;
-
-        private Point CreatePoint(double angleRadians, double radius)
-        {
-            return new Point(Math.Cos(angleRadians) * radius, Math.Sin(angleRadians) * radius);
-        }
-        public Reflection(Canvas parent, Point center, Point pointTo, Brush stroke, double speed, double minSize, double maxSize)
-        {
-            Radius = minSize;
-            AngleDegrees = Math.Atan2(pointTo.Y - center.Y, pointTo.X - center.X) * 180.0 / Math.PI;
-            var angleRadians = AngleDegrees * Math.PI / 180.0;
-            Center = center;
-            Stroke = stroke;
-            Speed = speed;
-            MinSize = minSize;
-            MaxSize = maxSize;
-
-            ArcSegmentInternal = new ArcSegment()
-            {
-                IsLargeArc = false,
-                SweepDirection = SweepDirection.Clockwise,
-                RotationAngle = AngleDegrees,
-                Size = new Size(minSize*2.0, minSize*2.0),
-                //Point = CreatePoint(angleRadians + AngleWidth, Radius),
-            };
-            PathFigureInternal = new PathFigure()
-            {
-                //StartPoint = CreatePoint(angleRadians - AngleWidth, Radius),
-            };
-            PathFigureInternal.Segments.Add(ArcSegmentInternal);
-            var pg = new PathGeometry();
-            pg.Figures.Add(PathFigureInternal);
-            Arc = new Path()
-            {
-                Stroke = stroke,
-                StrokeThickness = 2.0, //  Thickness,
-                Data = pg,
-            };
-
-
-
-            parent.Children.Add(Arc);
-            Canvas.SetLeft(Arc, Center.X - Radius);
-            Canvas.SetTop(Arc, Center.Y - Radius);
-            Update(0.0);
-        }
-
-        public void Update(double delta)
-        {
-            Radius += delta * Speed;
-            if (Radius > MaxSize)
-            {
-                Radius = MinSize;
-                CycleComplete = true;
-            }
-            else if (Radius < MinSize)
-            {
-                Radius = MinSize;
-            }
-
-            var angleRadians = AngleDegrees * Math.PI / 180.0;
-
-            ArcSegmentInternal.Size = new Size(Radius, Radius); // size is x and y radius
-            ArcSegmentInternal.Point = CreatePoint(angleRadians + AngleWidth, Radius);
-            PathFigureInternal.StartPoint = CreatePoint(angleRadians - AngleWidth, Radius);
-
-            var pct = ((Radius - MinSize) / (MaxSize - MinSize));
-            Arc.Opacity = (1.0 - pct);
-            Arc.StrokeThickness = 5; //TOOO:  Thickness + FinalThicknessMultiplier * (Thickness * pct); // will go from Thickness to 2x
-        }
-    }
-
-    /// <summary>
     /// Primary class for the Radar
+    /// Call
     /// </summary>
     public sealed partial class ProgressRadar : UserControl
     {
+        // UX constants
+        double RingSpeed = 75.0;
+        const int NRING = 5;
+
+
         Timer AnimationTimer;
         List<Reflector> Reflectors = new List<Reflector>();
-        List<Ring> CentralRings = new List<Ring>();
+        List<Ring> Rings = new List<Ring>();
         List<Reflection> Reflections = new List<Reflection>();
-        const int NRING = 5;
 
 
         public ProgressRadar()
@@ -214,6 +71,98 @@ namespace testWifiAbilities
             this.InitializeComponent();
             this.Loaded += ProgressRadar_Loaded;
         }
+        // State variables
+        bool reflectorsInit = false;
+        bool amStopping = false;
+        bool shouldAnimate = false;
+
+
+        /// <summary>
+        /// Initialize the radar and start it
+        /// </summary>
+        public void Initialize()
+        {
+            amStopping = false;
+            foreach (var reflection in Reflections)
+            {
+                uiCanvas.Children.Remove(reflection.Arc);
+            }
+            foreach (var reflector in Reflectors)
+            {
+                foreach (var fe in reflector.ToBeRemoved)
+                {
+                    uiCanvas.Children.Remove(fe);
+                }
+            }
+            foreach (var ring in Rings)
+            {
+                uiCanvas.Children.Remove(ring.Circle);
+            }
+
+
+            Reflectors.Clear();
+            Rings.Clear();
+            Reflections.Clear();
+            reflectorsInit = false; // Can't do this until we're initializing.
+            shouldAnimate = true;
+        }
+
+        public void SetReflectors(List<Reflector> reflectors)
+        {
+            // Remove the old (including the UX)
+            foreach (var reflector in Reflectors)
+            {
+                foreach (var fe in reflector.ToBeRemoved)
+                {
+                    uiCanvas.Children.Remove(fe);
+                }    
+            }
+            Reflectors.Clear();
+
+            // Add the new
+            foreach (var reflector in reflectors)
+            {
+                Reflectors.Add(reflector);
+            }
+            reflectorsInit = false; // next animation will get the UX set up
+        }
+
+        /// <summary>
+        /// Tells the radar to stop, waiting for all the rings to go away (up to 10 seconds)
+        /// </summary>
+        /// <returns></returns>
+        public async Task StopAsync()
+        {
+            var start = DateTime.UtcNow;
+            amStopping = true;
+            bool allStopped = false;
+            bool goneTooLong = false;
+            while (!allStopped && !goneTooLong)
+            {
+                allStopped = RingsAllStoped();
+                if (!allStopped)
+                {
+                    await Task.Delay(100); // stopping in a tenth of a second should be good enough.
+                }
+                var delta = DateTime.UtcNow.Subtract(start).TotalSeconds;
+                if (delta >= 10.0)
+                {
+                    goneTooLong = true;
+                }
+            }
+            shouldAnimate = false;
+        }
+
+        private bool RingsAllStoped()
+        {
+            bool checkAllStopped = true;
+            foreach (var ring in Rings)
+            {
+                if (!ring.CycleComplete) checkAllStopped = false;
+            }
+            return checkAllStopped;
+        }
+
 
         DateTime LastUpdateTime;
         private void ProgressRadar_Loaded(object sender, RoutedEventArgs e)
@@ -261,8 +210,78 @@ namespace testWifiAbilities
             }
         }
 
+        FontFamily IconFontFamily = new FontFamily("Segoe UI,Segoe MDL2 Assets");
+
+        private void InitializeReflectorText(Reflector reflector)
+        {
+            var bdr = new Border()
+            {
+                Background = new SolidColorBrush(Colors.White),
+                Padding = new Thickness(5),
+                Margin = new Thickness(5),
+            };
+            var sp = new StackPanel();
+
+            var tb = new TextBlock()
+            {
+                Text = reflector.Icon,
+                FontSize = 15,
+                FontFamily = IconFontFamily,
+                Foreground = new SolidColorBrush(Colors.Black),
+                TextAlignment = TextAlignment.Center,
+                HorizontalTextAlignment = TextAlignment.Center,
+                TextWrapping = TextWrapping.Wrap,
+                IsTextSelectionEnabled = true,
+            };
+            sp.Children.Add(tb);
+
+            if (reflector.NetworkInformation != null)
+            {
+                tb = new TextBlock()
+                {
+                    Text = reflector.NetworkInformation.SSID,
+                    FontSize = 15,
+                    FontFamily = IconFontFamily,
+                    Foreground = new SolidColorBrush(Colors.Black),
+                    TextAlignment = TextAlignment.Center,
+                    HorizontalTextAlignment = TextAlignment.Center
+                };
+                sp.Children.Add(tb);
+                /*
+                uiCanvas.Children.Add(tb);
+                Canvas.SetLeft(tb, reflector.Center.X - 10);
+                Canvas.SetTop(tb, reflector.Center.Y - 10);
+                uiCanvas.Children.Add(tb);
+                tb.Measure(new Size(300, 300));
+                Canvas.SetLeft(tb, reflector.Center.X - 10 - tb.DesiredSize.Width / 2.0);
+                Canvas.SetTop(tb, reflector.Center.Y - 10 + 20);
+                */
+
+            }
+
+            bdr.Child = sp;
+            uiCanvas.Children.Add(bdr);
+            bdr.Measure(new Size(300, 300));
+            Canvas.SetLeft(bdr, reflector.Center.X - bdr.DesiredSize.Width / 2.0);
+            Canvas.SetTop(bdr, reflector.Center.Y - 15);
+
+            reflector.ToBeRemoved.Add(bdr);
+        }
+
+
+        public void AddDummyReflectors()
+        {
+            for (int i = 0; i < Reflector.PreferredAPPerRing * Reflector.PreferredUnknownRingCount; i++)
+            {
+                Reflectors.Add(new Reflector());
+            }
+        }
+
+
         private void UpdateRadar()
         {
+            if (!shouldAnimate) return;
+
             var now = DateTime.UtcNow;
             var delta = now.Subtract(LastUpdateTime).TotalSeconds;
             LastUpdateTime = now;
@@ -272,65 +291,46 @@ namespace testWifiAbilities
 
             // Time to add a new ring?
             bool addRing = false;
-            addRing = CentralRings.Count == 0;
+            addRing = Rings.Count == 0;
             var ringAddRadius = maxRadius / (double)NRING;
-            if (CentralRings.Count > 0 && CentralRings.Count < NRING && CentralRings[CentralRings.Count - 1].Radius > ringAddRadius) addRing = true;
+            if (Rings.Count > 0 && Rings.Count < NRING && Rings[Rings.Count - 1].Radius > ringAddRadius) addRing = true;
+            if (amStopping) addRing = false;
 
-            if (Reflectors.Count == 0)
+            if (!reflectorsInit) // Add in dummy reflectors
             {
-                for (int i=0; i< Reflector.PreferredAPPerRing * Reflector.PreferredUnknownRingCount ; i++)
-                {
-                    Reflectors.Add(new Reflector(new Point(0,0))); // dummy location
-                }
+                reflectorsInit = true;
                 InitializeReflectorLocations();
-
-                // Add the reflectors to the canvas
-                var ff = new FontFamily("Segoe MDL2 Assets");
                 foreach (var reflector in Reflectors)
                 {
-                    var tb = new TextBlock() { Text = reflector.Icon, 
-                        FontSize = 15, FontFamily = ff,
-                        Foreground=new SolidColorBrush(Colors.Black),
-                        TextAlignment=TextAlignment.Center, HorizontalTextAlignment=TextAlignment.Center };
-                    uiCanvas.Children.Add(tb);
-                    Canvas.SetLeft(tb, reflector.Center.X - 10);
-                    Canvas.SetTop(tb, reflector.Center.Y - 10);
+                    InitializeReflectorText(reflector);
                 }
             }
-            var rnd = new Random(); // TODO: make this static.
 
+            var rnd = new Random(); // TODO: make this static.
 
             if (addRing)
             {
-                var brush = new RadialGradientBrush()
-                {
-                    MappingMode = BrushMappingMode.RelativeToBoundingBox,
-                    RadiusX = 0.5,
-                    RadiusY = 0.5,
-                    FallbackColor = Colors.Green,
-                };
-                brush.GradientStops.Add(new GradientStop() { Color = Colors.DarkBlue, Offset = 0.0 });
-                brush.GradientStops.Add(new GradientStop() { Color = Colors.Blue, Offset = 0.75 });
-                brush.GradientStops.Add(new GradientStop() { Color = Colors.LightBlue, Offset = 1.0 });
-
-                CentralRings.Add(new Ring(uiCanvas, center, brush, 30.0, 2.0, maxRadius));
+                Rings.Add(new Ring(uiCanvas, center, null, RingSpeed, 2.0, maxRadius)); // null=use the default brush;
             }
 
-            foreach (var ring in CentralRings)
+            foreach (var ring in Rings)
             {
-                ring.Update(delta);
+                ring.Update(delta, amStopping);
             }
 
             // Add new reflections as needed.
-            foreach (var ring in CentralRings)
+            if (!amStopping)
             {
-                foreach (var reflector in Reflectors)
+                foreach (var ring in Rings)
                 {
-                    var d = Distance(ring, reflector);
-                    if (d >= ring.OldRadius && d < ring.Radius)
+                    foreach (var reflector in Reflectors)
                     {
-                        var reflection = new Reflection(uiCanvas, reflector.Center, ring.Center, new SolidColorBrush(Colors.DarkGreen),30.0, 2.0, d);
-                        Reflections.Add(reflection);
+                        var d = Distance(ring, reflector);
+                        if (d >= ring.OldRadius && d < ring.Radius)
+                        {
+                            var reflection = new Reflection(uiCanvas, reflector.Center, ring.Center, new SolidColorBrush(Colors.DarkGreen), RingSpeed, 2.0, d);
+                            Reflections.Add(reflection);
+                        }
                     }
                 }
             }
