@@ -1,15 +1,28 @@
 ﻿# Project Overview
 
-Lots of people need to 
+## Project current status and todo
 
-## Apps in the Store
+* attach hotspots to the radar points. Hotspots should be marked with **?** for first scan, a W for a wireless point on second scan and C for the connected adapter
+* data is combo: found data and user data?
+* data is name+BSSID or full data when hover?
+* convert frequency to band
+* Provide recommendation
+* add Map to map out physical strength of specific network
+
+User actions
+* save scan
+* ignore AP
+* filter to AP
+
+
+
+## Microsoft Documentations
 
 See [Wi-Fi problems and your home layout](https://support.microsoft.com/en-us/windows/wi-fi-problems-and-your-home-layout-e1ed42e7-a3c5-d1be-2abb-e8fad00ad32a). It includes a list of search terms to try in the Windows Store:
 * Wi-Fi network analyzer app from Microsoft Store [link](https://support.microsoft.com/windows/64203838-4029-7bba-8231-00c9d8f4d971#Category=Windows_11)
-* Search for **Wi-Fi analyzer"
-1. [WiFi Analyzer](https://apps.microsoft.com/store/detail/wifi-analyzer/9NBLGGH33N0N?hl=en-us&gl=US)
-2. [WiFi Analyzer and Scanner](https://apps.microsoft.com/store/detail/wifi-analyzer-and-scanner/9NBLGGH5QK8Q?hl=en-us&gl=US)
+* Search for **Wi-Fi analyzer" (see below)
 * Use the **netsh wlan show wlanreport** command from an elevated command prompt
+* Walk around to find where your network is most powerful
 
 
 Info on building an app at [Build a Wi-Fi Scanner in the UWP](https://docs.microsoft.com/en-us/archive/msdn-magazine/2016/july/modern-apps-build-a-wi-fi-scanner-in-the-uwp)
