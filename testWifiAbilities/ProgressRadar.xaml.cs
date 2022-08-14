@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using Windows.Devices.Bluetooth.Advertisement;
@@ -22,6 +23,9 @@ using Windows.UI.Xaml.Shapes;
 
 namespace testWifiAbilities
 {
+    /// <summary>
+    /// The APs that have been discovered (or "dummy" APs)
+    /// </summary>
     public class Reflector
     {
         public Reflector(Point center)
@@ -29,9 +33,22 @@ namespace testWifiAbilities
             Center = center;
         }
         public Point Center;
+        public string Icon { get; set; } = Icon_Dummy;
+        public const string Icon_Dummy = ""; // RADIOBTNON
+        public const string Icon_AP = ""; // MICROSOFT SYBOL APPBAR GLYPH NETWORKTOWER
+        public const string Icon_ConnectedAP = ""; // WIFIHOTSPOT  ""; // MICROSOFT SYMBOL APPBAR GLYPH INTERNETSHARING
+
+        public string Name { get; set; }
+
+        public const int PreferredAPPerRing = 7;
+        public const int PreferredUnknownRingCount = 1;
+
     }
 
-    public class Ring
+    /// <summary>
+    /// The "Ring" which is going from the central point outwards
+    /// </summary>
+    class Ring
     {
         public Ellipse Circle;
         public Point Center;
@@ -86,7 +103,13 @@ namespace testWifiAbilities
             Circle.StrokeThickness = Thickness + FinalThicknessMultiplier * (Thickness * pct); // will go from Thickness to 2x
         }
     }
-    public class Reflection
+
+
+    /// <summary>
+    /// The graphical "bounce back" from the found or dummy APs.
+    /// </summary>
+
+    class Reflection
     {
         public bool CycleComplete = false;
         public Path Arc;
@@ -174,12 +197,9 @@ namespace testWifiAbilities
         }
     }
 
-    public class Radar
-    {
-        Point Center;
-    }
-
-
+    /// <summary>
+    /// Primary class for the Radar
+    /// </summary>
     public sealed partial class ProgressRadar : UserControl
     {
         Timer AnimationTimer;
@@ -187,6 +207,7 @@ namespace testWifiAbilities
         List<Ring> CentralRings = new List<Ring>();
         List<Reflection> Reflections = new List<Reflection>();
         const int NRING = 5;
+
 
         public ProgressRadar()
         {
@@ -213,6 +234,33 @@ namespace testWifiAbilities
             return dist;
         }
 
+        private void InitializeReflectorLocations()
+        {
+            var center = new Point(uiCanvas.ActualWidth / 2.0, uiCanvas.ActualHeight / 2.0); // Canvas doesn't have a size until it's displayed once.
+            const int NReflectorsPerRing = Reflector.PreferredAPPerRing;
+            double deltaAngle = Math.PI * 2.0 / NReflectorsPerRing;
+
+            var maxRings = Math.Ceiling ((double)Reflectors.Count / (double)NReflectorsPerRing);
+            var distanceDelta = Math.Min (center.X, center.Y) / ((double)maxRings + 0.2); // don't get too close to the edge
+
+            var distance = distanceDelta;
+            var offsetAngle = -Math.PI / 2; // at the top
+            for (int i=0, ringIndex=0; i<Reflectors.Count; i++)
+            {
+                var reflector = Reflectors[i];  
+                double angle = ringIndex * deltaAngle + offsetAngle;
+                reflector.Center = new Point(distance * Math.Cos(angle) + center.X, distance * Math.Sin(angle) + center.Y);
+
+                ringIndex++;
+                if (ringIndex >= NReflectorsPerRing)
+                {
+                    ringIndex = 0;
+                    offsetAngle -= deltaAngle / maxRings; // actually a constant depending on the number of reflectors.
+                    distance += distanceDelta;
+                }
+            }
+        }
+
         private void UpdateRadar()
         {
             var now = DateTime.UtcNow;
@@ -230,21 +278,23 @@ namespace testWifiAbilities
 
             if (Reflectors.Count == 0)
             {
-                const int NReflectors = 7; // TODO: pick a good number
-                double Distance = center.X / 4.0; // TODO: pick this better
-                double deltaAngle = Math.PI * 2.0 / NReflectors;
-                for (double angle = 0.0; angle < Math.PI * 2; angle += deltaAngle)
+                for (int i=0; i< Reflector.PreferredAPPerRing * Reflector.PreferredUnknownRingCount ; i++)
                 {
-                    Reflectors.Add(new Reflector(new Point(Distance * Math.Cos(angle) + center.X, Distance * Math.Sin(angle) + center.Y)));
+                    Reflectors.Add(new Reflector(new Point(0,0))); // dummy location
                 }
+                InitializeReflectorLocations();
 
-                for (double angle = -deltaAngle * 0.33; angle < Math.PI * 2; angle += deltaAngle)
+                // Add the reflectors to the canvas
+                var ff = new FontFamily("Segoe MDL2 Assets");
+                foreach (var reflector in Reflectors)
                 {
-                    Reflectors.Add(new Reflector(new Point(2.0 * Distance * Math.Cos(angle) + center.X, 2.0 * Distance * Math.Sin(angle) + center.Y)));
-                }
-                for (double angle = -deltaAngle * 0.66; angle < Math.PI * 2; angle += deltaAngle)
-                {
-                    Reflectors.Add(new Reflector(new Point(3.0 * Distance * Math.Cos(angle) + center.X, 3.0 * Distance * Math.Sin(angle) + center.Y)));
+                    var tb = new TextBlock() { Text = reflector.Icon, 
+                        FontSize = 15, FontFamily = ff,
+                        Foreground=new SolidColorBrush(Colors.Black),
+                        TextAlignment=TextAlignment.Center, HorizontalTextAlignment=TextAlignment.Center };
+                    uiCanvas.Children.Add(tb);
+                    Canvas.SetLeft(tb, reflector.Center.X - 10);
+                    Canvas.SetTop(tb, reflector.Center.Y - 10);
                 }
             }
             var rnd = new Random(); // TODO: make this static.
