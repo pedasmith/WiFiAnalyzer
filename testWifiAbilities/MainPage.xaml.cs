@@ -66,7 +66,7 @@ namespace testWifiAbilities
             var dg = uiGrid;
 
             var list = await WiFiAdapter.FindAllAdaptersAsync();
-            CurrentCsv = NetworkToString.ToCsvHeaderWiFiNetworkReport() + "\n";
+            CurrentCsv = NetworkToString.ToCsvHeader_WiFiNetworkReport() + "\n";
             CurrentNetworkInformationList.Clear(); 
             foreach (var item in list)
             {

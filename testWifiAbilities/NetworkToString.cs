@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.UI.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.ConversationalAgent;
 using Windows.Devices.WiFi;
 using Windows.Networking.Connectivity;
 
@@ -28,7 +30,7 @@ namespace testWifiAbilities
             return retval;
         }
 
-        public static string ToCsvHeaderAttributedNetworkUsage()
+        public static string ToCsvHeader_AttributedNetworkUsage()
         {
             return "AttributedNetworkUsageName,BytesReceived,BytesSent,AttributionId,";
         }
@@ -153,7 +155,7 @@ namespace testWifiAbilities
             data.AuthenticationType = value.NetworkAuthenticationType.ToString();
             data.EncryptionType = value.NetworkEncryptionType.ToString();
         }
-        public static string ToCsvHeaderNetworkSecuritySettings()
+        public static string ToCsvHeader_NetworkSecuritySettings()
         {
             return "AuthenticationType,EncryptionType,";
         }
@@ -163,6 +165,8 @@ namespace testWifiAbilities
             if (value == null) return $",,";
             return $"{value.NetworkAuthenticationType},{value.NetworkEncryptionType},";
         }
+
+
         public static async Task<string> ToStringAsync(string indent, WiFiAdapter value)
         {
             if (value == null) return $"{indent}WiFiAdapter does not exist\n";
@@ -196,13 +200,28 @@ namespace testWifiAbilities
             data.BeaconInterval = value.BeaconInterval.TotalSeconds;
             data.Frequency = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
             data.IsWiFiDirect = value.IsWiFiDirect ? "true" : "false";
-            data.NetworkKind = value.NetworkKind.ToString();
+            data.NetworkKind = Decode(value.NetworkKind);
             data.Rssi = value.NetworkRssiInDecibelMilliwatts;
-            data.PhyKind = value.PhyKind.ToString();
+            data.PhyKind = Decode(value.PhyKind);
             data.SignalBars = value.SignalBars;
             data.Uptime = value.Uptime;
 
             Fill(data, value.SecuritySettings);
+        }
+        public static string ToCsvHeader_WiFiAvailableNetwork()
+        {
+            return "WiFiSsid,Bssid,BeaconInterval,Frequency,IsWiFiDirect,NetworkKind,Rssi,PhyKind,SignalBars,Uptime,"
+                + ToCsvHeader_NetworkSecuritySettings();
+        }
+
+        public static string ToCsvData(WiFiAvailableNetwork value)
+        {
+            if (value == null) return $",,,,,,,,,,,,";
+            var ghz = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
+            var retval = $"\"{value.Ssid}\",{value.Bssid},{value.BeaconInterval.TotalSeconds},{ghz},{value.IsWiFiDirect},{value.NetworkKind},";
+            retval += $"{value.NetworkRssiInDecibelMilliwatts},{value.PhyKind},{value.SignalBars},{value.Uptime},";
+            retval += ToCsvData(value.SecuritySettings);
+            return retval;
         }
 
         public static string ToString(string indent, WifiNetworkInformation value)
@@ -225,20 +244,16 @@ namespace testWifiAbilities
             return retval;
         }
 
-        public static string ToCsvHeaderWiFiAvailableNetwork()
-        {
-            return "WiFiSsid,Bssid,BeaconInterval,Frequency,IsWiFiDirect,NetworkKind,Rssi,PhyKind,SignalBars,Uptime,"
-                + ToCsvHeaderNetworkSecuritySettings();
-        }
 
-        public static string ToCsvData(WiFiAvailableNetwork value)
+        public static string Decode(WiFiNetworkKind value)
         {
-            if (value == null) return $",,,,,,,,,,,,";
-            var ghz = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
-            var retval = $"\"{value.Ssid}\",{value.Bssid},{value.BeaconInterval.TotalSeconds},{ghz},{value.IsWiFiDirect},{value.NetworkKind},";
-            retval += $"{value.NetworkRssiInDecibelMilliwatts},{value.PhyKind},{value.SignalBars},{value.Uptime},";
-            retval += ToCsvData(value.SecuritySettings);
-            return retval;
+            switch (value)
+            {
+                case WiFiNetworkKind.Infrastructure: return "Wi-Fi"; // this is the normal case.
+                case WiFiNetworkKind.Adhoc: return "Ad-hoc";
+                case WiFiNetworkKind.Any: return "Wi-Fi or Ad-hoc";
+            }
+            return value.ToString(); // catches anything we miss
         }
 
         public static string ToString(string indent, WiFiNetworkReport value)
@@ -253,9 +268,9 @@ namespace testWifiAbilities
             return retval;
         }
 
-        public static string ToCsvHeaderWiFiNetworkReport()
+        public static string ToCsvHeader_WiFiNetworkReport()
         {
-            return ToCsvHeaderWiFiAvailableNetwork();
+            return ToCsvHeader_WiFiAvailableNetwork();
         }
         public static string ToCsvData(WiFiNetworkReport value)
         {
@@ -278,6 +293,25 @@ namespace testWifiAbilities
             }
         }
 
+        public static string Decode(WiFiPhyKind value)
+        {
+            switch (value)
+            {
+                case WiFiPhyKind.Fhss: return "Wi-Fi (802.11b) Frequency-hopping + spread spectrum (FHSS)";
+                case WiFiPhyKind.Dsss: return "Wi-Fi (802.11b) Direct sequence + spread spectrum (DSSS)";
+                case WiFiPhyKind.IRBaseband: return "Infrared";
+                case WiFiPhyKind.Ofdm: return "Wi-Fi 2 (802.11a) Orthogonal frequency division multiplex (OFDM)";
+                case WiFiPhyKind.Hrdsss: return "Wi-Fi (802.11b) High-rated DSSS";
+                case WiFiPhyKind.Erp: return "WiFi 3 (802.11g) Extended Rate (ERP)";
+                case WiFiPhyKind.HT: return "Wi-Fi 4 (802.11n) High Throughput (HT)";
+                case WiFiPhyKind.Vht: return "Wi-Fi 5 (802.11ac) Very High Throughput (VHT)";
+                case WiFiPhyKind.Dmg: return "WiGig (802.11ad) Directional multi-gigabit (DMG)";
+                case WiFiPhyKind.HE: return "Wi-Fi 6 (802.11ax) High-Efficiency Wireless (HEW)";
+
+            }
+            return value.ToString();
+        }
+
 
         public static string ToString(string indent, WlanConnectionProfileDetails value)
         {
@@ -285,22 +319,5 @@ namespace testWifiAbilities
             var retval = $"{indent}WlanConnectionProfile SSID={value.GetConnectedSsid()}\n";
             return retval;
         }
-        public static string ZZZToString(string indent, ConnectionProfile value)
-        {
-            var retval = $"{indent}Connection Profile {value.ProfileName}\n";
-            indent += Tab;
-            retval += $"{indent}={value}\n";
-            retval += $"{indent}={value}\n";
-            retval += $"{indent}={value}\n";
-            retval += $"{indent}={value}\n";
-            retval += $"{indent}={value}\n";
-            retval += $"{indent}={value}\n";
-            retval += $"{indent}={value}\n";
-            retval += $"{indent}={value}\n";
-            retval += $"{indent}={value}\n";
-            return retval;
-        }
-
-
     }
 }
