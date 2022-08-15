@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reflection.Metadata;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
@@ -71,6 +72,7 @@ namespace testWifiAbilities
         List<Ring> Rings = new List<Ring>();
         List<Reflection> Reflections = new List<Reflection>();
 
+        Brush ReticuleBrush = new SolidColorBrush(Colors.LightBlue);
 
         public ProgressRadar()
         {
@@ -100,6 +102,10 @@ namespace testWifiAbilities
                     uiCanvas.Children.Remove(fe);
                 }
             }
+            foreach (var fe in ReticuleElements)
+            {
+                uiCanvas.Children.Remove(fe);
+            }
             foreach (var ring in Rings)
             {
                 uiCanvas.Children.Remove(ring.Circle);
@@ -109,6 +115,7 @@ namespace testWifiAbilities
             Reflectors.Clear();
             Rings.Clear();
             Reflections.Clear();
+            ReticuleElements.Clear();
             reflectorsInit = false; // Can't do this until we're initializing.
             shouldAnimate = true;
         }
@@ -181,6 +188,10 @@ namespace testWifiAbilities
                 });
             }, null, 0, 20); // every 100 milliseconds
         }
+
+
+
+
         private static double Distance(Ring ring, Reflector reflector)
         {
             var dx = ring.Center.X - reflector.Center.X;
@@ -188,6 +199,9 @@ namespace testWifiAbilities
             var dist = Math.Sqrt(dx * dx + dy * dy);
             return dist;
         }
+
+        double NDrawnRings = 0;
+        double DrawnRingRadius = 0.0;
 
         private void InitializeReflectorLocations()
         {
@@ -197,6 +211,9 @@ namespace testWifiAbilities
 
             var maxRings = Math.Ceiling ((double)Reflectors.Count / (double)NReflectorsPerRing);
             var distanceDelta = Math.Min (center.X, center.Y) / ((double)maxRings + 0.2); // don't get too close to the edge
+
+            NDrawnRings = maxRings;
+            DrawnRingRadius = distanceDelta;
 
             var distance = distanceDelta;
             var offsetAngle = -Math.PI / 2; // at the top
@@ -278,6 +295,72 @@ namespace testWifiAbilities
             reflector.ToBeRemoved.Add(bdr);
         }
 
+        DoubleCollection ReticuleStrokeDashArray = new DoubleCollection() { 2, 6 };
+
+        /// <summary>
+        /// Call this after calling the InitializeReflectorLocations (it uses the NDrawnRings etc)
+        /// </summary>
+        /// <param name="uiCanvas"></param>
+        private void DrawReticule(Canvas uiCanvas)
+        {
+            double DotRadius = 10;
+
+            double CX = (uiCanvas.ActualWidth / 2.0);
+            double CY = (uiCanvas.ActualHeight / 2.0);
+
+            var dot = new Ellipse()
+            {
+                Stroke = ReticuleBrush,
+                Fill = ReticuleBrush,
+                Width = DotRadius*2.0,
+                Height = DotRadius*2.0,
+            };
+            uiCanvas.Children.Add(dot);
+            Canvas.SetLeft(dot, CX - DotRadius);
+            Canvas.SetTop(dot, CY - DotRadius);
+            ReticuleElements.Add(dot);
+
+            // RADAR rings
+            for (int i=0; i<NDrawnRings; i++)
+            {
+                var radius = (i + 1) * DrawnRingRadius;
+                var ring = new Ellipse()
+                {
+                    Stroke = ReticuleBrush,
+                    Width = radius*2.0,
+                    Height = radius*2.0,
+                    StrokeDashArray = new DoubleCollection() { 2, 6 },
+                    StrokeThickness = 2,
+                };
+                uiCanvas.Children.Add(ring);
+                Canvas.SetLeft(ring, CX - radius);
+                Canvas.SetTop(ring, CY - radius);
+                ReticuleElements.Add(ring);
+            }
+
+            const int NReflectorsPerRing = Reflector.PreferredAPPerRing;
+            double length = NDrawnRings * DrawnRingRadius * 1.2; // Spills out past the last ring
+            double angleDelta = Math.PI * 2.0 / NReflectorsPerRing;
+            var offsetAngle = -Math.PI / 2; // at the top
+
+            for (double angle = 0.0; angle <= Math.PI * 2; angle += angleDelta)
+            {
+                var line = new Line()
+                {
+                    Stroke = ReticuleBrush,
+                    StrokeDashArray = new DoubleCollection() { 2, 6 },
+                    StrokeThickness = 2,
+                    X1 = CX, 
+                    Y1 = CY,
+                    X2 = CX + length * Math.Cos(angle + offsetAngle),
+                    Y2 = CY + length * Math.Sin(angle + offsetAngle),
+                };
+                uiCanvas.Children.Add(line);
+                ReticuleElements.Add(line);
+            }
+        }
+        List<FrameworkElement> ReticuleElements = new List<FrameworkElement>();
+
         private void Bdr_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var reflector = (sender as Border)?.Tag as Reflector;
@@ -327,6 +410,7 @@ namespace testWifiAbilities
                 {
                     InitializeReflectorText(reflector);
                 }
+                DrawReticule(uiCanvas);
             }
 
             var rnd = new Random(); // TODO: make this static.

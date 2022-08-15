@@ -6,9 +6,10 @@
 * **DONE** data is combo: found data and user data?
 * **DONE** data is name+BSSID or full data when hover?
 * **DONE** Show either table OR rings OR Scan Result text OR CSV OR ...
-* Click on towers to show more data
-* Show a central 'dot' (and faint ring radar lines?)(reticule)
-* Better ring size selection -- e.g. the jump from 1 to 2 is bad
+* **DONE** Click on towers to show more data (and set the Z height)
+* **DONE** Show a central 'dot' (and faint ring radar lines?)(reticule)
+* **DONE** Better ring size selection -- e.g. the jump from 1 to 2 is bad
+* Decode e.g.     Kind=HT Encryption=Ccmp Authentication=RsnaPsk
 
 ## Bugs
 
@@ -19,12 +20,15 @@
 * Help system (standard Markdown style, of course)
 * convert frequency to ban+ width
 * Provide recommendation
-* add Map to map out physical strength of specific network
+* add 2D location Map to map out physical strength of specific network
+* Scan multiple times
 
 User actions
 * save scan
 * ignore AP
 * filter to AP
+* give names to APs
+* collapse multiple APs with same SSID? (e.g., ToomreHouse)
 
 
 
