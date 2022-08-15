@@ -24,7 +24,7 @@ namespace testWifiAbilities
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class MainPage : Page
+    public sealed partial class MainPage : Page, IDisplayWifiNetworkInformation
     {
         public MainPage()
         {
@@ -35,8 +35,7 @@ namespace testWifiAbilities
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
             uiGrid.ItemsSource = CurrentNetworkInformationList;
-            // TODO: no automatic scan on startup while I
-            // get the radar display working.
+            uiRadar.DisplayWifiNetworkInformation = this;
             await DoScanAsync();
         }
 
@@ -205,6 +204,18 @@ namespace testWifiAbilities
         private void OnGridCurrentCellChanged(object sender, EventArgs e)
         {
             ;
+        }
+
+        public void Display(WifiNetworkInformation value)
+        {
+            var text = NetworkToString.ToString("", value);
+            uiRadarDetailsText.Text = text + uiRadarDetailsText.Text;
+            uiRadarDetails.Visibility = Visibility.Visible;
+        }
+
+        private void OnHideRadarDetails(object sender, TappedRoutedEventArgs e)
+        {
+            uiRadarDetails.Visibility = Visibility.Collapsed;
         }
     }
 }

@@ -45,7 +45,7 @@ namespace testWifiAbilities
             }
             return defaultBrush;
         }
-
+        const int RingZIndex = -3;
         public Ring(Canvas parent, Point center, Brush stroke, double speed, double minSize, double maxSize)
         {
             if (stroke == null) stroke = GetDefaultBrush();
@@ -62,6 +62,7 @@ namespace testWifiAbilities
             MaxSize = maxSize;
 
             parent.Children.Add(Circle);
+            Canvas.SetZIndex(Circle, RingZIndex);
             Update(0.0, false);
         }
 
@@ -124,6 +125,8 @@ namespace testWifiAbilities
         public double AngleDegrees = -45.0; // TODO: need to calculate this
         const double AngleWidth = .45;
 
+        const int ArcZIndex = -2;
+
         private Point CreatePoint(double angleRadians, double radius)
         {
             return new Point(Math.Cos(angleRadians) * radius, Math.Sin(angleRadians) * radius);
@@ -166,6 +169,7 @@ namespace testWifiAbilities
             parent.Children.Add(Arc);
             Canvas.SetLeft(Arc, Center.X - Radius);
             Canvas.SetTop(Arc, Center.Y - Radius);
+            Canvas.SetZIndex(Arc, ArcZIndex);
             Update(0.0);
         }
 

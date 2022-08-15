@@ -10,6 +10,9 @@ namespace testWifiAbilities
 {
     static class NetworkToString
     {
+        /// <summary>
+        /// Amount to indent each time indent is indented
+        /// </summary>
         static string Tab = "    ";
 
         public static string ToString(string indent, AttributedNetworkUsage value)
@@ -202,6 +205,26 @@ namespace testWifiAbilities
             Fill(data, value.SecuritySettings);
         }
 
+        public static string ToString(string indent, WifiNetworkInformation value)
+        {
+            var retval = "";
+            retval += $"{indent}Name={value.SSID}\n";
+            indent += Tab;
+            retval += $"{indent}BSSID={value.Bssid}\n";
+            retval += $"{indent}Frequency={value.Frequency} GHz\n";
+            retval += $"{indent}RSSI={value.Rssi}\n";
+            retval += $"{indent}Strength={value.SignalBars}\n";
+            retval += $"{indent}Uptime={value.Uptime.ToString("dd\\ \\d\\a\\y\\s\\ hh\\:mm")}\n";
+            retval += $"{indent}Kind={value.PhyKind}\n";
+            retval += $"{indent}Encryption={value.EncryptionType}\n";
+            retval += $"{indent}Authentication={value.AuthenticationType}\n";
+            retval += $"{indent}BeaconInterval={value.BeaconInterval} seconds\n";
+            retval += $"{indent}WifiDirect={value.IsWiFiDirect}\n";
+            retval += $"{indent}NetworkKind={value.NetworkKind}\n";
+            retval += "\n\n\n";
+            return retval;
+        }
+
         public static string ToCsvHeaderWiFiAvailableNetwork()
         {
             return "WiFiSsid,Bssid,BeaconInterval,Frequency,IsWiFiDirect,NetworkKind,Rssi,PhyKind,SignalBars,Uptime,"
@@ -254,6 +277,8 @@ namespace testWifiAbilities
                 list.Add(data);
             }
         }
+
+
         public static string ToString(string indent, WlanConnectionProfileDetails value)
         {
             if (value == null) return "";

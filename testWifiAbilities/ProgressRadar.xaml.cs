@@ -10,6 +10,7 @@ using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Devices.Radios;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Foundation.Diagnostics;
 using Windows.Networking.BackgroundTransfer;
 using Windows.UI;
 using Windows.UI.WebUI;
@@ -26,6 +27,10 @@ using Windows.UI.Xaml.Shapes;
 
 namespace testWifiAbilities
 {
+    public interface IDisplayWifiNetworkInformation
+    {
+        void Display(WifiNetworkInformation value);
+    }
     /// <summary>
     /// The APs that have been discovered (or "dummy" APs)
     /// </summary>
@@ -59,6 +64,7 @@ namespace testWifiAbilities
         double RingSpeed = 75.0;
         const int NRING = 5;
 
+        public IDisplayWifiNetworkInformation DisplayWifiNetworkInformation = null;
 
         Timer AnimationTimer;
         List<Reflector> Reflectors = new List<Reflector>();
@@ -211,7 +217,7 @@ namespace testWifiAbilities
         }
 
         FontFamily IconFontFamily = new FontFamily("Segoe UI,Segoe MDL2 Assets");
-
+        const int TextZIndex = 5;
         private void InitializeReflectorText(Reflector reflector)
         {
             var bdr = new Border()
@@ -219,7 +225,10 @@ namespace testWifiAbilities
                 Background = new SolidColorBrush(Colors.White),
                 Padding = new Thickness(5),
                 Margin = new Thickness(5),
+                IsTapEnabled = true,
+                Tag = reflector,
             };
+            bdr.Tapped += Bdr_Tapped;
             var sp = new StackPanel();
 
             var tb = new TextBlock()
@@ -264,10 +273,24 @@ namespace testWifiAbilities
             bdr.Measure(new Size(300, 300));
             Canvas.SetLeft(bdr, reflector.Center.X - bdr.DesiredSize.Width / 2.0);
             Canvas.SetTop(bdr, reflector.Center.Y - 15);
+            Canvas.SetZIndex(bdr, TextZIndex);
 
             reflector.ToBeRemoved.Add(bdr);
         }
 
+        private void Bdr_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            var reflector = (sender as Border)?.Tag as Reflector;
+            var ni = reflector?.NetworkInformation;
+            if (ni == null) return;
+            DisplayWifiNetworkInformation?.Display(ni);
+            Log($"Click: SSID={ni.SSID} bssid={ni.Bssid} RSSI={ni.Rssi}");
+        }
+
+        public void Log(string text)
+        {
+            System.Diagnostics.Debug.WriteLine(text); //TODO: remove
+        }
 
         public void AddDummyReflectors()
         {
