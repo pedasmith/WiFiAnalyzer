@@ -239,7 +239,6 @@ namespace testWifiAbilities
         {
             var bdr = new Border()
             {
-                Background = new SolidColorBrush(Colors.White),
                 Padding = new Thickness(5),
                 Margin = new Thickness(5),
                 IsTapEnabled = true,
@@ -257,9 +256,15 @@ namespace testWifiAbilities
                 TextAlignment = TextAlignment.Center,
                 HorizontalTextAlignment = TextAlignment.Center,
                 TextWrapping = TextWrapping.Wrap,
-                IsTextSelectionEnabled = true,
             };
-            sp.Children.Add(tb);
+            var bdrIcon = new Border()
+            {
+                IsTapEnabled = true,
+                Tag = reflector,
+            };
+            bdrIcon.Tapped += Bdr_Tapped;
+            bdrIcon.Child = tb;
+            sp.Children.Add(bdrIcon);
 
             if (reflector.NetworkInformation != null)
             {
@@ -272,7 +277,15 @@ namespace testWifiAbilities
                     TextAlignment = TextAlignment.Center,
                     HorizontalTextAlignment = TextAlignment.Center
                 };
-                sp.Children.Add(tb);
+                var bdrName = new Border()
+                {
+                    Background = new SolidColorBrush(Colors.White),
+                    IsTapEnabled = true,
+                    Tag = reflector,
+                };
+                bdrName.Tapped += Bdr_Tapped;
+                bdrName.Child = tb;
+                sp.Children.Add(bdrName);
                 /*
                 uiCanvas.Children.Add(tb);
                 Canvas.SetLeft(tb, reflector.Center.X - 10);

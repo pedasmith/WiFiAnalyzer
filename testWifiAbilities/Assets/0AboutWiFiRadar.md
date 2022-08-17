@@ -8,10 +8,18 @@
 * **DONE** Show either table OR rings OR Scan Result text OR CSV OR ...
 * **DONE** Click on towers to show more data (and set the Z height)
 * **DONE** Show a central 'dot' (and faint ring radar lines?)(reticule)
-* **DONE** Better ring size selection -- e.g. the jump from 1 to 2 is bad
 * Decode e.g.     Kind=HT Encryption=Ccmp Authentication=RsnaPsk
+* Create a way to clear the Details areas
+* Better ring size selection -- e.g. the jump from 1 to 2 is bad
+* allow more items for farther-away rings? Looks like a sea star
 
 ## Bugs
+* rename master to main
+* click on table is slow for no good reason?
+* doesn't clear old reticule away
+* handle resize
+* **DONE** background on radio towers looks ugly. Make it jagged? border-in-border?
+* **DONE** why can I select radio towers?
 
 * **DONE** Cant click radar->table but can click radar->log->table
 * **DONE** click on grid a column selected results in a crash

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.ConversationalAgent;
 using Windows.Devices.WiFi;
 using Windows.Networking.Connectivity;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace testWifiAbilities
 {
@@ -128,6 +129,49 @@ namespace testWifiAbilities
             retval += ToString(indent, value.NetworkItem);
             return retval;
         }
+
+        public static string Decode(NetworkAuthenticationType value)
+        {
+            switch(value)
+            {
+                case NetworkAuthenticationType.None: return "None";
+                case NetworkAuthenticationType.Unknown: return "Unknown";
+                case NetworkAuthenticationType.Open80211: return "Open 802.11(Open80211)";
+                case NetworkAuthenticationType.SharedKey80211: return "WEP Password(SharedKey80211)";
+                case NetworkAuthenticationType.Wpa: return "WPA Enterprise (Wpa)";
+                case NetworkAuthenticationType.WpaPsk: return "WPA Password (WpaPsk)";
+                case NetworkAuthenticationType.WpaNone: return "WPA None(WpaNone)";
+                case NetworkAuthenticationType.Rsna: return "Enterprise (Rsna)";
+                case NetworkAuthenticationType.RsnaPsk: return "Password (RsnaPsk)";
+                case NetworkAuthenticationType.Ihv: return "Custom (Ihv)";
+                // case NetworkAuthenticationType.Wpa3: return "WPA3 (Wpa3)"; TODO: why is this enum 10 when the next is 10 also?
+                case NetworkAuthenticationType.Wpa3Enterprise192Bits: return "WPA3 Enterprise 192 (Wpa3Enterprise192Bits)";
+                case NetworkAuthenticationType.Wpa3Sae: return "WPA3 Consumer (Wpa3Sae)";
+                case NetworkAuthenticationType.Owe: return "Hotspot Opportunistic Wireless Encryption (Owe)";
+                case NetworkAuthenticationType.Wpa3Enterprise: return "WPA3 Enterprise (Wpa3Enterprise)";
+            }
+            return value.ToString();
+        }
+        // NetworkEncryptionType
+        public static string Decode(NetworkEncryptionType value)
+        {
+            switch (value)
+            {
+                case NetworkEncryptionType.None: return "None";
+                case NetworkEncryptionType.Unknown: return "Unknown";
+                case NetworkEncryptionType.Wep: return "WEP";
+                case NetworkEncryptionType.Wep40: return "WEP 40-bit (Wep40)";
+                case NetworkEncryptionType.Wep104: return "WEP 104-bit (Wep104)";
+                case NetworkEncryptionType.Tkip: return "TKIP";
+                case NetworkEncryptionType.Ccmp: return "AES 802.11i (Ccmp)";
+                case NetworkEncryptionType.WpaUseGroup: return "WPA (WpaUseGroup)";
+                case NetworkEncryptionType.RsnUseGroup: return "802.11i RSN (RsnUseGroup)";
+                case NetworkEncryptionType.Ihv: return "Custom (Ihv)";
+                case NetworkEncryptionType.Gcmp: return "GCMP (Gcmp)";
+                case NetworkEncryptionType.Gcmp256: return "GCMP 256-bit (Gcmp256)";
+            }
+            return value.ToString();
+        }
         public static string ToString(string indent, NetworkItem value)
         {
             if (value == null) return $"{indent}NetworkItem does not exist\n";
@@ -152,8 +196,8 @@ namespace testWifiAbilities
         }
         public static void Fill(WifiNetworkInformation data, NetworkSecuritySettings value)
         {
-            data.AuthenticationType = value.NetworkAuthenticationType.ToString();
-            data.EncryptionType = value.NetworkEncryptionType.ToString();
+            data.AuthenticationType = Decode (value.NetworkAuthenticationType);
+            data.EncryptionType = Decode (value.NetworkEncryptionType);
         }
         public static string ToCsvHeader_NetworkSecuritySettings()
         {

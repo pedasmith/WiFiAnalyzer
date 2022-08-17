@@ -44,7 +44,7 @@
                 </Grid>
             </PivotItem>
             <PivotItem Header="Table">
-                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+                <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
                     <controls:DataGrid x:Name="uiGrid"
                                     CanUserSortColumns="true"
                                     CanUserResizeColumns="true"
