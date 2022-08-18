@@ -75,6 +75,7 @@ namespace testWifiAbilities
                 try
                 {
                     await item.ScanAsync(); // TODO: this can throw
+                    await Task.Delay(10000); // Wait 10 msec to grab a screen shot
                 }
                 catch (Exception e)
                 {
@@ -216,6 +217,11 @@ namespace testWifiAbilities
         private void OnHideRadarDetails(object sender, TappedRoutedEventArgs e)
         {
             uiRadarDetails.Visibility = Visibility.Collapsed;
+        }
+
+        private void OnClearRadarDetails(object sender, TappedRoutedEventArgs e)
+        {
+            uiRadarDetailsText.Text = "";
         }
     }
 }

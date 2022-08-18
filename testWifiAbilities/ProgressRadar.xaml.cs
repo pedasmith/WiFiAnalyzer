@@ -316,6 +316,14 @@ namespace testWifiAbilities
         /// <param name="uiCanvas"></param>
         private void DrawReticule(Canvas uiCanvas)
         {
+            // Clear the old away.
+            foreach (var fe in ReticuleElements)
+            {
+                uiCanvas.Children.Remove(fe);
+            }
+            ReticuleElements.Clear();
+
+
             double DotRadius = 10;
 
             double CX = (uiCanvas.ActualWidth / 2.0);

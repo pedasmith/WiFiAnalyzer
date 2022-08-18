@@ -28,15 +28,23 @@
                                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
                     <Border x:Name="uiRadarDetails" Visibility="Collapsed" Grid.Column="1" 
                             BorderBrush="Black" BorderThickness="1" Padding="5"
-                            VerticalAlignment="Stretch"
+                            Background="BlanchedAlmond"
+                            VerticalAlignment="Stretch" 
                             >
-                        <Grid>
+                        <Grid MinWidth="425">
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
                                 <RowDefinition Height="auto" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
                             <TextBlock FontWeight="Bold" FontSize="24" Tapped="OnHideRadarDetails">Details</TextBlock>
-                            <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+                            <CommandBar Grid.Row="1" OverflowButtonVisibility="Collapsed" >
+                                <CommandBar.PrimaryCommands>
+                                    <AppBarButton Content="Hide" Tapped="OnHideRadarDetails" />
+                                    <AppBarButton Content="Clear" Tapped="OnClearRadarDetails" />
+                                </CommandBar.PrimaryCommands>
+                            </CommandBar>
+                            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                                 <TextBlock x:Name="uiRadarDetailsText" IsTextSelectionEnabled="True" TextWrapping="Wrap"/>
                             </ScrollViewer>
                         </Grid>
