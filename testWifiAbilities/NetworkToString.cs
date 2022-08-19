@@ -92,11 +92,6 @@ namespace testWifiAbilities
             }
             retval += $"{indent}Names={namestr}\n";
             retval += $"{indent}SignalBars={value.GetSignalBars()}\n";
-            retval += $"{indent}DomainConnectivityLevel={value.GetDomainConnectivityLevel()}\n";
-            retval += $"{indent}DomainConnectivityLevel={value.GetDomainConnectivityLevel()}\n";
-
-            retval += $"{indent}NetworkConnectivityLevel={value.GetNetworkConnectivityLevel()}\n";
-            retval += $"{indent}SignalBars={value.GetSignalBars()}\n";
 
             if (value.NetworkAdapter != null)
             {

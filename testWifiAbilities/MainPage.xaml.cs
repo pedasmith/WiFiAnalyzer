@@ -37,6 +37,9 @@ namespace testWifiAbilities
             uiGrid.ItemsSource = CurrentNetworkInformationList;
             uiRadar.DisplayWifiNetworkInformation = this;
             await DoScanAsync();
+            // TODO: no auto-scan while the radar is being worked on: await DoScanAsync();
+            //uiRadar.Initialize(); //TODO: remove these; they are just for show
+            //uiRadar.AddDummyReflectors();
         }
 
         private void Log(string text)
@@ -74,12 +77,11 @@ namespace testWifiAbilities
                 item.AvailableNetworksChanged += Item_AvailableNetworksChanged;
                 try
                 {
-                    await item.ScanAsync(); // TODO: this can throw
-                    await Task.Delay(10000); // Wait 10 msec to grab a screen shot
+                    await item.ScanAsync();
                 }
                 catch (Exception e)
                 {
-                    ScanFailed(e.Message);
+                    ScanFailed(e.Message); // TODO: do a message somehow?
                 }
                 Log(NetworkToString.ToString("    ", item.NetworkReport));
                 CurrentCsv += NetworkToString.ToCsvData(item.NetworkReport);
@@ -93,7 +95,7 @@ namespace testWifiAbilities
 
             // Add the locations
             SetupCurrentReflectorList();
-            uiRadar.SetReflectors(CurrentReflectorList); // Update the reflectors to represent the new trust about WiFi
+            uiRadar.SetReflectors(CurrentReflectorList); // Update the reflectors to represent the new truth about WiFi
             await uiRadar.StopAsync();
         }
 

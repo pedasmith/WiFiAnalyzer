@@ -82,7 +82,7 @@ namespace testWifiAbilities
                 {
                     Radius = MinSize;
                     OldRadius = Radius;
-                    Circle.Visibility = Visibility.Collapsed;
+                    //Circle.Visibility = Visibility.Collapsed;
                 }
             }
             else if (Radius < MinSize)
@@ -99,6 +99,11 @@ namespace testWifiAbilities
             var pct = ((Radius - MinSize) / (MaxSize - MinSize));
             Circle.Opacity = (1.0 - pct);
             Circle.StrokeThickness = Thickness + FinalThicknessMultiplier * (Thickness * pct); // will go from Thickness to 2x
+        }
+
+        public override string ToString()
+        {
+            return $"Ring: Radius={this.Radius} cycleComplete={CycleComplete} Max={this.MaxSize} Min={MinSize}";
         }
     }
 

@@ -9,6 +9,14 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Canvas x:Name="uiCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-    </Canvas>
+    <Grid>
+        <Canvas x:Name="uiCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        </Canvas>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+            <Button Content="Redraw" Click="OnRedraw" />
+            <TextBox x:Name="uiNDemo" InputScope="Number" Width="200" Text="15" />
+            <Button Content="+1" Click="OnAddAndRedraw" Tag="1" />
+            <Button Content="+5" Click="OnAddAndRedraw" Tag="5" />
+        </StackPanel>
+    </Grid>
 </UserControl>
