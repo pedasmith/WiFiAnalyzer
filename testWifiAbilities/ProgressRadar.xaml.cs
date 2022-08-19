@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Graphics.Printing.PrintSupport;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -190,150 +191,16 @@ namespace testWifiAbilities
             return dist;
         }
 
-        double NDrawnRings = 0;
-        double DrawnRingRadius = 0.0;
 
-        private void InitializeReflectorLocations()
+        public class RingSetupData
         {
-            if (Reflectors.Count == 0) return;
-
-            var center = new Point(uiCanvas.ActualWidth / 2.0, uiCanvas.ActualHeight / 2.0); // Canvas doesn't have a size until it's displayed once.
-            var maxRadius = 0.0;
-            var minRadius = 100.0;
-            var minDistance = Math.Min(center.X, center.Y);
-            if (minDistance < 300)
-            {
-                minRadius = 0;
-                maxRadius = minDistance;
-            }
-            else
-            {
-                minRadius = 100;
-                maxRadius = minDistance * 0.90;
-            }
-            var reflectorsPerRing = SetupRingList(Reflectors.Count, minRadius, maxRadius);
-            int currRing = 0;
-            //const int NReflectorsPerRing = Reflector.PreferredAPPerRing;
-            var nPerRing = reflectorsPerRing[currRing];
-            double deltaAngle = Math.PI * 2.0 / nPerRing;
-
-            //var maxRings = Math.Ceiling ((double)Reflectors.Count / (double)nPerRing);
-            var nRings = reflectorsPerRing.Count;
-            var distanceDelta = (maxRadius - minRadius) / (nRings>1 ? nRings-1 : nRings);
-            if (nRings == 1) minRadius = maxRadius;
-
-
-            NDrawnRings = nRings;
-            DrawnRingRadius = distanceDelta;
-
-            var distance = minRadius;
-            var offsetAngle = -Math.PI / 2; // at the top
-            int ringIndex = 0;
-            for (int i=0; i<Reflectors.Count; i++)
-            {
-                var reflector = Reflectors[i];
-
-                double angle = ringIndex * deltaAngle + offsetAngle;
-                reflector.Center = new Point(distance * Math.Cos(angle) + center.X, distance * Math.Sin(angle) + center.Y);
-
-                ringIndex++;
-                if (ringIndex >= nPerRing)
-                {
-                    ringIndex = 0;
-                    offsetAngle -= deltaAngle / nRings; // actually a constant depending on the number of reflectors.
-                    distance += distanceDelta;
-
-                    currRing++;
-                    if (currRing >= reflectorsPerRing.Count) currRing = reflectorsPerRing.Count - 1;
-                    nPerRing = reflectorsPerRing[currRing];
-                    deltaAngle = Math.PI * 2.0 / nPerRing;
-                }
-            }
+            public double NDrawnRings = 0.0;
+            public double DrawnRingRadius = 0.0;
         }
+        RingSetupData RingSetup = new RingSetupData();
 
-        /// <summary>
-        /// Given a number of reflectors, returns a list of how many reflectors should be on each ring
-        /// </summary>
-        /// <param name="nitems"></param>
-        /// <returns></returns>
-        private List<int> SetupRingList(int nitems, double minRadius, double maxRadius)
-        {
-            var retval = new List<int>();
-            var remainder = nitems;
-            var nextsize = Reflector.PreferredAPPerRing;
-            while (remainder > 0)
-            {
-                retval.Add(nextsize);
-                remainder -= nextsize;
-                nextsize = nextsize * 3 / 2;
-                if (remainder > 0 && nextsize > remainder)
-                {
-                    // Even out the number of items in the ring.
-                    if (remainder < (nextsize/2))
-                    {
-                        // There will be too many orphans. The current ring is the last ring.
-                        if (retval.Count == 1)
-                        {
-                            Log($"DBG: Disribute: OneRing={remainder}");
-                            retval[retval.Count - 1] += remainder;
-                            remainder = 0;
-                        }
-                        else
-                        {
-                            // if ring A has X items, ring A+1 has 1.5X items.
-                            double perRing = 1.0;
-                            double total = 0;
-                            for (int i=0; i<retval.Count; i++)
-                            {
-                                total += perRing;
-                                perRing = perRing * 1.5;
-                            }
-                            perRing = perRing / 1.5; // is multiplied once too often.
-                            // e.g., for 3 rings, total is 1 + 1.5 + 2.25 = 4.75
-                            // Apply a big of algebra, if we have N items to distribute,
-                            // then the the bottom ring gets (1*(N/4.75)), the second
-                            // ring gets (1.5*(N/4.75)) and the last ring (2.25*(N/4.75))
-                            // We will actually round up so the outer rings get more.
-                            // total is the 4.75 and perRing is the 2.25
-                            var k = (double)remainder / total;
-                            var overage = 0.0;
-                            for (int i=retval.Count-1; i>= 0; i--)
-                            {
-                                var additional = Math.Ceiling(k * perRing - overage);
-                                overage += additional - (k * perRing);
-                                if (additional > remainder) additional = remainder;
-                                retval[i] += (int)additional;
-                                remainder -= (int)additional;
-                                perRing = perRing * 2.0 / 3.0;
-                                //Log($"DBG: Disribute: ring={i} additional={additional} overage={overage}");
-                            }
-                            //Log($"DBG: Disribute: complete remainder={remainder}");
-                        }
-                    }
-                    nextsize = remainder;
-                }
-            }
 
-            // Fixup sizes. Going outside to the inside, if an outer ring has fewer items then
-            // an inner ring, swap them.
-            for (int i=retval.Count-1; i>0; i--) // don't work on the last one
-            {
-                var outerval = retval[i];
-                var innerval = retval[i - 1];
-                if (outerval < innerval)
-                {
-                    retval[i] = innerval;
-                    retval[i -1] = outerval;
-                }
-                else if (outerval == innerval)
-                {
-                    retval[i] += 1;
-                    retval[i - 1] -= 1; 
-                }
-            }
 
-            return retval;
-        }
 
         FontFamily IconFontFamily = new FontFamily("Segoe UI,Segoe MDL2 Assets");
         const int TextZIndex = 5;
@@ -434,9 +301,9 @@ namespace testWifiAbilities
             ReticuleElements.Add(dot);
 
             // RADAR rings
-            for (int i=0; i<NDrawnRings; i++)
+            for (int i=0; i< RingSetup.NDrawnRings; i++)
             {
-                var radius = (i + 1) * DrawnRingRadius;
+                var radius = (i + 1) * RingSetup.DrawnRingRadius;
                 var ring = new Ellipse()
                 {
                     Stroke = ReticuleBrush,
@@ -452,7 +319,7 @@ namespace testWifiAbilities
             }
 
             const int NReflectorsPerRing = Reflector.PreferredAPPerRing;
-            double length = NDrawnRings * DrawnRingRadius * 1.2; // Spills out past the last ring
+            double length = RingSetup.NDrawnRings * RingSetup.DrawnRingRadius * 1.2; // Spills out past the last ring
             double angleDelta = Math.PI * 2.0 / NReflectorsPerRing;
             var offsetAngle = -Math.PI / 2; // at the top
 
@@ -496,49 +363,42 @@ namespace testWifiAbilities
             }
         }
 
+        Random rnd = new Random(); 
 
-        private void UpdateRadar()
+        private void AddRingsIfNeeded()
         {
-            if (!shouldAnimate) return;
-
-            var now = DateTime.UtcNow;
-            var delta = now.Subtract(LastUpdateTime).TotalSeconds;
-            LastUpdateTime = now;
-
             var center = new Point(uiCanvas.ActualWidth / 2.0, uiCanvas.ActualHeight / 2.0); // Canvas doesn't have a size until it's displayed once.
             var maxRadius = Math.Max(uiCanvas.ActualWidth, uiCanvas.ActualHeight) / 2.0;
 
-            // Time to add a new ring?
-            bool addRing = false;
+            bool addRing;
             addRing = Rings.Count == 0;
             var ringAddRadius = maxRadius / (double)NRING;
             if (Rings.Count > 0 && Rings.Count < NRING && Rings[Rings.Count - 1].Radius > ringAddRadius) addRing = true;
             if (amStopping) addRing = false;
-
-            if (!reflectorsInit) // Add in dummy reflectors
-            {
-                reflectorsInit = true;
-                InitializeReflectorLocations();
-                foreach (var reflector in Reflectors)
-                {
-                    InitializeReflectorText(reflector);
-                }
-                DrawReticule(uiCanvas);
-            }
-
-            var rnd = new Random(); // TODO: make this static.
 
             if (addRing)
             {
                 Rings.Add(new Ring(uiCanvas, center, null, RingSpeed, 2.0, maxRadius)); // null=use the default brush;
             }
 
-            foreach (var ring in Rings)
-            {
-                ring.Update(delta, amStopping);
-            }
+        }
 
-            // Add new reflections as needed.
+        private void DrawReflectorsIfNeeded()
+        {
+            if (!reflectorsInit)
+            {
+                reflectorsInit = true;
+                RadarHelpers.InitializeReflectorLocations(uiCanvas, RingSetup, Reflectors);
+                foreach (var reflector in Reflectors)
+                {
+                    InitializeReflectorText(reflector);
+                }
+                DrawReticule(uiCanvas);
+            }
+        }
+
+        private void AddReflectionsAsNeeded()
+        {
             if (!amStopping)
             {
                 foreach (var ring in Rings)
@@ -554,6 +414,26 @@ namespace testWifiAbilities
                     }
                 }
             }
+        }
+
+        private void UpdateRadar()
+        {
+            DrawReflectorsIfNeeded(); // Always do this.
+            if (!shouldAnimate) return;
+
+            var now = DateTime.UtcNow;
+            var delta = now.Subtract(LastUpdateTime).TotalSeconds;
+            LastUpdateTime = now;
+
+
+            // Time to add a new ring?
+            AddRingsIfNeeded();
+            foreach (var ring in Rings)
+            {
+                ring.Update(delta, amStopping);
+            }
+
+            AddReflectionsAsNeeded();
             foreach (var reflection in Reflections)
             {
                 reflection.Update(delta);
@@ -606,7 +486,6 @@ namespace testWifiAbilities
             StopInstantly();
             Initialize();
             SetReflectors(list);
-            await Task.Delay(1000); // not really needed?
             await StopAsync();
         }
     }
