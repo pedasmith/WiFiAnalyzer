@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
-using Windows.Graphics.Printing.PrintSupport;
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -78,45 +77,59 @@ namespace testWifiAbilities
         public void Initialize()
         {
             amStopping = false;
+            RemoveReflectionsElements();
+            RemoveReflectorsElements();
+            RemoveReticuleElements();
+            RemoveRingsElements();
+
+
+            Reflectors.Clear();
+            Rings.Clear();
+            reflectorsInit = false; // Can't do this until we're initializing.
+            shouldAnimate = true;
+        }
+
+        private void RemoveReflectionsElements()
+        {
             foreach (var reflection in Reflections)
             {
                 uiCanvas.Children.Remove(reflection.Arc);
             }
+        }
+
+        private void RemoveReflectorsElements()
+        {
             foreach (var reflector in Reflectors)
             {
                 foreach (var fe in reflector.ToBeRemoved)
                 {
                     uiCanvas.Children.Remove(fe);
                 }
+                reflector.ToBeRemoved.Clear();
             }
+        }
+
+        private void RemoveReticuleElements()
+        {
             foreach (var fe in ReticuleElements)
             {
                 uiCanvas.Children.Remove(fe);
             }
+            ReticuleElements.Clear();
+        }
+
+        private void RemoveRingsElements()
+        {
             foreach (var ring in Rings)
             {
                 uiCanvas.Children.Remove(ring.Circle);
+                ring.Circle = null;
             }
-
-
-            Reflectors.Clear();
-            Rings.Clear();
-            Reflections.Clear();
-            ReticuleElements.Clear();
-            reflectorsInit = false; // Can't do this until we're initializing.
-            shouldAnimate = true;
         }
 
         public void SetReflectors(List<Reflector> reflectors)
         {
-            // Remove the old (including the UX)
-            foreach (var reflector in Reflectors)
-            {
-                foreach (var fe in reflector.ToBeRemoved)
-                {
-                    uiCanvas.Children.Remove(fe);
-                }    
-            }
+            RemoveReflectorsElements();
             Reflectors.Clear();
 
             // Add the new
@@ -192,19 +205,22 @@ namespace testWifiAbilities
         }
 
 
-        public class RingSetupData
+        public class RingLayoutData
         {
             public double NDrawnRings = 0.0;
             public double DrawnRingRadius = 0.0;
+            public double InnerRadius = 0.0;
+            public double OuterRadius = 0.0;
+            public int NItemsInOuterRing = 0;
         }
-        RingSetupData RingSetup = new RingSetupData();
+        RingLayoutData RingLayout = new RingLayoutData();
 
 
 
 
         FontFamily IconFontFamily = new FontFamily("Segoe UI,Segoe MDL2 Assets");
         const int TextZIndex = 5;
-        private void InitializeReflectorText(Reflector reflector)
+        private void DrawReflectorText(Reflector reflector)
         {
             var bdr = new Border()
             {
@@ -273,16 +289,8 @@ namespace testWifiAbilities
         /// Call this after calling the InitializeReflectorLocations (it uses the NDrawnRings etc)
         /// </summary>
         /// <param name="uiCanvas"></param>
-        private void DrawReticule(Canvas uiCanvas)
+        private void DrawReticule(Canvas uiCanvas, RingLayoutData layoutData)
         {
-            // Clear the old away.
-            foreach (var fe in ReticuleElements)
-            {
-                uiCanvas.Children.Remove(fe);
-            }
-            ReticuleElements.Clear();
-
-
             double DotRadius = 10;
 
             double CX = (uiCanvas.ActualWidth / 2.0);
@@ -301,9 +309,9 @@ namespace testWifiAbilities
             ReticuleElements.Add(dot);
 
             // RADAR rings
-            for (int i=0; i< RingSetup.NDrawnRings; i++)
+            for (int i=0; i< layoutData.NDrawnRings; i++)
             {
-                var radius = (i + 1) * RingSetup.DrawnRingRadius;
+                var radius = (double)i * layoutData.DrawnRingRadius + layoutData.InnerRadius;
                 var ring = new Ellipse()
                 {
                     Stroke = ReticuleBrush,
@@ -318,9 +326,9 @@ namespace testWifiAbilities
                 ReticuleElements.Add(ring);
             }
 
-            const int NReflectorsPerRing = Reflector.PreferredAPPerRing;
-            double length = RingSetup.NDrawnRings * RingSetup.DrawnRingRadius * 1.2; // Spills out past the last ring
-            double angleDelta = Math.PI * 2.0 / NReflectorsPerRing;
+            //const int NReflectorsPerRing = Reflector.PreferredAPPerRing;
+            double length = layoutData.OuterRadius;
+            double angleDelta = Math.PI * 2.0 / layoutData.NItemsInOuterRing;
             var offsetAngle = -Math.PI / 2; // at the top
 
             for (double angle = 0.0; angle <= Math.PI * 2; angle += angleDelta)
@@ -383,17 +391,19 @@ namespace testWifiAbilities
 
         }
 
-        private void DrawReflectorsIfNeeded()
+        private void DrawReflectorsIfNeeded(bool forceRedraw = false)
         {
-            if (!reflectorsInit)
+            if (!reflectorsInit || forceRedraw)
             {
                 reflectorsInit = true;
-                RadarHelpers.InitializeReflectorLocations(uiCanvas, RingSetup, Reflectors);
+                RemoveReflectorsElements();
+                RadarHelpers.InitializeReflectorLocations(uiCanvas, RingLayout, Reflectors);
                 foreach (var reflector in Reflectors)
                 {
-                    InitializeReflectorText(reflector);
+                    DrawReflectorText(reflector);
                 }
-                DrawReticule(uiCanvas);
+                RemoveReticuleElements();
+                DrawReticule(uiCanvas, RingLayout);
             }
         }
 
@@ -408,7 +418,7 @@ namespace testWifiAbilities
                         var d = Distance(ring, reflector);
                         if (d >= ring.OldRadius && d < ring.Radius)
                         {
-                            var reflection = new Reflection(uiCanvas, reflector.Center, ring.Center, new SolidColorBrush(Colors.DarkGreen), RingSpeed, 2.0, d);
+                            var reflection = new Reflection(uiCanvas, reflector, ring, new SolidColorBrush(Colors.DarkGreen), RingSpeed, 2.0, d);
                             Reflections.Add(reflection);
                         }
                     }
@@ -420,6 +430,7 @@ namespace testWifiAbilities
         {
             DrawReflectorsIfNeeded(); // Always do this.
             if (!shouldAnimate) return;
+            if (uiFreeze.IsChecked.Value) return; // handy for debugging
 
             var now = DateTime.UtcNow;
             var delta = now.Subtract(LastUpdateTime).TotalSeconds;
@@ -487,6 +498,59 @@ namespace testWifiAbilities
             Initialize();
             SetReflectors(list);
             await StopAsync();
+        }
+
+        private void OnRedrawRadar(object sender, RoutedEventArgs e)
+        {
+            var center = new Point(uiCanvas.ActualWidth / 2.0, uiCanvas.ActualHeight / 2.0); // Canvas doesn't have a size until it's displayed once.
+            //DumpAllPositions($"Start: center  x={Math.Round(center.X)} y={Math.Round(center.Y)}");
+
+
+            // Correct order: reflectors then reflections. Rings can be in any order.
+            DrawReflectorsIfNeeded(true); // force a redraw
+            // Must do rings before relections(because the reflections point to the rings)
+            foreach (var ring in Rings)
+            {
+                ring.Reposition(center);
+            }
+
+            foreach (var reflection in Reflections)
+            {
+                reflection.ResetPointTo();
+                reflection.SetPosition();
+                reflection.Update(0.0);
+            }
+            //DumpAllPositions($"End:");
+        }
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            //Log($"DBG: SizeChange height={Math.Round(uiCanvas.ActualHeight)} width={Math.Round(uiCanvas.ActualWidth)}");
+            OnRedrawRadar(null, null);
+        }
+
+        private void DumpAllPositions(string note)
+        {
+            Log($"All Positions: {note}");
+            Log($"===========================");
+
+            for (int i = 0; i < Reflectors.Count; i++)
+            {
+                var value = Reflectors[i];
+                Log($"    Reflector {i}: x={Math.Round(value.Center.X)} y={Math.Round(value.Center.Y)}");
+            }
+
+            for (int i = 0; i < Rings.Count; i++)
+            {
+                var value = Rings[i];
+                Log($"    Ring {i}: x={Math.Round(value.Center.X)} y={Math.Round(value.Center.Y)}");
+            }
+
+            for (int i = 0; i < Reflections.Count; i++)
+            {
+                var value = Reflections[i];
+                Log($"    Reflection {i}: radius={Math.Round(value.Radius)} x={Math.Round(value.CenterObject.Center.X)} y={Math.Round(value.CenterObject.Center.Y)}   pointTo.x={Math.Round(value.PointToObject.Center.X)} pointTo.y={Math.Round(value.PointToObject.Center.Y)}");
+            }
         }
     }
 }

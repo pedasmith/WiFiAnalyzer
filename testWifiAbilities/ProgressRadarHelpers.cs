@@ -92,14 +92,21 @@ namespace testWifiAbilities
                 OldRadius = Radius;
                 Circle.Visibility = Visibility.Collapsed;
             }
+            Reposition(Center); // keep the original center.
+
+            var pct = ((Radius - MinSize) / (MaxSize - MinSize));
+            Circle.Opacity = (1.0 - pct);
+            Circle.StrokeThickness = Thickness + FinalThicknessMultiplier * (Thickness * pct); // will go from Thickness to 2x
+        }
+
+        public void Reposition(Point newCenter)
+        {
+            Center = newCenter; // might be the old center
             Circle.Width = Radius * 2.0;
             Circle.Height = Radius * 2.0;
             Canvas.SetLeft(Circle, Center.X - Radius);
             Canvas.SetTop(Circle, Center.Y - Radius);
 
-            var pct = ((Radius - MinSize) / (MaxSize - MinSize));
-            Circle.Opacity = (1.0 - pct);
-            Circle.StrokeThickness = Thickness + FinalThicknessMultiplier * (Thickness * pct); // will go from Thickness to 2x
         }
 
         public override string ToString()
@@ -116,10 +123,12 @@ namespace testWifiAbilities
     class Reflection
     {
         public bool CycleComplete = false;
+        public Reflector CenterObject = null;
+        public Ring PointToObject = null;
         public Path Arc;
-        public ArcSegment ArcSegmentInternal;
+        private ArcSegment ArcSegmentInternal;
         PathFigure PathFigureInternal;
-        public Point Center;
+        //public Point Center;
         public double Radius;
         public Brush Stroke;
         public double Speed;
@@ -137,12 +146,20 @@ namespace testWifiAbilities
         {
             return new Point(Math.Cos(angleRadians) * radius, Math.Sin(angleRadians) * radius);
         }
-        public Reflection(Canvas parent, Point center, Point pointTo, Brush stroke, double speed, double minSize, double maxSize)
+
+        public void ResetPointTo()
+        {
+            AngleDegrees = Math.Atan2(PointToObject.Center.Y - CenterObject.Center.Y, PointToObject.Center.X - CenterObject.Center.X) * 180.0 / Math.PI;
+            ArcSegmentInternal.RotationAngle = AngleDegrees;
+        }
+        public Reflection(Canvas parent, Reflector centerObject, Ring pointToObject, Brush stroke, double speed, double minSize, double maxSize)
         {
             Radius = minSize;
-            AngleDegrees = Math.Atan2(pointTo.Y - center.Y, pointTo.X - center.X) * 180.0 / Math.PI;
-            var angleRadians = AngleDegrees * Math.PI / 180.0;
-            Center = center;
+            CenterObject = centerObject;
+            //Center = CenterObject.Center;
+            PointToObject = pointToObject;
+            AngleDegrees = Math.Atan2(PointToObject.Center.Y - CenterObject.Center.Y, PointToObject.Center.X - CenterObject.Center.X) * 180.0 / Math.PI;
+            //var angleRadians = AngleDegrees * Math.PI / 180.0;
             Stroke = stroke;
             Speed = speed;
             MinSize = minSize;
@@ -152,13 +169,11 @@ namespace testWifiAbilities
             {
                 IsLargeArc = false,
                 SweepDirection = SweepDirection.Clockwise,
-                RotationAngle = AngleDegrees,
                 Size = new Size(minSize * 2.0, minSize * 2.0),
-                //Point = CreatePoint(angleRadians + AngleWidth, Radius),
             };
+            ArcSegmentInternal.RotationAngle = AngleDegrees;
             PathFigureInternal = new PathFigure()
             {
-                //StartPoint = CreatePoint(angleRadians - AngleWidth, Radius),
             };
             PathFigureInternal.Segments.Add(ArcSegmentInternal);
             var pg = new PathGeometry();
@@ -170,13 +185,16 @@ namespace testWifiAbilities
                 Data = pg,
             };
 
-
-
             parent.Children.Add(Arc);
-            Canvas.SetLeft(Arc, Center.X - Radius);
-            Canvas.SetTop(Arc, Center.Y - Radius);
+            SetPosition();
             Canvas.SetZIndex(Arc, ArcZIndex);
             Update(0.0);
+        }
+
+        public void SetPosition()
+        {
+            Canvas.SetLeft(Arc, CenterObject.Center.X); // - Radius); Nope, don't offset by radius
+            Canvas.SetTop(Arc, CenterObject.Center.Y); // - Radius); Nope, don't offset by radius
         }
 
         public void Update(double delta)
@@ -207,7 +225,7 @@ namespace testWifiAbilities
 
     static class RadarHelpers
     {
-        public static void InitializeReflectorLocations(Canvas uiCanvas, ProgressRadar.RingSetupData data, List<Reflector> Reflectors)
+        public static void InitializeReflectorLocations(Canvas uiCanvas, ProgressRadar.RingLayoutData layoutData, List<Reflector> Reflectors)
         {
             if (Reflectors.Count == 0) return;
 
@@ -237,8 +255,10 @@ namespace testWifiAbilities
             if (nRings == 1) minRadius = maxRadius;
 
 
-            data.NDrawnRings = nRings;
-            data.DrawnRingRadius = distanceDelta;
+            layoutData.NDrawnRings = nRings;
+            layoutData.DrawnRingRadius = distanceDelta;
+            layoutData.InnerRadius = minRadius;
+            layoutData.OuterRadius = maxRadius;
 
             var distance = minRadius;
             var offsetAngle = -Math.PI / 2; // at the top
@@ -263,6 +283,8 @@ namespace testWifiAbilities
                     deltaAngle = Math.PI * 2.0 / nPerRing;
                 }
             }
+
+            layoutData.NItemsInOuterRing = reflectorsPerRing[reflectorsPerRing.Count - 1];
         }
         /// <summary>
         /// Given a number of reflectors, returns a list of how many reflectors should be on each ring

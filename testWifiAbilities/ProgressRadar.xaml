@@ -1,4 +1,4 @@
-﻿<UserControl
+﻿<UserControl x:Name="size"
     x:Class="testWifiAbilities.ProgressRadar"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="400" SizeChanged="OnSizeChanged">
 
     <Grid>
         <Canvas x:Name="uiCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -17,6 +17,8 @@
             <TextBox x:Name="uiNDemo" InputScope="Number" Width="200" Text="15" />
             <Button Content="+1" Click="OnAddAndRedraw" Tag="1" />
             <Button Content="+5" Click="OnAddAndRedraw" Tag="5" />
+            <Button Content="Redraw" Click="OnRedrawRadar"  />
+            <CheckBox Content="Freeze" IsChecked="False" x:Name="uiFreeze" />
         </StackPanel>
     </Grid>
 </UserControl>

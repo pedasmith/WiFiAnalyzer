@@ -40,6 +40,7 @@ namespace testWifiAbilities
             // TODO: no auto-scan while the radar is being worked on: await DoScanAsync();
             //uiRadar.Initialize(); //TODO: remove these; they are just for show
             //uiRadar.AddDummyReflectors();
+            //await Task.Delay(0);
         }
 
         private void Log(string text)
