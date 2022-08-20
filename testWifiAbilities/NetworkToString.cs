@@ -139,11 +139,15 @@ namespace testWifiAbilities
                 case NetworkAuthenticationType.Rsna: return "Enterprise (Rsna)";
                 case NetworkAuthenticationType.RsnaPsk: return "Password (RsnaPsk)";
                 case NetworkAuthenticationType.Ihv: return "Custom (Ihv)";
-                // case NetworkAuthenticationType.Wpa3: return "WPA3 (Wpa3)"; TODO: why is this enum 10 when the next is 10 also?
-                case NetworkAuthenticationType.Wpa3Enterprise192Bits: return "WPA3 Enterprise 192 (Wpa3Enterprise192Bits)";
                 case NetworkAuthenticationType.Wpa3Sae: return "WPA3 Consumer (Wpa3Sae)";
                 case NetworkAuthenticationType.Owe: return "Hotspot Opportunistic Wireless Encryption (Owe)";
+
+
+                // case NetworkAuthenticationType.Wpa3: return "WPA3 (Wpa3)"; TODO: why is this enum 10 when the next is 10 also?
+#if !SupportWin10
+                case NetworkAuthenticationType.Wpa3Enterprise192Bits: return "WPA3 Enterprise 192 (Wpa3Enterprise192Bits)";
                 case NetworkAuthenticationType.Wpa3Enterprise: return "WPA3 Enterprise (Wpa3Enterprise)";
+#endif
             }
             return value.ToString();
         }
@@ -162,8 +166,10 @@ namespace testWifiAbilities
                 case NetworkEncryptionType.WpaUseGroup: return "WPA (WpaUseGroup)";
                 case NetworkEncryptionType.RsnUseGroup: return "802.11i RSN (RsnUseGroup)";
                 case NetworkEncryptionType.Ihv: return "Custom (Ihv)";
+#if !SupportWin10
                 case NetworkEncryptionType.Gcmp: return "GCMP (Gcmp)";
                 case NetworkEncryptionType.Gcmp256: return "GCMP 256-bit (Gcmp256)";
+#endif
             }
             return value.ToString();
         }
