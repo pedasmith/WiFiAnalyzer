@@ -2,20 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.Devices.Geolocation;
 using Windows.Devices.WiFi;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
@@ -31,16 +25,18 @@ namespace testWifiAbilities
             this.InitializeComponent();
             this.Loaded += MainPage_Loaded;
         }
-
+        //Location will have to wait for version 2
+        //GeolocationAccessStatus GeoAccessStatus;
+        //Geolocator Locator;
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
+            //GeoAccessStatus = await Geolocator.RequestAccessAsync();
+            //Locator = new Geolocator() { DesiredAccuracyInMeters = 4,  };
+            //Locator.AllowFallbackToConsentlessPositions();
+
             uiGrid.ItemsSource = CurrentNetworkInformationList;
             uiRadar.DisplayWifiNetworkInformation = this;
             await DoScanAsync();
-            // TODO: no auto-scan while the radar is being worked on: await DoScanAsync();
-            //uiRadar.Initialize(); //TODO: remove these; they are just for show
-            //uiRadar.AddDummyReflectors();
-            //await Task.Delay(0);
         }
 
         private void Log(string text)
@@ -60,14 +56,23 @@ namespace testWifiAbilities
         ObservableCollection<WifiNetworkInformation> CurrentNetworkInformationList = new ObservableCollection<WifiNetworkInformation>();
         String CurrentCsv = "";
         List<Reflector> CurrentReflectorList = new List<Reflector>();
+
+        public class ScanMetadata
+        {
+            public DateTimeOffset ScanTime { get; set; } = DateTimeOffset.Now;
+            public Geoposition Position { get; set; }
+        }
         private async Task DoScanAsync()
         {
             uiReport.Text = $"Scan started at {DateTime.Now}\n\n";
+            //var locatorTask = Locator.GetGeopositionAsync(new TimeSpan(0, 1, 0), new TimeSpan(0, 0, 5)); // allow 1-minue old data; timeout within 5 seconds
 
             uiRadar.Initialize();
             uiRadar.AddDummyReflectors();
 
             var dg = uiGrid;
+            var smd = new ScanMetadata();
+
 
             var list = await WiFiAdapter.FindAllAdaptersAsync();
             CurrentCsv = NetworkToString.ToCsvHeader_WiFiNetworkReport() + "\n";
@@ -79,14 +84,19 @@ namespace testWifiAbilities
                 try
                 {
                     await item.ScanAsync();
+                    //var scanTask =  item.ScanAsync();
+                    //await Task.WhenAll(new Task[] { locatorTask.AsTask(), scanTask.AsTask() });
                 }
                 catch (Exception e)
                 {
                     ScanFailed(e.Message); // TODO: do a message somehow?
                 }
                 Log(NetworkToString.ToString("    ", item.NetworkReport));
+                //if (locatorTask.Status != AsyncStatus.Error) smd.Position = locatorTask.GetResults();
+                //Log($"DBG: location status={locatorTask.Status} position={smd.Position}");
+
                 CurrentCsv += NetworkToString.ToCsvData(item.NetworkReport);
-                NetworkToString.Fill(CurrentNetworkInformationList, item.NetworkReport);
+                NetworkToString.Fill(CurrentNetworkInformationList, item.NetworkReport, smd);
             }
             //DoGridSort(uiGrid, NetworkInformationList, "SSID");
             Log ($"\nScan ended at {DateTime.Now}");

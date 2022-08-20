@@ -137,7 +137,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\0AboutWiFiRadar.md" />
-    <Content Include="Assets\Icons\.scale-200.png" />
     <Content Include="Assets\Icons\LargeTile.scale-200.png" />
     <Content Include="Assets\Icons\SplashScreen.scale-200.png" />
     <Content Include="Assets\Icons\Square150x150Logo.scale-200.png" />

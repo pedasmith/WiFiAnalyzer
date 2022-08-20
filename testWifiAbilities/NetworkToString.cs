@@ -232,20 +232,21 @@ namespace testWifiAbilities
             retval += $"{ToString(indent, value.SecuritySettings)}\n";
             return retval;
         }
-        public static void Fill(WifiNetworkInformation data, WiFiAvailableNetwork value)
+        public static void Fill(WifiNetworkInformation dest, WiFiAvailableNetwork source, MainPage.ScanMetadata smd)
         {
-            data.SSID = value.Ssid;
-            data.Bssid = value.Bssid;
-            data.BeaconInterval = value.BeaconInterval.TotalSeconds;
-            data.Frequency = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
-            data.IsWiFiDirect = value.IsWiFiDirect ? "true" : "false";
-            data.NetworkKind = Decode(value.NetworkKind);
-            data.Rssi = value.NetworkRssiInDecibelMilliwatts;
-            data.PhyKind = Decode(value.PhyKind);
-            data.SignalBars = value.SignalBars;
-            data.Uptime = value.Uptime;
+            dest.SSID = source.Ssid;
+            dest.Bssid = source.Bssid;
+            dest.BeaconInterval = source.BeaconInterval.TotalSeconds;
+            dest.Frequency = (double)source.ChannelCenterFrequencyInKilohertz / 1000000.0;
+            dest.IsWiFiDirect = source.IsWiFiDirect ? "true" : "false";
+            dest.NetworkKind = Decode(source.NetworkKind);
+            dest.Rssi = source.NetworkRssiInDecibelMilliwatts;
+            dest.PhyKind = Decode(source.PhyKind);
+            dest.SignalBars = source.SignalBars;
+            dest.Uptime = source.Uptime;
+            dest.ScanTimeStamp = smd.ScanTime;
 
-            Fill(data, value.SecuritySettings);
+            Fill(dest, source.SecuritySettings);
         }
         public static string ToCsvHeader_WiFiAvailableNetwork()
         {
@@ -322,12 +323,12 @@ namespace testWifiAbilities
             return retval;
         }
 
-        public static void Fill(IList<WifiNetworkInformation> list, WiFiNetworkReport value)
+        public static void Fill(IList<WifiNetworkInformation> list, WiFiNetworkReport value, MainPage.ScanMetadata smd)
         {
             foreach (var item in value.AvailableNetworks)
             {
                 var data = new WifiNetworkInformation();
-                Fill(data, item);
+                Fill(data, item, smd);
                 list.Add(data);
             }
         }

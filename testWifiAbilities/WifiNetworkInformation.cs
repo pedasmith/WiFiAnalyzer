@@ -20,5 +20,7 @@ namespace testWifiAbilities
         public string EncryptionType { get; set; }
         public string IsWiFiDirect { get; set; }
         public string NetworkKind { get; set; }
+        public DateTimeOffset ScanTimeStamp { get; set; }
+
     }
 }
