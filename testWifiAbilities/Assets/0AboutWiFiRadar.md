@@ -8,16 +8,23 @@
 * **DONE** Show either table OR rings OR Scan Result text OR CSV OR ...
 * **DONE** Click on towers to show more data (and set the Z height)
 * **DONE** Show a central 'dot' (and faint ring radar lines?)(reticule)
-* Decode e.g.     Kind=HT Encryption=Ccmp Authentication=RsnaPsk
-* Create a way to clear the Details areas
-* Better ring size selection -- e.g. the jump from 1 to 2 is bad
-* allow more items for farther-away rings? Looks like a sea star
+* **DONE** Decode e.g.     Kind=HT Encryption=Ccmp Authentication=RsnaPsk
+* **DONE** Create a way to clear the Details areas
+* **DONE** Make a preliminary splash screen + icon
+* **DONE** Better ring size selection -- e.g. the jump from 1 to 2 is bad. And allow more items for farther-away rings? Looks like a sea star
+* **DONE** handle resize
+* Help system (standard Markdown style, of course)
+* convert IANA network type
+* convert frequency to band + width
+* Provide recommendations
+* Provide network information like "am I connected to the internet"
 
 ## Bugs
-* rename master to main
+* notify the user on error e.g. the try/catch on ScanAsync
+* check all NOTE: TODO: DBG:
 * click on table is slow for no good reason?
-* doesn't clear old reticule away
-* handle resize
+* **DONE** doesn't clear old reticule away
+* **DONE**rename master to main
 * **DONE** background on radio towers looks ugly. Make it jagged? border-in-border?
 * **DONE** why can I select radio towers?
 
@@ -25,11 +32,8 @@
 * **DONE** click on grid a column selected results in a crash
 
 ## Project far backlog
-* Help system (standard Markdown style, of course)
-* convert frequency to ban+ width
-* Provide recommendation
-* add 2D location Map to map out physical strength of specific network
-* Scan multiple times
+* Reorganize so that all code is in a single shared directory as a user control
+* Continuous scans add 2D location Map to map out physical strength of specific network
 
 User actions
 * save scan
