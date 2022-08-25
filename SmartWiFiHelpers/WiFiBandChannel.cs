@@ -10,16 +10,16 @@ namespace SmartWiFiHelpers
         /// Input frequencies are all in MHz even through they are stored as KHz to match the underlying values
         /// </summary>
         /// <param name="channelCenterFrequencyInKilohertz"></param>
-        /// <param name="bandwidth"></param>
+        /// <param name="bandwidthInKilohertz"></param>
         /// <param name="wifiVersion"></param>
         /// <param name="channelName"></param>
         /// <param name="bandName"></param>
         /// <param name="minOverlappingFrequency"></param>
         /// <param name="maxOverlappingFrequency"></param>
-        public WiFiBandChannel(int channelCenterFrequency, int bandwidth, string wifiVersion, string channelName, string bandName, int minOverlappingFrequency, int maxOverlappingFrequency)
+        public WiFiBandChannel(int channelCenterFrequencyInMegahertz, int bandwidthInKilohertz, string wifiVersion, string channelName, string bandName, int minOverlappingFrequency, int maxOverlappingFrequency)
         {
-            ChannelCenterFrequencyInKilohertz = channelCenterFrequency * 1000;
-            BandwidthList.Add(bandwidth * 1000); // if more are needed, they can be added
+            ChannelCenterFrequencyInKilohertz = channelCenterFrequencyInMegahertz * 1000;
+            BandwidthInKilohertzList.Add(bandwidthInKilohertz); // if more are needed, they can be added
             WiFiVersion = wifiVersion;
             ChannelName = channelName;
             BandName = bandName;
@@ -29,7 +29,10 @@ namespace SmartWiFiHelpers
         }
 
         public int ChannelCenterFrequencyInKilohertz { get; internal set; } = 0;
-        public List<int> BandwidthList { get; } = new List<int>();
+        /// <summary>
+        /// Bandwidth is in KHz.
+        /// </summary>
+        public List<int> BandwidthInKilohertzList { get; } = new List<int>();
         public string WiFiVersion { get; internal set; }
         public string ChannelName { get; internal set; }
         public string BandName { get; internal set; }
@@ -47,8 +50,11 @@ namespace SmartWiFiHelpers
             }
             return -1;
         }
+        private static List<WiFiBandChannel> _StaticWifiBandList = CreateWiFiMapping();
+        public static List<WiFiBandChannel> StaticWifiBandList {  get { return _StaticWifiBandList; } }
 
-        public static List<WiFiBandChannel> CreateWiFiMapping()
+        // Data from https://en.wikipedia.org/wiki/List_of_WLAN_channels
+        private static List<WiFiBandChannel> CreateWiFiMapping()
         {
             var retval = new List<WiFiBandChannel>();
             const int BW24 = 22000; // in kilohertz
@@ -74,29 +80,90 @@ namespace SmartWiFiHelpers
             const int BW40 = 40000; // in kilohertz
             const int BW80 = 80000; // in kilohertz
             const int BW160 = 160000; // in kilohertz
-            const string GH5 = "5 GHz";
-            const string AHJNACAX = "802.11a/h/j/n/ac/ax";
-            retval.Add(new WiFiBandChannel(5035, BW10, AHJNACAX, "7", GH5, 5030, 5040));
-            retval.Add(new WiFiBandChannel(5045, BW20, AHJNACAX, "8", GH5, 5030, 5050));
-            retval.Add(new WiFiBandChannel(5045, BW10, AHJNACAX, "9", GH5, 5040, 5040));
 
-            retval.Add(new WiFiBandChannel(5055, BW10, AHJNACAX, "11", GH5, 5050, 5060));
-            retval.Add(new WiFiBandChannel(5060, BW20, AHJNACAX, "12", GH5, 5050, 5070));
-            retval.Add(new WiFiBandChannel(5080, BW20, AHJNACAX, "16", GH5, 5070, 5090));
+            retval.Add(Create5GhChannel(  "7", 5035, BW10));
+            retval.Add(Create5GhChannel(  "8", 5040, BW20));
+            retval.Add(Create5GhChannel(  "9", 5035, BW10));
+            retval.Add(Create5GhChannel( "11", 5055, BW10));
+            retval.Add(Create5GhChannel( "12", 5060, BW20));
+            retval.Add(Create5GhChannel( "16", 5080, BW20));
 
-            retval.Add(new WiFiBandChannel(5160, BW20, AHJNACAX, "32", GH5, 5150, 5170));
-            retval.Add(new WiFiBandChannel(5170, BW40, AHJNACAX, "34", GH5, 5150, 5190));
-            retval.Add(new WiFiBandChannel(5180, BW20, AHJNACAX, "36", GH5, 5170, 5190));
-            retval.Add(new WiFiBandChannel(5190, BW40, AHJNACAX, "38", GH5, 5170, 5210));
-            retval.Add(new WiFiBandChannel(5200, BW20, AHJNACAX, "40", GH5, 5190, 5210));
+            retval.Add(Create5GhChannel( "32", 5160, BW20));
+            retval.Add(Create5GhChannel( "34", 5170, BW40));
+            retval.Add(Create5GhChannel( "36", 5180, BW20));
+            retval.Add(Create5GhChannel( "38", 5190, BW40));
+            retval.Add(Create5GhChannel( "40", 5200, BW20));
+            retval.Add(Create5GhChannel( "42", 5210, BW80));
+            retval.Add(Create5GhChannel( "44", 5220, BW20));
+            retval.Add(Create5GhChannel( "46", 5230, BW40));
+            retval.Add(Create5GhChannel( "48", 5240, BW20));
+            retval.Add(Create5GhChannel( "50", 5250, BW160));
+            retval.Add(Create5GhChannel( "52", 5260, BW20));
+            retval.Add(Create5GhChannel( "54", 5270, BW40));
+            retval.Add(Create5GhChannel( "56", 5280, BW20));
+            retval.Add(Create5GhChannel( "58", 5290, BW80));
+            retval.Add(Create5GhChannel( "60", 5300, BW20));
+            retval.Add(Create5GhChannel( "62", 5310, BW40));
+            retval.Add(Create5GhChannel( "64", 5320, BW20));
+            retval.Add(Create5GhChannel( "68", 5340, BW20));
+            retval.Add(Create5GhChannel( "96", 5480, BW20));
+            retval.Add(Create5GhChannel("100", 5500, BW20));
+            retval.Add(Create5GhChannel("102", 5510, BW40));
+            retval.Add(Create5GhChannel("104", 5520, BW20));
+            retval.Add(Create5GhChannel("106", 5530, BW80));
+            retval.Add(Create5GhChannel("108", 5540, BW20));
+            retval.Add(Create5GhChannel("110", 5550, BW40));
+            retval.Add(Create5GhChannel("112", 5560, BW20));
+            retval.Add(Create5GhChannel("114", 5570, BW160));
+            retval.Add(Create5GhChannel("116", 5580, BW20));
+            retval.Add(Create5GhChannel("118", 5090, BW40));
+            retval.Add(Create5GhChannel("120", 5600, BW20));
+            retval.Add(Create5GhChannel("122", 5610, BW80));
+            retval.Add(Create5GhChannel("124", 5620, BW20));
+            retval.Add(Create5GhChannel("126", 5630, BW40));
+            retval.Add(Create5GhChannel("128", 5640, BW20));
+            retval.Add(Create5GhChannel("132", 5660, BW20));
+            retval.Add(Create5GhChannel("134", 5670, BW40));
+            retval.Add(Create5GhChannel("136", 5680, BW20));
+            retval.Add(Create5GhChannel("138", 5690, BW80));
+            retval.Add(Create5GhChannel("140", 5700, BW20));
+            retval.Add(Create5GhChannel("142", 5710, BW40));
+            retval.Add(Create5GhChannel("144", 5720, BW20));
+            retval.Add(Create5GhChannel("149", 5745, BW20));
+            retval.Add(Create5GhChannel("151", 5755, BW40));
+            retval.Add(Create5GhChannel("153", 5765, BW20));
+            retval.Add(Create5GhChannel("155", 5675, BW80));
+            retval.Add(Create5GhChannel("157", 5785, BW20));
+            retval.Add(Create5GhChannel("159", 5795, BW40));
+            retval.Add(Create5GhChannel("161", 5805, BW20));
+            retval.Add(Create5GhChannel("163", 5815, BW160));
+            retval.Add(Create5GhChannel("165", 5825, BW20));
+            retval.Add(Create5GhChannel("167", 5835, BW40));
+            retval.Add(Create5GhChannel("169", 5845, BW20));
+            retval.Add(Create5GhChannel("171", 5855, BW80));
+            retval.Add(Create5GhChannel("173", 5865, BW20));
+            retval.Add(Create5GhChannel("175", 5875, BW40));
+            retval.Add(Create5GhChannel("177", 5885, BW20));
+            retval.Add(Create5GhChannel("182", 5910, BW10));
+            retval.Add(Create5GhChannel("183", 5915, BW20));
+            retval.Add(Create5GhChannel("184", 5920, BW10));
+            retval.Add(Create5GhChannel("187", 5935, BW10));
+            retval.Add(Create5GhChannel("188", 5940, BW20));
+            retval.Add(Create5GhChannel("189", 5945, BW10));
+            retval.Add(Create5GhChannel("192", 5960, BW20));
+            retval.Add(Create5GhChannel("196", 5980, BW20));
 
-            retval.Add(new WiFiBandChannel(5210, BW80, AHJNACAX, "42", GH5, 5170, 5250));
-
-            retval.Add(new WiFiBandChannel(5220, BW20, AHJNACAX, "44", GH5, 5210, 5230));
-            retval.Add(new WiFiBandChannel(5230, BW40, AHJNACAX, "46", GH5, 5210, 5250));
-            retval.Add(new WiFiBandChannel(5240, BW20, AHJNACAX, "48", GH5, 5230, 5250));
 
             return retval;
+        }
+
+        private static WiFiBandChannel Create5GhChannel(string channelName, int centerFrequency, int bandwidth)
+        {
+            const string GH5 = "5 GHz";
+            const string AHJNACAX = "802.11a/h/j/n/ac/ax";
+            int minFrequency = centerFrequency - bandwidth / 2;
+            int maxFrequency = centerFrequency - bandwidth / 2;
+            return new WiFiBandChannel(centerFrequency, bandwidth, AHJNACAX, channelName, GH5, minFrequency, maxFrequency);
         }
     }
 }

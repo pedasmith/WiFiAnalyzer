@@ -238,7 +238,7 @@ namespace SmartWiFiHelpers
             dest.SSID = source.Ssid;
             dest.Bssid = source.Bssid;
             dest.BeaconInterval = source.BeaconInterval.TotalSeconds;
-            dest.Frequency = (double)source.ChannelCenterFrequencyInKilohertz / 1000000.0;
+            dest.Frequency = (double)source.ChannelCenterFrequencyInKilohertz / 1_000_000.0; // Convert kilohertz to gigahertz
             dest.IsWiFiDirect = source.IsWiFiDirect ? "true" : "false";
             dest.NetworkKind = Decode(source.NetworkKind);
             dest.Rssi = source.NetworkRssiInDecibelMilliwatts;
@@ -248,6 +248,23 @@ namespace SmartWiFiHelpers
             dest.ScanTimeStamp = smd.ScanTime;
 
             Fill(dest, source.SecuritySettings);
+
+            // Fill from the WiFiBandChannel
+            var list = WiFiBandChannel.StaticWifiBandList;
+            var index = WiFiBandChannel.Find(list, source.ChannelCenterFrequencyInKilohertz);
+            if (index >= 0)
+            {
+                var wbc = list[index];
+                dest.BandName = wbc.BandName;
+                dest.ChannelName = wbc.ChannelName;
+                dest.Bandwidth = wbc.BandwidthInKilohertzList[0] / 1000.0; // It's only a list because of the 900 MHz 802.11ah bands
+                // Must convert khz to mhz to be more useful for people
+            }
+            else
+            {
+            }
+
+
         }
         public static string ToCsvHeader_WiFiAvailableNetwork()
         {

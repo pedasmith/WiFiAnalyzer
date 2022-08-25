@@ -10,6 +10,15 @@ namespace SmartWiFiHelpers
     {
         public string SSID { get; set; }
         public string Bssid { get; set; }
+        public string BandName { get; set; }
+        public string ChannelName { get; set; }
+        /// <summary>
+        /// Bandwidth is in Megahertz
+        /// </summary>
+        public double Bandwidth { get; set; }
+        /// <summary>
+        /// Center frequency in Gigahertz (e.g., "2.4" for 2.4 GHz
+        /// </summary>
         public double Frequency { get; set; }
         public double Rssi { get; set; }
         public double SignalBars { get; set; }
