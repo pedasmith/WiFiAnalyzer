@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)NetworkToString.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ScanMetaData.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WiFiBandChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WifiNetworkInformation.cs" />
   </ItemGroup>
 </Project>
