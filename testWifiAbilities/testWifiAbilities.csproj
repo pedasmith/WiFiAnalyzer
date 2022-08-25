@@ -119,6 +119,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HelpPageHistory.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -137,6 +138,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\0AboutWiFiRadar.md" />
+    <Content Include="Assets\HelpImages\Help_Header.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Icons\LargeTile.scale-200.png" />
     <Content Include="Assets\Icons\SplashScreen.scale-200.png" />
     <Content Include="Assets\Icons\Square150x150Logo.scale-200.png" />
@@ -149,6 +153,12 @@
     <Content Include="Assets\Icons\Wide310x150Logo.scale-200.png" />
     <Content Include="Properties\Default.rd.xml" />
     <None Include="Assets\1AddingMarkdownHelpFiles.md" />
+    <None Include="Assets\HelpFiles\Help.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\HelpFiles\WiFi7.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

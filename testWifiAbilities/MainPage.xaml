@@ -74,6 +74,22 @@
                     <TextBlock x:Name="uiCsv" IsTextSelectionEnabled="True" />
                 </ScrollViewer>
             </PivotItem>
+            <PivotItem Header="Help">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <Button Content="🡨" Click="OnHelpBack" Padding="0" Margin="0" Background="White"                    />
+                        <TextBlock Text="Help for Wi-Fi Analyzer" FontSize="30" FontWeight="Bold" />
+                    </StackPanel>
+                    <ScrollViewer Grid.Row="1">
+                        <controls:MarkdownTextBlock x:Name="uiHelpText" FontFamily="Segoe UI,Segoe MDL2 Assets" />
+                    </ScrollViewer>
+                </Grid>
+
+            </PivotItem>
         </Pivot>
 
         <Grid Grid.Row="2" >

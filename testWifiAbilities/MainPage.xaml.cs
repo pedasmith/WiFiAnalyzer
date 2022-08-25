@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
 using Windows.Devices.WiFi;
 using Windows.Foundation;
+using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -30,6 +32,18 @@ namespace testWifiAbilities
         //Geolocator Locator;
         private async void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
+            // Set up the help system
+            var pagename = "Help.md";
+            uiHelpText.UriPrefix = "ms-appx:///Assets/HelpFiles/";
+            uiHelpText.LinkClicked += UiHelpText_LinkClicked;
+
+            const string StartPage = "Help.md";
+            //pagename = this.DataContext as string;
+            if (String.IsNullOrEmpty(pagename))
+            {
+                pagename = StartPage;
+            }
+            await HelpGotoAsync(pagename);
             //GeoAccessStatus = await Geolocator.RequestAccessAsync();
             //Locator = new Geolocator() { DesiredAccuracyInMeters = 4,  };
             //Locator.AllowFallbackToConsentlessPositions();
@@ -43,7 +57,60 @@ namespace testWifiAbilities
         {
             uiReport.Text += text + "\n";
         }
+        HelpPageHistory HelpHistory = new HelpPageHistory();
+        public static string HelpNavigatedTo = "";
+        private void SetNavigatedTo(string place)
+        {
+            HelpHistory.NavigatedTo(place);
+            HelpNavigatedTo = place;
+        }
+        private async Task<bool> HelpGotoAsync(string filename)
+        {
+            if (filename.StartsWith("http://") || filename.StartsWith("https://"))
+            {
+                // Pop out to a browser window!
+                try
+                {
+                    Uri uri = new Uri(filename);
+                    var launched = await Windows.System.Launcher.LaunchUriAsync(uri);
+                }
+                catch (Exception)
+                {
+                    ; // do thing?
+                }
+                return true;
+            }
 
+
+            try
+            {
+                StorageFolder InstallationFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+                string fname = @"Assets\HelpFiles\" + filename;
+                var f = await InstallationFolder.GetFileAsync(fname);
+                var fcontents = File.ReadAllText(f.Path);
+                uiHelpText.Text = fcontents;
+                SetNavigatedTo(filename);
+                return true;
+            }
+            catch (Exception)
+            {
+            }
+            const string ErrorName = "Error.md";
+            if (filename != ErrorName)
+            {
+                await HelpGotoAsync(ErrorName);
+            }
+            return false; // If I'm showing the error, return false.
+        }
+        private async void UiHelpText_LinkClicked(object sender, Microsoft.Toolkit.Uwp.UI.Controls.LinkClickedEventArgs e)
+        {
+            var ok = await HelpGotoAsync(e.Link);
+        }
+        private async void OnHelpBack(object sender, RoutedEventArgs e)
+        {
+            var page = HelpHistory.PopLastPage();
+            await HelpGotoAsync(page);
+        }
         private async void OnScanNow(object sender, RoutedEventArgs e)
         {
             await DoScanAsync();
