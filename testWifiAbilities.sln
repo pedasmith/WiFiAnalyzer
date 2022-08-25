@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32602.291
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testWifiAbilities", "testWifiAbilities\testWifiAbilities.csproj", "{38BBBCFC-BDFD-4867-B77F-22127F40EB6E}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SmartWiFiHelpers", "SmartWiFiHelpers\SmartWiFiHelpers.shproj", "{32CAC13A-FF12-4AEF-A228-C69F67A213CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,5 +49,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9A14124A-234D-4304-984D-B3BA9F052155}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		SmartWiFiHelpers\SmartWiFiHelpers.projitems*{32cac13a-ff12-4aef-a228-c69f67a213cb}*SharedItemsImports = 13
+		SmartWiFiHelpers\SmartWiFiHelpers.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

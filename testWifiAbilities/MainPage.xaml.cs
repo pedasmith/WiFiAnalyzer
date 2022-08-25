@@ -12,7 +12,7 @@ using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-
+using SmartWiFiHelpers;
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace testWifiAbilities
@@ -124,11 +124,6 @@ namespace testWifiAbilities
         String CurrentCsv = "";
         List<Reflector> CurrentReflectorList = new List<Reflector>();
 
-        public class ScanMetadata
-        {
-            public DateTimeOffset ScanTime { get; set; } = DateTimeOffset.Now;
-            public Geoposition Position { get; set; }
-        }
         private async Task DoScanAsync()
         {
             uiReport.Text = $"Scan started at {DateTime.Now}\n\n";

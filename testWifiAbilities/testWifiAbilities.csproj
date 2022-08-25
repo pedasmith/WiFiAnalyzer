@@ -123,13 +123,11 @@
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NetworkToString.cs" />
     <Compile Include="ProgressRadar.xaml.cs">
       <DependentUpon>ProgressRadar.xaml</DependentUpon>
     </Compile>
     <Compile Include="ProgressRadarHelpers.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WifiNetworkInformation.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -189,6 +187,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup />
+  <Import Project="..\SmartWiFiHelpers\SmartWiFiHelpers.projitems" Label="Shared" />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

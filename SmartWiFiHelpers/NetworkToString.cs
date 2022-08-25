@@ -1,15 +1,10 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.ConversationalAgent;
 using Windows.Devices.WiFi;
 using Windows.Networking.Connectivity;
-using Windows.UI.Xaml.Media.Animation;
 
-namespace testWifiAbilities
+namespace SmartWiFiHelpers
 {
     static class NetworkToString
     {
@@ -238,7 +233,7 @@ namespace testWifiAbilities
             retval += $"{ToString(indent, value.SecuritySettings)}\n";
             return retval;
         }
-        public static void Fill(WifiNetworkInformation dest, WiFiAvailableNetwork source, MainPage.ScanMetadata smd)
+        public static void Fill(WifiNetworkInformation dest, WiFiAvailableNetwork source, ScanMetadata smd)
         {
             dest.SSID = source.Ssid;
             dest.Bssid = source.Bssid;
@@ -329,7 +324,7 @@ namespace testWifiAbilities
             return retval;
         }
 
-        public static void Fill(IList<WifiNetworkInformation> list, WiFiNetworkReport value, MainPage.ScanMetadata smd)
+        public static void Fill(IList<WifiNetworkInformation> list, WiFiNetworkReport value, ScanMetadata smd)
         {
             foreach (var item in value.AvailableNetworks)
             {
