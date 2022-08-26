@@ -8,7 +8,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 
-namespace testWifiAbilities
+namespace WiFiRadarControl
 {
     /// <summary>
     /// The "Ring" which is going from the central point outwards

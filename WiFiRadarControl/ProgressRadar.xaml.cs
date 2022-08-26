@@ -12,7 +12,7 @@ using Windows.UI.Xaml.Shapes;
 using SmartWiFiHelpers;
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace testWifiAbilities
+namespace WiFiRadarControl
 {
     public interface IDisplayWifiNetworkInformation
     {

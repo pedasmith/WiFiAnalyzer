@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testWifiAbilities", "testWifiAbilities\testWifiAbilities.csproj", "{38BBBCFC-BDFD-4867-B77F-22127F40EB6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWiFiAnalyzer", "testWifiAbilities\SimpleWiFiAnalyzer.csproj", "{38BBBCFC-BDFD-4867-B77F-22127F40EB6E}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SmartWiFiHelpers", "SmartWiFiHelpers\SmartWiFiHelpers.shproj", "{32CAC13A-FF12-4AEF-A228-C69F67A213CB}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WiFiRadarControl", "WiFiRadarControl\WiFiRadarControl.shproj", "{C3870EBF-59D6-4ABB-BFAE-BE394698E32A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -53,5 +55,7 @@ Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		SmartWiFiHelpers\SmartWiFiHelpers.projitems*{32cac13a-ff12-4aef-a228-c69f67a213cb}*SharedItemsImports = 13
 		SmartWiFiHelpers\SmartWiFiHelpers.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
+		WiFiRadarControl\WiFiRadarControl.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
+		WiFiRadarControl\WiFiRadarControl.projitems*{c3870ebf-59d6-4abb-bfae-be394698e32a}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

@@ -1,106 +1,17 @@
 ﻿<Page
-    x:Class="testWifiAbilities.MainPage"
+    x:Class="SimpleWiFiAnalyzer.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:testWifiAbilities"
+    xmlns:local="using:SimpleWiFiAnalyzer"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:radar="using:WiFiRadarControl" 
     xmlns:controls="using:Microsoft.Toolkit.Uwp.UI.Controls" 
     xmlns:ctrls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="auto" />
-        </Grid.RowDefinitions>
-        <TextBlock FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Wi-Fi Testing</TextBlock>
-        <Pivot Grid.Row="1">
-            <PivotItem Header="RADAR">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="auto"/>
-                    </Grid.ColumnDefinitions>
-                    <local:ProgressRadar x:Name="uiRadar" 
-                                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-                    <Border x:Name="uiRadarDetails" Visibility="Collapsed" Grid.Column="1" 
-                            BorderBrush="Black" BorderThickness="1" Padding="5"
-                            Background="BlanchedAlmond"
-                            VerticalAlignment="Stretch" 
-                            >
-                        <Grid MinWidth="425">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <TextBlock FontWeight="Bold" FontSize="24" Tapped="OnHideRadarDetails">Details</TextBlock>
-                            <CommandBar Grid.Row="1" OverflowButtonVisibility="Collapsed" >
-                                <CommandBar.PrimaryCommands>
-                                    <AppBarButton Content="Hide" Tapped="OnHideRadarDetails" />
-                                    <AppBarButton Content="Clear" Tapped="OnClearRadarDetails" />
-                                </CommandBar.PrimaryCommands>
-                            </CommandBar>
-                            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-                                <TextBlock x:Name="uiRadarDetailsText" IsTextSelectionEnabled="True" TextWrapping="Wrap"/>
-                            </ScrollViewer>
-                        </Grid>
-                    </Border>
-                </Grid>
-            </PivotItem>
-            <PivotItem Header="Table">
-                <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
-                    <controls:DataGrid x:Name="uiGrid"
-                                    CanUserSortColumns="true"
-                                    CanUserResizeColumns="true"
-                                    IsReadOnly="true"
-                                    ClipboardCopyMode="IncludeHeader"
-                                    Sorting="OnGridSort" Tapped="OnGridTapped" DoubleTapped="OnGridDoubleTapped" CurrentCellChanged="OnGridCurrentCellChanged"
-                                   
-                                    >
-                    </controls:DataGrid>
-                </ScrollViewer>
-            </PivotItem>
-            <PivotItem Header="Log">
-                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-                    <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
-                </ScrollViewer>
-            </PivotItem>
-            <PivotItem Header="CSV">
-                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-                    <TextBlock x:Name="uiCsv" IsTextSelectionEnabled="True" />
-                </ScrollViewer>
-            </PivotItem>
-            <PivotItem Header="Help">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="*" />
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <Button Content="🡨" Click="OnHelpBack" Padding="0" Margin="0" Background="White"                    />
-                        <TextBlock Text="Help for Wi-Fi Analyzer" FontSize="30" FontWeight="Bold" />
-                    </StackPanel>
-                    <ScrollViewer Grid.Row="1">
-                        <controls:MarkdownTextBlock x:Name="uiHelpText" FontFamily="Segoe UI,Segoe MDL2 Assets" />
-                    </ScrollViewer>
-                </Grid>
-
-            </PivotItem>
-        </Pivot>
-
-        <Grid Grid.Row="2" >
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="auto" />
-            </Grid.ColumnDefinitions>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <Button Content="Scan" Click="OnScanNow" />
-            </StackPanel>
-            <ProgressRing Grid.Column="1" HorizontalAlignment="Right" Width="120"/>
-        </Grid>
+        <radar:WiFiAnalyzerControl />
     </Grid>
 </Page>
