@@ -1,7 +1,9 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Controls;
+using SmartWiFiHelpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,6 +25,13 @@ namespace SimpleWiFiAnalyzer
         public MainPage()
         {
             this.InitializeComponent();
+
+            int nerror = 0;
+            nerror += WiFiBandChannel.TestFindOverlapping();
+            if (nerror != 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"ERROR: NError is {nerror}; should be 0.");
+            }
         }
     }
 }

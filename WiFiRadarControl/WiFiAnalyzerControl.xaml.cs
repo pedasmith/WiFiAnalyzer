@@ -167,24 +167,42 @@ namespace WiFiRadarControl
             Log("\n\n");
             uiCsv.Text = CurrentCsv;
 
+            var orderList = new OrderedBandList(CurrentNetworkInformationList);
+            Log("BANDS:");
+            foreach (var item in orderList.OrderedBands)
+            {
+                var str = $"    {item.Key}: ";
+                foreach (var band in item.Value.InfoOverlapFrequency)
+                {
+                    str += $"{band.SSID} ";
+                }
+                foreach (var band in item.Value.InfoExactFrequency)
+                {
+                    str += $"**{band.SSID}** ";
+                }
+                Log(str);
+            }
+            Log("\n\n");
+
 
             // Add the locations
-            SetupCurrentReflectorList();
+            CurrentReflectorList = CreateReflectorList(CurrentNetworkInformationList);
             uiRadar.SetReflectors(CurrentReflectorList); // Update the reflectors to represent the new truth about WiFi
             await uiRadar.StopAsync();
         }
 
-        private void SetupCurrentReflectorList()
+        private static List<Reflector> CreateReflectorList(IList<WifiNetworkInformation> list)
         {
-            CurrentReflectorList = new List<Reflector>();
-            foreach (var ninfo in CurrentNetworkInformationList)
+            var retval = new List<Reflector>();
+            foreach (var ninfo in list)
             {
                 var refl = new Reflector();
                 refl.Icon = Reflector.Icon_AP;
                 refl.NetworkInformation = ninfo;
-                CurrentReflectorList.Add(refl);
+                retval.Add(refl);
             }
-            CurrentReflectorList = CurrentReflectorList.OrderBy(value => value.NetworkInformation.Rssi).ToList();
+            retval = retval.OrderBy(value => value.NetworkInformation.Rssi).ToList();
+            return retval;
         }
 
         private void Item_AvailableNetworksChanged(WiFiAdapter sender, object args)

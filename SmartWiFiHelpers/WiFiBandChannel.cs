@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
+using Windows.UI.WebUI;
+using Windows.UI.Xaml.Controls;
 
 namespace SmartWiFiHelpers
 {
@@ -14,9 +18,9 @@ namespace SmartWiFiHelpers
         /// <param name="wifiVersion"></param>
         /// <param name="channelName"></param>
         /// <param name="bandName"></param>
-        /// <param name="minOverlappingFrequency"></param>
-        /// <param name="maxOverlappingFrequency"></param>
-        public WiFiBandChannel(int channelCenterFrequencyInMegahertz, int bandwidthInKilohertz, string wifiVersion, string channelName, string bandName, int minOverlappingFrequency, int maxOverlappingFrequency)
+        /// <param name="minOverlappingFrequencyInMegahertz"></param>
+        /// <param name="maxOverlappingFrequencyInMegahertz"></param>
+        public WiFiBandChannel(int channelCenterFrequencyInMegahertz, int bandwidthInKilohertz, string wifiVersion, string channelName, string bandName, int minOverlappingFrequencyInMegahertz, int maxOverlappingFrequencyInMegahertz)
         {
             ChannelCenterFrequencyInKilohertz = channelCenterFrequencyInMegahertz * 1000;
             BandwidthInKilohertzList.Add(bandwidthInKilohertz); // if more are needed, they can be added
@@ -24,11 +28,12 @@ namespace SmartWiFiHelpers
             ChannelName = channelName;
             BandName = bandName;
 
-            MinOverlappingFrequency = minOverlappingFrequency * 1000;
-            MaxOverlappingFrequency = maxOverlappingFrequency * 1000;
+            MinOverlappingFrequencyInKilohertz = minOverlappingFrequencyInMegahertz*1000;
+            MaxOverlappingFrequencyInKilohertz = maxOverlappingFrequencyInMegahertz*1000;
         }
 
         public int ChannelCenterFrequencyInKilohertz { get; internal set; } = 0;
+        public double GetChannelCenterFrequencyInGigahertz() { return (double)ChannelCenterFrequencyInKilohertz / 1_000_000.0; }
         /// <summary>
         /// Bandwidth is in KHz.
         /// </summary>
@@ -36,8 +41,8 @@ namespace SmartWiFiHelpers
         public string WiFiVersion { get; internal set; }
         public string ChannelName { get; internal set; }
         public string BandName { get; internal set; }
-        public int MinOverlappingFrequency { get; internal set; }
-        public int MaxOverlappingFrequency { get; internal set; }
+        public int MinOverlappingFrequencyInKilohertz { get; internal set; }
+        public int MaxOverlappingFrequencyInKilohertz { get; internal set; }
 
         public static int Find(List<WiFiBandChannel> list, int frequencyInKilohertz)
         {
@@ -49,6 +54,61 @@ namespace SmartWiFiHelpers
                 }
             }
             return -1;
+        }
+        /// <summary>
+        /// Returns a list of indexes into the list of frequencies that overlap the given WiFiBandChannel.
+        /// This is used to make the "these freuencies are used" chart.
+        /// </summary>
+        public static List<int> FindOverlapping(List<WiFiBandChannel> list, WiFiBandChannel value)
+        {
+            var retval = new List<int>();
+            for (int i = 0; i < list.Count; i++)
+            {
+                if (value.MaxOverlappingFrequencyInKilohertz >= list[i].ChannelCenterFrequencyInKilohertz
+                    && value.MinOverlappingFrequencyInKilohertz <= list[i].ChannelCenterFrequencyInKilohertz)
+                {
+                    retval.Add(i);
+                }
+            }
+            return retval;
+        }
+
+        public static int TestFindOverlapping()
+        {
+            int nerror = 0;
+            var wbcList = WiFiBandChannel.StaticWifiBandList;
+            var freq = 2_412_000;
+            var wbcIndex = WiFiBandChannel.Find(wbcList, freq);
+            if (wbcIndex < 0)
+            {
+                Debug.WriteLine($"ERROR: WiFiBandChannel: FindOverlapping({freq}) was not found.");
+                nerror++;
+            }
+            else
+            {
+                var expected = new List<string>(){ "1", "2", "3", };
+                var actual = FindOverlapping(WiFiBandChannel.StaticWifiBandList, wbcList[wbcIndex]);
+                if (expected.Count != actual.Count)
+                {
+                    Debug.WriteLine($"ERROR: WiFiBandChannel: FindOverlapping({freq}) return count expected={expected.Count} actual={actual.Count}");
+                    nerror++;
+                }
+                else
+                {
+                    foreach (var itemIndex in actual)
+                    {
+                        var item = wbcList[itemIndex];
+                        var expectedIndex = expected.IndexOf(item.ChannelName);
+                        if (expectedIndex < 0)
+                        {
+                            Debug.WriteLine($"ERROR: WiFiBandChannel: FindOverlapping({freq}) returned {item.BandName} but it's not in the expected list");
+                            nerror++;
+                        }
+                    }
+
+                }
+            }
+            return nerror;
         }
         private static List<WiFiBandChannel> _StaticWifiBandList = CreateWiFiMapping();
         public static List<WiFiBandChannel> StaticWifiBandList {  get { return _StaticWifiBandList; } }
@@ -75,11 +135,11 @@ namespace SmartWiFiHelpers
             retval.Add(new WiFiBandChannel(2472, BW24, BGNAX, "13", GH24, 2461, 2483));
             retval.Add(new WiFiBandChannel(2484, BW24, BGNAX, "14", GH24, 2473, 2495));
 
-            const int BW10 = 10000; // in kilohertz
-            const int BW20 = 20000; // in kilohertz
-            const int BW40 = 40000; // in kilohertz
-            const int BW80 = 80000; // in kilohertz
-            const int BW160 = 160000; // in kilohertz
+            const int BW10 = 10; // in megahertz
+            const int BW20 = 20; // in megahertz
+            const int BW40 = 40; // in megahertz
+            const int BW80 = 80; // in megahertz
+            const int BW160 = 160; // in megahertz
 
             retval.Add(Create5GhChannel(  "7", 5035, BW10));
             retval.Add(Create5GhChannel(  "8", 5040, BW20));
@@ -157,13 +217,13 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
-        private static WiFiBandChannel Create5GhChannel(string channelName, int centerFrequency, int bandwidth)
+        private static WiFiBandChannel Create5GhChannel(string channelName, int centerFrequencyInMegahertz, int bandwidthInMegahertz)
         {
             const string GH5 = "5 GHz";
             const string AHJNACAX = "802.11a/h/j/n/ac/ax";
-            int minFrequency = centerFrequency - bandwidth / 2;
-            int maxFrequency = centerFrequency - bandwidth / 2;
-            return new WiFiBandChannel(centerFrequency, bandwidth, AHJNACAX, channelName, GH5, minFrequency, maxFrequency);
+            int minFrequencyInMegahertz = (centerFrequencyInMegahertz) - bandwidthInMegahertz / 2;
+            int maxFrequencyInMegahertz = (centerFrequencyInMegahertz) + bandwidthInMegahertz / 2;
+            return new WiFiBandChannel(centerFrequencyInMegahertz, bandwidthInMegahertz, AHJNACAX, channelName, GH5, minFrequencyInMegahertz, maxFrequencyInMegahertz);
         }
     }
 }
