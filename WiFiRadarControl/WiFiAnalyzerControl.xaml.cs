@@ -184,7 +184,7 @@ namespace WiFiRadarControl
                 refl.NetworkInformation = ninfo;
                 CurrentReflectorList.Add(refl);
             }
-            CurrentReflectorList = CurrentReflectorList.OrderBy(value => value.NetworkInformation.Rssi).ToList();
+            CurrentReflectorList = CurrentReflectorList.OrderByDescending(value => value.NetworkInformation.Rssi).ToList();
         }
 
         private void Item_AvailableNetworksChanged(WiFiAdapter sender, object args)
