@@ -189,7 +189,7 @@ namespace WiFiRadarControl
 
         private void Item_AvailableNetworksChanged(WiFiAdapter sender, object args)
         {
-            System.Diagnostics.Debug.WriteLine($"NetworkChange: {args}"); //TODO: remove
+            System.Diagnostics.Debug.WriteLine($"NetworkChange: {sender} args=<<{args}>>"); //TODO: remove
         }
 
 
