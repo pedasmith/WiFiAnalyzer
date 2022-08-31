@@ -20,6 +20,7 @@ namespace SmartWiFiHelpers
         /// Center frequency in Gigahertz (e.g., "2.4" for 2.4 GHz
         /// </summary>
         public double Frequency { get; set; }
+        public int GetFrequenceInKilohertz() { return (int)Math.Round(Frequency * 1_000_000); }
         public double Rssi { get; set; }
         public double SignalBars { get; set; }
         public string PhyKind { get; set; }
@@ -30,6 +31,11 @@ namespace SmartWiFiHelpers
         public string IsWiFiDirect { get; set; }
         public string NetworkKind { get; set; }
         public DateTimeOffset ScanTimeStamp { get; set; }
+
+        public override string ToString()
+        {
+            return $"{SSID} channel={ChannelName} band={BandName}";
+        }
 
     }
 }
