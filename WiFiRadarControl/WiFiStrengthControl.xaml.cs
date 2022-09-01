@@ -71,7 +71,6 @@ namespace WiFiRadarControl
         public void SetStrength(OrderedBandInfo list)
         {
             uiText.Text = list.FrequencyInGigahertz.ToString();
-            var multiplier = 10.0;
             const double HeightOverlap = 10.0;
             const double HeightExact = 20.0;
             var lf = MathLogisticFunctions.CreateAmbientNoiseBarSize();
@@ -80,26 +79,36 @@ namespace WiFiRadarControl
 
             foreach (var wifiNetworkInfo in list.InfoOverlapFrequency)
             {
-                var width = lf.Calculate(wifiNetworkInfo.Rssi) * multiplier;
-                var brush = GetBrush(ColorIndex, wifiNetworkInfo);
-                var rect = new Rectangle() { Width = width, Height = HeightOverlap, Fill = brush, Stroke = OutlineOverlap, Margin = RectMarginOverlap, Tag= wifiNetworkInfo };
-                rect.Tapped += Strength_Tapped;
+                var rect = CreateRect(lf, wifiNetworkInfo);
+                rect.Height = HeightOverlap;
+                rect.Stroke = OutlineOverlap;
+                rect.Margin = RectMarginOverlap;
                 uiStrength.Children.Add(rect);
-
                 ColorIndex++;
             }
             foreach (var wifiNetworkInfo in list.InfoExactFrequency)
             {
-                var width = lf.Calculate(wifiNetworkInfo.Rssi) * multiplier;
-                var brush = GetBrush(ColorIndex, wifiNetworkInfo);
-                var rect = new Rectangle() { Width = width, Height = HeightExact, Fill = brush, Stroke = OutlineExact, Margin = RectMarginExact, Tag = wifiNetworkInfo};
-                rect.Tapped += Strength_Tapped;
+                var rect = CreateRect(lf, wifiNetworkInfo);
+                rect.Height = HeightExact;
+                rect.Stroke = OutlineExact;
+                rect.Margin = RectMarginExact;
                 uiStrength.Children.Add(rect);
 
                 ColorIndex++;
             }
             var weight = list.InfoExactFrequency.Count > 0 ? Windows.UI.Text.FontWeights.Bold : Windows.UI.Text.FontWeights.Normal;
             uiChannelName.FontWeight = weight;
+        }
+
+        private Rectangle CreateRect(MathLogisticFunctions lf, WifiNetworkInformation wifiNetworkInfo)
+        {
+            const double multiplier = 10.0;
+            var width = lf.Calculate(wifiNetworkInfo.Rssi) * multiplier;
+            var brush = GetBrush(ColorIndex, wifiNetworkInfo);
+            var rect = new Rectangle() { Width = width, Fill = brush, Tag = wifiNetworkInfo };
+            rect.Tapped += Strength_Tapped;
+            ToolTipService.SetToolTip(rect, new ToolTip() { Content = $"SSID={wifiNetworkInfo.SSID}" });
+            return rect;
         }
         private void Log(string text)
         {
