@@ -66,7 +66,12 @@
             </PivotItem>
             <PivotItem Header="Log">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-                    <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
+                    <StackPanel>
+                        <TextBlock FontWeight="Bold" FontSize="20" Text="Recommendations" />
+                        <StackPanel x:Name="uiStrength"></StackPanel>
+                        <TextBlock FontWeight="Bold" FontSize="20" Text="Log" />
+                        <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
+                    </StackPanel>
                 </ScrollViewer>
             </PivotItem>
             <PivotItem Header="CSV">

@@ -19,7 +19,7 @@ namespace SmartWiFiHelpers
             Upper = upper;
         }
 
-        public MathLogisticFunctions CreateAmbientNoiseBarSize()
+        public static MathLogisticFunctions CreateAmbientNoiseBarSize()
         {
             return new MathLogisticFunctions(1, 5, -75, -45);
         }

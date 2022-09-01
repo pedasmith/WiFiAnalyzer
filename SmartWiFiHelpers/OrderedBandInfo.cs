@@ -13,28 +13,35 @@ namespace SmartWiFiHelpers
     public class OrderedBandInfo
     {
         public double FrequencyInGigahertz { get; set; }
+        public WiFiBandChannel WBC { get; set; }
         public List<WifiNetworkInformation> InfoExactFrequency = new List<WifiNetworkInformation>();
         public List<WifiNetworkInformation> InfoOverlapFrequency = new List<WifiNetworkInformation>();
+        public List<WifiNetworkInformation> InfoAllFrequency = new List<WifiNetworkInformation>();
         public void AddWifiNetworkInformation(WifiNetworkInformation value)
         {
             var list = (value.Frequency == FrequencyInGigahertz) ? InfoExactFrequency : InfoOverlapFrequency;
             list.Add(value);
+            InfoAllFrequency.Add(value);
         }
     }
 
     public class OrderedBandList
     {
         public SortedList<double, OrderedBandInfo> OrderedBands = new SortedList<double, OrderedBandInfo>();
-        private OrderedBandInfo GetOrCreate(double frequency)
+        private OrderedBandInfo GetOrCreate(double frequencyInGigahertz)
         {
-            if (OrderedBands.ContainsKey(frequency))
+            if (OrderedBands.ContainsKey(frequencyInGigahertz))
             {
-                return OrderedBands[frequency];
+                return OrderedBands[frequencyInGigahertz];
             }
             else
             {
-                var obi = new OrderedBandInfo() { FrequencyInGigahertz = frequency };
-                OrderedBands.Add(frequency, obi);
+                int frequencyInKilohertz = (int)Math.Round(frequencyInGigahertz * 1_000_000);
+                var wbcList = WiFiBandChannel.StaticWifiBandList;
+                var wbcIndex = WiFiBandChannel.Find(wbcList, frequencyInKilohertz);
+                var wbc = wbcIndex >= 0 ? wbcList[wbcIndex] : null;
+                var obi = new OrderedBandInfo() { FrequencyInGigahertz = frequencyInGigahertz, WBC = wbc };
+                OrderedBands.Add(frequencyInGigahertz, obi);
                 return obi;
             }
         }

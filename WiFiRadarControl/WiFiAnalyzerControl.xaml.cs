@@ -66,6 +66,8 @@ namespace WiFiRadarControl
             HelpHistory.NavigatedTo(place);
             HelpNavigatedTo = place;
         }
+
+        #region HELP
         private async Task<bool> HelpGotoAsync(string filename)
         {
             if (filename.StartsWith("http://") || filename.StartsWith("https://"))
@@ -113,6 +115,10 @@ namespace WiFiRadarControl
             var page = HelpHistory.PopLastPage();
             await HelpGotoAsync(page);
         }
+
+        #endregion
+
+        #region SCAN
         private async void OnScanNow(object sender, RoutedEventArgs e)
         {
             await DoScanAsync();
@@ -184,6 +190,16 @@ namespace WiFiRadarControl
             }
             Log("\n\n");
 
+            // Set up the strength lists
+            var obl = new OrderedBandList(CurrentNetworkInformationList);
+            uiStrength.Children.Clear();
+            WiFiStrengthControl.ResetColorIndex();
+            foreach (var (freq,obi) in obl.OrderedBands)
+            {
+                var ctrl = new WiFiStrengthControl();
+                ctrl.SetStrength(obi);
+                uiStrength.Children.Add(ctrl);
+            }
 
             // Add the locations
             CurrentReflectorList = CreateReflectorList(CurrentNetworkInformationList);
@@ -209,8 +225,28 @@ namespace WiFiRadarControl
         {
             System.Diagnostics.Debug.WriteLine($"NetworkChange: {sender} args=<<{args}>>"); //TODO: remove
         }
+        #endregion SCAN
 
+        #region RADAR
+        public void Display(WifiNetworkInformation value)
+        {
+            var text = NetworkToString.ToString("", value);
+            uiRadarDetailsText.Text = text + uiRadarDetailsText.Text;
+            uiRadarDetails.Visibility = Visibility.Visible;
+        }
 
+        private void OnHideRadarDetails(object sender, TappedRoutedEventArgs e)
+        {
+            uiRadarDetails.Visibility = Visibility.Collapsed;
+        }
+
+        private void OnClearRadarDetails(object sender, TappedRoutedEventArgs e)
+        {
+            uiRadarDetailsText.Text = "";
+        }
+        #endregion
+
+        #region TABLE
         private void OnGridSort(object sender, DataGridColumnEventArgs e)
         {
             var dg = uiGrid;
@@ -301,23 +337,8 @@ namespace WiFiRadarControl
         {
             ;
         }
+        #endregion
 
-        public void Display(WifiNetworkInformation value)
-        {
-            var text = NetworkToString.ToString("", value);
-            uiRadarDetailsText.Text = text + uiRadarDetailsText.Text;
-            uiRadarDetails.Visibility = Visibility.Visible;
-        }
-
-        private void OnHideRadarDetails(object sender, TappedRoutedEventArgs e)
-        {
-            uiRadarDetails.Visibility = Visibility.Collapsed;
-        }
-
-        private void OnClearRadarDetails(object sender, TappedRoutedEventArgs e)
-        {
-            uiRadarDetailsText.Text = "";
-        }
 
     }
 }

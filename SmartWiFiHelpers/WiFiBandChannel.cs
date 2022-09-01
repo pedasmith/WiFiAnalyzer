@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using Windows.Media.Capture;
 using Windows.UI.WebUI;
 using Windows.UI.Xaml.Controls;
 
 namespace SmartWiFiHelpers
 {
-    class WiFiBandChannel
+    public class WiFiBandChannel
     {
         /// <summary>
         /// Input frequencies are all in MHz even through they are stored as KHz to match the underlying values
@@ -44,6 +46,11 @@ namespace SmartWiFiHelpers
         public int MinOverlappingFrequencyInKilohertz { get; internal set; }
         public int MaxOverlappingFrequencyInKilohertz { get; internal set; }
 
+        public override string ToString()
+        {
+            return $"Channel={ChannelName} Freq={ChannelCenterFrequencyInKilohertz} Band={BandName} ";
+        }
+
         public static int Find(List<WiFiBandChannel> list, int frequencyInKilohertz)
         {
             for (int i = 0; i < list.Count; i++)
@@ -64,8 +71,18 @@ namespace SmartWiFiHelpers
             var retval = new List<int>();
             for (int i = 0; i < list.Count; i++)
             {
-                if (value.MaxOverlappingFrequencyInKilohertz >= list[i].ChannelCenterFrequencyInKilohertz
-                    && value.MinOverlappingFrequencyInKilohertz <= list[i].ChannelCenterFrequencyInKilohertz)
+                // Don't include any equals -- in the 5GHz range, e.g. band 48 is 5240 MHz@20MHz bandwidth, but
+                // it doesn't overlap with e.g. band 46 which is 5230
+                //if (value.MaxOverlappingFrequencyInKilohertz > list[i].ChannelCenterFrequencyInKilohertz
+                //    && value.MinOverlappingFrequencyInKilohertz < list[i].ChannelCenterFrequencyInKilohertz)
+                //{
+                //    retval.Add(i);
+                //}
+                bool minOverlap = FrequencyInRange(list[i], value.MinOverlappingFrequencyInKilohertz);
+                bool centerOverlap = FrequencyInRange(list[i], value.ChannelCenterFrequencyInKilohertz);
+                bool maxOverlap = FrequencyInRange(list[i], value.MaxOverlappingFrequencyInKilohertz);
+                bool overlap = minOverlap || maxOverlap || centerOverlap; // because things that just barely touch don't really overlap. But everything should overlap itself.
+                if (overlap)
                 {
                     retval.Add(i);
                 }
@@ -73,11 +90,17 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
-        public static int TestFindOverlapping()
+        private static bool FrequencyInRange(WiFiBandChannel potentialItem, int freq)
+        {
+            bool retval = (freq > potentialItem.MinOverlappingFrequencyInKilohertz
+                && freq < potentialItem.MaxOverlappingFrequencyInKilohertz);
+            return retval;
+        }
+
+        private static int TestFindOverlappingOne(int freq, List<string> expected)
         {
             int nerror = 0;
             var wbcList = WiFiBandChannel.StaticWifiBandList;
-            var freq = 2_412_000;
             var wbcIndex = WiFiBandChannel.Find(wbcList, freq);
             if (wbcIndex < 0)
             {
@@ -86,7 +109,6 @@ namespace SmartWiFiHelpers
             }
             else
             {
-                var expected = new List<string>(){ "1", "2", "3", };
                 var actual = FindOverlapping(WiFiBandChannel.StaticWifiBandList, wbcList[wbcIndex]);
                 if (expected.Count != actual.Count)
                 {
@@ -108,6 +130,15 @@ namespace SmartWiFiHelpers
 
                 }
             }
+            return nerror;
+        }
+
+
+        public static int TestFindOverlapping()
+        {
+            int nerror = 0;
+            nerror += TestFindOverlappingOne(2_412_000, new List<string>() { "1", "2", "3", "4", "5" });
+            nerror += TestFindOverlappingOne(5_240_000, new List<string>() { "48", "46", "42", "50" });
             return nerror;
         }
         private static List<WiFiBandChannel> _StaticWifiBandList = CreateWiFiMapping();

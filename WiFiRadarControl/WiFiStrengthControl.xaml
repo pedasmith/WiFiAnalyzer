@@ -11,10 +11,12 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="auto" MinWidth="50" />
+            <ColumnDefinition Width="auto" MinWidth="200" />
             <ColumnDefinition Width="*"  />
         </Grid.ColumnDefinitions>
-        <StackPanel x:Name="uiStrength" Orientation="Horizontal" />
-        <TextBlock Grid.Column="1" x:Name="uiText" Text="SSID=" Margin="20,0,0,0" />
+        <TextBlock Grid.Column="0" x:Name="uiChannelName" Text="11" TextAlignment="Right" />
+        <StackPanel Grid.Column="1" x:Name="uiStrength" Orientation="Horizontal" Margin="20,0,0,0" />
+        <TextBlock Grid.Column="2" x:Name="uiText" Text="SSID=" Margin="20,0,0,0" />
     </Grid>
 </UserControl>
