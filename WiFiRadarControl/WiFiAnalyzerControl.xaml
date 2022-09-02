@@ -16,8 +16,12 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
-        <TextBlock FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Wi-Fi Testing</TextBlock>
-        <Pivot Grid.Row="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <TextBlock Grid.ColumnSpan="2" FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Wi-Fi Testing</TextBlock>
+        <Pivot Grid.Row="1" Grid.Column="0">
             <PivotItem Header="RADAR">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -26,29 +30,25 @@
                     </Grid.ColumnDefinitions>
                     <local:ProgressRadar x:Name="uiRadar" 
                                      VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-                    <Border x:Name="uiRadarDetails" Visibility="Collapsed" Grid.Column="1" 
-                            BorderBrush="Black" BorderThickness="1" Padding="5"
-                            Background="BlanchedAlmond"
-                            VerticalAlignment="Stretch" 
-                            >
-                        <Grid MinWidth="425">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="auto" />
-                                <RowDefinition Height="*" />
-                            </Grid.RowDefinitions>
-                            <TextBlock FontWeight="Bold" FontSize="24" Tapped="OnHideRadarDetails">Details</TextBlock>
-                            <CommandBar Grid.Row="1" OverflowButtonVisibility="Collapsed" >
-                                <CommandBar.PrimaryCommands>
-                                    <AppBarButton Content="Hide" Tapped="OnHideRadarDetails" />
-                                    <AppBarButton Content="Clear" Tapped="OnClearRadarDetails" />
-                                </CommandBar.PrimaryCommands>
-                            </CommandBar>
-                            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-                                <TextBlock x:Name="uiRadarDetailsText" IsTextSelectionEnabled="True" TextWrapping="Wrap"/>
-                            </ScrollViewer>
-                        </Grid>
-                    </Border>
+                </Grid>
+            </PivotItem>
+            <PivotItem Header="Chart">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0">
+                        <TextBlock FontWeight="Bold" FontSize="20">Frequency chart</TextBlock>
+                        <TextBlock >Shows how crowded each channel is and how the channels overlap</TextBlock>
+                    </StackPanel>
+                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+                        <StackPanel x:Name="uiStrength"></StackPanel>
+                    </ScrollViewer>
+                    <StackPanel Grid.Row="2">
+                        <TextBlock x:Name="uiWiFiOneLineInformation" />
+                    </StackPanel>
                 </Grid>
             </PivotItem>
             <PivotItem Header="Table">
@@ -67,9 +67,6 @@
             <PivotItem Header="Log">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                     <StackPanel>
-                        <TextBlock FontWeight="Bold" FontSize="20" Text="Recommendations" />
-                        <StackPanel x:Name="uiStrength"></StackPanel>
-                        <TextBlock FontWeight="Bold" FontSize="20" Text="Log" />
                         <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
                     </StackPanel>
                 </ScrollViewer>
@@ -97,7 +94,7 @@
             </PivotItem>
         </Pivot>
 
-        <Grid Grid.Row="2" >
+        <Grid Grid.Row="2" Grid.ColumnSpan="2" >
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
@@ -107,6 +104,30 @@
             </StackPanel>
             <ProgressRing Grid.Column="1" HorizontalAlignment="Right" Width="120"/>
         </Grid>
+        <Border x:Name="uiRadarDetails" Visibility="Collapsed"
+                Grid.Row="1" Grid.Column="1" 
+                BorderBrush="Black" BorderThickness="1" Padding="5"
+                Background="BlanchedAlmond"
+                VerticalAlignment="Stretch" 
+                >
+            <Grid MinWidth="425">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <TextBlock FontWeight="Bold" FontSize="24" Tapped="OnHideRadarDetails">Details</TextBlock>
+                <CommandBar Grid.Row="1" OverflowButtonVisibility="Collapsed" >
+                    <CommandBar.PrimaryCommands>
+                        <AppBarButton Content="Hide" Tapped="OnHideRadarDetails" />
+                        <AppBarButton Content="Clear" Tapped="OnClearRadarDetails" />
+                    </CommandBar.PrimaryCommands>
+                </CommandBar>
+                <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
+                    <TextBlock x:Name="uiWiFiDetailsText" IsTextSelectionEnabled="True" TextWrapping="Wrap"/>
+                </ScrollViewer>
+            </Grid>
+        </Border>
     </Grid>
 
 </UserControl>

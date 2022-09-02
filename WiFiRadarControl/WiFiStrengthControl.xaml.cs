@@ -24,6 +24,8 @@ namespace WiFiRadarControl
 {
     public sealed partial class WiFiStrengthControl : UserControl
     {
+        public IDisplayWifiNetworkInformation DisplayInfo = null;
+
         public WiFiStrengthControl()
         {
             this.InitializeComponent();
@@ -107,6 +109,7 @@ namespace WiFiRadarControl
             var brush = GetBrush(ColorIndex, wifiNetworkInfo);
             var rect = new Rectangle() { Width = width, Fill = brush, Tag = wifiNetworkInfo };
             rect.Tapped += Strength_Tapped;
+            rect.DoubleTapped += Strength_DoubleTapped;
             ToolTipService.SetToolTip(rect, new ToolTip() { Content = $"SSID={wifiNetworkInfo.SSID}" });
             return rect;
         }
@@ -117,7 +120,12 @@ namespace WiFiRadarControl
         private void Strength_Tapped(object sender, TappedRoutedEventArgs e)
         {
             var wni = (sender as FrameworkElement).Tag as WifiNetworkInformation;
-            Log($"TAP: {wni.SSID} RSSI={wni.Rssi} BSSID={wni.Bssid}");
+            DisplayInfo?.DisplayOneLine(wni);
+        }
+        private void Strength_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            var wni = (sender as FrameworkElement).Tag as WifiNetworkInformation;
+            DisplayInfo?.Display(wni);
         }
     }
 }

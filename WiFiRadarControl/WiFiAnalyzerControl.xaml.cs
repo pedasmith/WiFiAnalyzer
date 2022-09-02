@@ -24,6 +24,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace WiFiRadarControl
 {
+
     public sealed partial class WiFiAnalyzerControl : UserControl, IDisplayWifiNetworkInformation
     {
         public WiFiAnalyzerControl()
@@ -196,7 +197,7 @@ namespace WiFiRadarControl
             WiFiStrengthControl.ResetColorIndex();
             foreach (var (freq,obi) in obl.OrderedBands)
             {
-                var ctrl = new WiFiStrengthControl();
+                var ctrl = new WiFiStrengthControl() { DisplayInfo = this, };
                 ctrl.SetStrength(obi);
                 uiStrength.Children.Add(ctrl);
             }
@@ -231,8 +232,13 @@ namespace WiFiRadarControl
         public void Display(WifiNetworkInformation value)
         {
             var text = NetworkToString.ToString("", value);
-            uiRadarDetailsText.Text = text + uiRadarDetailsText.Text;
+            uiWiFiDetailsText.Text = text + uiWiFiDetailsText.Text;
             uiRadarDetails.Visibility = Visibility.Visible;
+        }
+
+        public void DisplayOneLine(WifiNetworkInformation value)
+        {
+            uiWiFiOneLineInformation.Text = $"{value.SSID} BSSID={value.Bssid} RSSI={value.Rssi}";
         }
 
         private void OnHideRadarDetails(object sender, TappedRoutedEventArgs e)
@@ -242,7 +248,7 @@ namespace WiFiRadarControl
 
         private void OnClearRadarDetails(object sender, TappedRoutedEventArgs e)
         {
-            uiRadarDetailsText.Text = "";
+            uiWiFiDetailsText.Text = "";
         }
         #endregion
 

@@ -17,6 +17,7 @@ namespace WiFiRadarControl
     public interface IDisplayWifiNetworkInformation
     {
         void Display(WifiNetworkInformation value);
+        void DisplayOneLine(WifiNetworkInformation value);
     }
     /// <summary>
     /// The APs that have been discovered (or "dummy" APs)
