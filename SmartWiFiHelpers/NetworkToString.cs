@@ -269,7 +269,7 @@ namespace SmartWiFiHelpers
             {
                 ;
             }
-
+            dest.SetAvailableNetwork(source);
 
         }
         public static string ToCsvHeader_WiFiAvailableNetwork()
@@ -347,12 +347,13 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
-        public static void Fill(IList<WiFiNetworkInformation> list, WiFiNetworkReport value, ScanMetadata smd)
+        public static void Fill(WiFiAdapter wifiAdapter, IList<WiFiNetworkInformation> list, WiFiNetworkReport value, ScanMetadata smd)
         {
             foreach (var item in value.AvailableNetworks)
             {
                 var data = new WiFiNetworkInformation();
                 Fill(data, item, smd);
+                data.SetAdapter(wifiAdapter);
                 list.Add(data);
             }
         }

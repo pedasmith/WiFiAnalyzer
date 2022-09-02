@@ -145,16 +145,16 @@ namespace WiFiRadarControl
             var smd = new ScanMetadata();
 
 
-            var list = await WiFiAdapter.FindAllAdaptersAsync();
+            var adapterList = await WiFiAdapter.FindAllAdaptersAsync();
             CurrentCsv = NetworkToString.ToCsvHeader_WiFiNetworkReport() + "\n";
             CurrentNetworkInformationList.Clear();
-            foreach (var item in list)
+            foreach (var wifiAdapter in adapterList)
             {
-                Log(await NetworkToString.ToStringAsync("", item));
-                item.AvailableNetworksChanged += Item_AvailableNetworksChanged;
+                Log(await NetworkToString.ToStringAsync("", wifiAdapter));
+                wifiAdapter.AvailableNetworksChanged += Item_AvailableNetworksChanged;
                 try
                 {
-                    await item.ScanAsync();
+                    await wifiAdapter.ScanAsync();
                     //var scanTask =  item.ScanAsync();
                     //await Task.WhenAll(new Task[] { locatorTask.AsTask(), scanTask.AsTask() });
                 }
@@ -162,12 +162,12 @@ namespace WiFiRadarControl
                 {
                     ScanFailed(e.Message); // TODO: do a message somehow?
                 }
-                Log(NetworkToString.ToString("    ", item.NetworkReport));
+                Log(NetworkToString.ToString("    ", wifiAdapter.NetworkReport));
                 //if (locatorTask.Status != AsyncStatus.Error) smd.Position = locatorTask.GetResults();
                 //Log($"DBG: location status={locatorTask.Status} position={smd.Position}");
 
-                CurrentCsv += NetworkToString.ToCsvData(item.NetworkReport);
-                NetworkToString.Fill(CurrentNetworkInformationList, item.NetworkReport, smd);
+                CurrentCsv += NetworkToString.ToCsvData(wifiAdapter.NetworkReport);
+                NetworkToString.Fill(wifiAdapter, CurrentNetworkInformationList, wifiAdapter.NetworkReport, smd);
             }
             Log($"\nScan ended at {DateTime.Now}");
             Log("\n\n");
@@ -213,10 +213,10 @@ namespace WiFiRadarControl
             var retval = new List<Reflector>();
             foreach (var ninfo in list)
             {
-                var refl = new Reflector();
-                refl.Icon = Reflector.Icon_AP;
-                refl.NetworkInformation = ninfo;
-                retval.Add(refl);
+                var reflector = new Reflector();
+                reflector.Icon = Reflector.Icon_AP;
+                reflector.NetworkInformation = ninfo;
+                retval.Add(reflector);
             }
             retval = retval.OrderBy(value => value.NetworkInformation.Rssi).ToList();
             return retval;
@@ -234,7 +234,13 @@ namespace WiFiRadarControl
             var text = NetworkToString.ToString("", value);
             uiWiFiDetailsText.Text = text + uiWiFiDetailsText.Text;
             uiRadarDetails.Visibility = Visibility.Visible;
+            CurrentAdapter = value.GetAdapter();
+            CurrentAvailableNetwork = value.GetAvailableNetwork();
+            bool canConnect = CurrentAdapter != null && CurrentAvailableNetwork != null;
+            var visibility = canConnect ? Visibility.Visible : Visibility.Collapsed;
         }
+        WiFiAdapter CurrentAdapter = null;
+        WiFiAvailableNetwork CurrentAvailableNetwork = null;
 
         public void DisplayOneLine(WiFiNetworkInformation value)
         {
@@ -250,7 +256,37 @@ namespace WiFiRadarControl
         {
             uiWiFiDetailsText.Text = "";
         }
+
+        private async void OnConnectDetails(object sender, TappedRoutedEventArgs e)
+        {
+            if (CurrentAvailableNetwork == null || CurrentAdapter == null) return;
+            try
+            {
+                var result = await CurrentAdapter.ConnectAsync(CurrentAvailableNetwork, WiFiReconnectionKind.Manual);
+                var status = result.ConnectionStatus;
+                Log($"CONNECT: status={status}");
+
+            }
+            catch (Exception ex)
+            {
+                Log($"CONNECT: Exception: {ex.Message}");
+            }
+        }
+        private void OnDisconnectDetails(object sender, TappedRoutedEventArgs e)
+        {
+            if (CurrentAvailableNetwork == null || CurrentAdapter == null) return;
+            try
+            {
+                CurrentAdapter.Disconnect();
+            }
+            catch (Exception ex)
+            {
+                Log($"DISCONNECT: Exception: {ex.Message}");
+            }
+        }
+
         #endregion
+
 
         #region TABLE
         private void OnGridSort(object sender, DataGridColumnEventArgs e)

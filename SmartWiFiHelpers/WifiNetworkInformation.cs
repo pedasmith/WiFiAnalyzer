@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.WiFi;
+using Windows.Networking.Connectivity;
 
 namespace SmartWiFiHelpers
 {
@@ -31,6 +33,14 @@ namespace SmartWiFiHelpers
         public string IsWiFiDirect { get; set; }
         public string NetworkKind { get; set; }
         public DateTimeOffset ScanTimeStamp { get; set; }
+
+        // These can't be fields because they shouldn't be part of the grid.
+        private WiFiAdapter Adapter;
+        private WiFiAvailableNetwork AvailableNetwork;
+        public WiFiAdapter GetAdapter() { return Adapter; }
+        public void SetAdapter(WiFiAdapter adapter) { Adapter = adapter; }
+        public WiFiAvailableNetwork GetAvailableNetwork() {  return AvailableNetwork; }
+        public void SetAvailableNetwork(WiFiAvailableNetwork availableNetwork) { AvailableNetwork = availableNetwork; }
 
         public override string ToString()
         {
