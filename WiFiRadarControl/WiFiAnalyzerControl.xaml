@@ -64,28 +64,47 @@
                 </Grid>
             </PivotItem>
             <PivotItem Header="Table">
-                <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
-                    <controls:DataGrid x:Name="uiGrid"
-                                    CanUserSortColumns="true"
-                                    CanUserResizeColumns="true"
-                                    IsReadOnly="true"
-                                    ClipboardCopyMode="IncludeHeader"
-                                    Sorting="OnGridSort" Tapped="OnGridTapped" DoubleTapped="OnGridDoubleTapped" CurrentCellChanged="OnGridCurrentCellChanged"
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Margin" Value="3" />
+                        </Style>
+                    </Grid.Resources>
+                    <StackPanel Grid.Row="0">
+                        <TextBlock FontWeight="Bold" FontSize="20">Access Point (AP) Table</TextBlock>
+                        <TextBlock>Lists each network that was found and all the information about each one</TextBlock>
+                        <TextBlock>Click on the row header to sort by that row; click again to sort in reverse.</TextBlock>
+                        <TextBlock>Double-click on a cell to filter the table, including only matching APs. Double-click again to remove the filter</TextBlock>
+                        <TextBlock>Use the Copy As CSV and Copy For Excel to copy this data</TextBlock>
+                    </StackPanel>
+
+                    <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+                        <controls:DataGrid x:Name="uiGrid"
+                                        CanUserSortColumns="true"
+                                        CanUserResizeColumns="true"
+                                        IsReadOnly="true"
+                                        ClipboardCopyMode="IncludeHeader"
+                                        Sorting="OnGridSort" Tapped="OnGridTapped" DoubleTapped="OnGridDoubleTapped" CurrentCellChanged="OnGridCurrentCellChanged"
                                    
-                                    >
-                    </controls:DataGrid>
-                </ScrollViewer>
+                                        >
+                        </controls:DataGrid>
+                    </ScrollViewer>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                        <Button Content="Copy For Excel" Click="OnCopyForExcel" />
+                        <Button Content="Copy As CSV" Click="OnCopyAsCsv" />
+                    </StackPanel>
+                </Grid>
             </PivotItem>
             <PivotItem Header="Log">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                     <StackPanel>
                         <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
                     </StackPanel>
-                </ScrollViewer>
-            </PivotItem>
-            <PivotItem Header="CSV">
-                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
-                    <TextBlock x:Name="uiCsv" IsTextSelectionEnabled="True" />
                 </ScrollViewer>
             </PivotItem>
             <PivotItem Header="Help">

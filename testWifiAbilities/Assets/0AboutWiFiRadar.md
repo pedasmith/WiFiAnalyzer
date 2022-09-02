@@ -7,41 +7,21 @@
 Simple Wi-Fi Analyzer provides basic information about the Wi-Fi environment you are in. It provides a graphical RADAR-like display of the Wi-Fi access points in range, shows a frequency breakdown of the access points, and provides a table-like like of the details of each access point.
 
 
-
 # Status
 ## Project current status and todo
 
-* **DONE** attach hotspots to the radar points. Hotspots should be marked with **?** for first scan, a W for a wireless point on second scan and C for the connected adapter
-* **DONE** data is combo: found data and user data?
-* **DONE** data is name+BSSID or full data when hover?
-* **DONE** Show either table OR rings OR Scan Result text OR CSV OR ...
-* **DONE** Click on towers to show more data (and set the Z height)
-* **DONE** Show a central 'dot' (and faint ring radar lines?)(reticule)
-* **DONE** Decode e.g.     Kind=HT Encryption=Ccmp Authentication=RsnaPsk
-* **DONE** Create a way to clear the Details areas
-* **DONE** Make a preliminary splash screen + icon
-* **DONE** Better ring size selection -- e.g. the jump from 1 to 2 is bad. And allow more items for farther-away rings? Looks like a sea star
-* **DONE** handle resize
+* Output as HTML to paste into Excel!
+* Add "copy as CSV and "copy as Excel" to table!
 * Help system (standard Markdown style, of course)
 * convert IANA network type
-* convert frequency to band + width
-* Provide recommendations
 * Provide network information like "am I connected to the internet"
 
 ## Bugs
 * notify the user on error e.g. the try/catch on ScanAsync
 * check all NOTE: TODO: DBG:
 * click on table is slow for no good reason?
-* **DONE** doesn't clear old reticule away
-* **DONE**rename master to main
-* **DONE** background on radio towers looks ugly. Make it jagged? border-in-border?
-* **DONE** why can I select radio towers?
-
-* **DONE** Cant click radar->table but can click radar->log->table
-* **DONE** click on grid a column selected results in a crash
 
 ## Project far backlog
-* Reorganize so that all code is in a single shared directory as a user control
 * Continuous scans add 2D location Map to map out physical strength of specific network
 
 User actions
@@ -52,8 +32,20 @@ User actions
 * collapse multiple APs with same SSID? (e.g., ToomreHouse)
 
 
+# Details about Mobile Access Points
 
-## Microsoft Documentations
+Result: all of these APIs are for the "OnDemand" hotspot -- that's where there's a special app (My Phone?) that knows about special phones and can ask the phone to start a hotspot and then connect to it. So it's even remotely able to start a local hotspot :-(
+
+WiFiAccessStatus
+WiFiOnDemandHotspotAvailability { Available, Unavailable }
+WiFiOnDemandHotspotCellularBars { .. 0 to 5 ..}
+WiFiOnDemandHotspotConnectionResult :: .Status { .. many error codes .. }
+WiFiOnDemandHotspotConnectTriggerDetails :: RequestedNetwork==WiFiOnDemandHotspotNetwork ConnectAsync()
+WiFiOnDemandHotSpotNetwork :: GetOrCreateById + GetProperties, UpdateProperties
+WiFiOnDemandHotspotNetworkProperties :: Availability CellularBar DisplayName IsMetered Password RemainingBatteryPercent Ssid
+
+
+# Microsoft Documentation
 
 See [Wi-Fi problems and your home layout](https://support.microsoft.com/en-us/windows/wi-fi-problems-and-your-home-layout-e1ed42e7-a3c5-d1be-2abb-e8fad00ad32a). It includes a list of search terms to try in the Windows Store:
 * Wi-Fi network analyzer app from Microsoft Store [link](https://support.microsoft.com/windows/64203838-4029-7bba-8231-00c9d8f4d971#Category=Windows_11)

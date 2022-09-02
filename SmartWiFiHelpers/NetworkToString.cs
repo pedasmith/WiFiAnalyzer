@@ -18,6 +18,31 @@ namespace SmartWiFiHelpers
             return text;
         }
 
+        public static string td(this string text)
+        {
+            var escaped = text; // TODO: actually escape!
+            return $"<td>{escaped}</td>";
+        }
+
+        /// <summary>
+        /// text is expected to be a string like <td>data</td><td>value</td>
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static string tr(this string text)
+        {
+            return $"<tr>{text}</tr>\n";
+        }
+        /// <summary>
+        /// trs is expected to be a series of tr lines
+        /// </summary>
+        /// <param name="trs"></param>
+        /// <returns></returns>
+        public static string html(this string trs)
+        {
+            return $"<html>\r\n<body>\r\n<table>{trs}</table>\r\n</body>\r\n</html>";
+        }
+
         public static string ToString(string indent, AttributedNetworkUsage value)
         {
             if (value == null) return $"{indent}AttributedNetworkUsage does not exist\n";
@@ -31,6 +56,7 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
+#if NEVER_EVER_DEFINED
         public static string ToCsvHeader_AttributedNetworkUsage()
         {
             return "AttributedNetworkUsageName,BytesReceived,BytesSent,AttributionId,";
@@ -40,6 +66,7 @@ namespace SmartWiFiHelpers
             var retval = $"{value.AttributionName},{value.BytesReceived},{value.BytesSent},{value.AttributionId},";
             return retval;
         }
+#endif
 
         public static string ToString(string indent, ConnectionCost value)
         {
@@ -204,13 +231,21 @@ namespace SmartWiFiHelpers
         {
             return "AuthenticationType,EncryptionType,";
         }
+        public static string ToHtmlHeader_NetworkSecuritySettings()
+        {
+            return "AuthenticationType".td()+"EncryptionType".td();
+        }
 
         public static string ToCsvData(NetworkSecuritySettings value)
         {
             if (value == null) return $",,";
             return $"{value.NetworkAuthenticationType},{value.NetworkEncryptionType},";
         }
-
+        public static string ToHtmlData(NetworkSecuritySettings value)
+        {
+            if (value == null) return $"".td()+"".td();
+            return $"{value.NetworkAuthenticationType.ToString().td()}{value.NetworkEncryptionType.ToString().td()}";
+        }
 
         public static async Task<string> ToStringAsync(string indent, WiFiAdapter value)
         {
@@ -277,6 +312,11 @@ namespace SmartWiFiHelpers
             return "WiFiSsid,Bssid,BeaconInterval,Frequency,IsWiFiDirect,NetworkKind,Rssi,PhyKind,SignalBars,Uptime,"
                 + ToCsvHeader_NetworkSecuritySettings();
         }
+        public static string ToHtmlHeader_WiFiAvailableNetwork()
+        {
+            return "WiFiSsid".td() + "Bssid".td() + "BeaconInterval".td() + "Frequency".td() + "IsWiFiDirect".td() + "NetworkKind".td() + "Rssi".td() + "PhyKind".td() + "SignalBars".td() + "Uptime".td()
+                + ToHtmlHeader_NetworkSecuritySettings();
+        }
 
         public static string ToCsvData(WiFiAvailableNetwork value)
         {
@@ -287,7 +327,15 @@ namespace SmartWiFiHelpers
             retval += ToCsvData(value.SecuritySettings);
             return retval;
         }
-
+        public static string ToHtmlData(WiFiAvailableNetwork value)
+        {
+            if (value == null) return "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td();
+            var ghz = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
+            var retval = $"{value.Ssid.ToString().td()}{value.Bssid.ToString().td()}{value.BeaconInterval.TotalSeconds.ToString().td()}{ghz.ToString().td()}{value.IsWiFiDirect.ToString().td()}{value.NetworkKind.ToString().td()}";
+            retval += $"{value.NetworkRssiInDecibelMilliwatts.ToString().td()}{value.PhyKind.ToString().td()}{value.SignalBars.ToString().td()}{value.Uptime.ToString().td()}";
+            retval += ToHtmlData(value.SecuritySettings);
+            return retval;
+        }
         public static string ToString(string indent, WiFiNetworkInformation value)
         {
             var retval = "";
@@ -336,6 +384,10 @@ namespace SmartWiFiHelpers
         {
             return ToCsvHeader_WiFiAvailableNetwork();
         }
+        public static string ToHtmlHeader_WiFiNetworkReport()
+        {
+            return ToHtmlHeader_WiFiAvailableNetwork();
+        }
         public static string ToCsvData(WiFiNetworkReport value)
         {
             if (value == null) return $"NO_DATA_FOR_WIFI_NETWORK_REPORT\n";
@@ -343,6 +395,16 @@ namespace SmartWiFiHelpers
             foreach (var item in value.AvailableNetworks)
             {
                 retval += ToCsvData(item) + "\n";
+            }
+            return retval;
+        }
+        public static string ToHtmlData(WiFiNetworkReport value)
+        {
+            if (value == null) return $"NO_DATA_FOR_WIFI_NETWORK_REPORT".td();
+            var retval = "";
+            foreach (var item in value.AvailableNetworks)
+            {
+                retval += ToHtmlData(item).tr();
             }
             return retval;
         }

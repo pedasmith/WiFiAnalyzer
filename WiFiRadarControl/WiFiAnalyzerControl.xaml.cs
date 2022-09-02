@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.WiFi;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -131,6 +132,7 @@ namespace WiFiRadarControl
         }
         ObservableCollection<WiFiNetworkInformation> CurrentNetworkInformationList = new ObservableCollection<WiFiNetworkInformation>();
         String CurrentCsv = "";
+        String CurrentHtml = "";
         List<Reflector> CurrentReflectorList = new List<Reflector>();
 
         private async Task DoScanAsync()
@@ -147,6 +149,7 @@ namespace WiFiRadarControl
 
             var adapterList = await WiFiAdapter.FindAllAdaptersAsync();
             CurrentCsv = NetworkToString.ToCsvHeader_WiFiNetworkReport() + "\n";
+            CurrentHtml = NetworkToString.ToHtmlHeader_WiFiNetworkReport().tr();
             CurrentNetworkInformationList.Clear();
             foreach (var wifiAdapter in adapterList)
             {
@@ -167,11 +170,12 @@ namespace WiFiRadarControl
                 //Log($"DBG: location status={locatorTask.Status} position={smd.Position}");
 
                 CurrentCsv += NetworkToString.ToCsvData(wifiAdapter.NetworkReport);
+                CurrentHtml += NetworkToString.ToHtmlData(wifiAdapter.NetworkReport);
                 NetworkToString.Fill(wifiAdapter, CurrentNetworkInformationList, wifiAdapter.NetworkReport, smd);
             }
+            CurrentHtml = CurrentHtml.html(); // surrounds <tr>..</tr>\n lines with html+body+table
             Log($"\nScan ended at {DateTime.Now}");
             Log("\n\n");
-            uiCsv.Text = CurrentCsv;
 
             // Add logging for the bands
             var orderList = new OrderedBandList(CurrentNetworkInformationList);
@@ -378,6 +382,34 @@ namespace WiFiRadarControl
         private void OnGridCurrentCellChanged(object sender, EventArgs e)
         {
             ;
+        }
+
+        private void OnCopyAsCsv(object sender, RoutedEventArgs e)
+        {
+            var dp = new DataPackage();
+            dp.SetText(CurrentCsv);
+            dp.Properties.Title = "Wi-Fi Scan data";
+            Clipboard.SetContent(dp);
+        }
+        private void OnCopyForExcel(object sender, RoutedEventArgs e)
+        {
+            var dp = new DataPackage();
+            dp.SetText(CurrentHtml);
+            dp.Properties.Title = "Wi-Fi Scan data";
+            Clipboard.SetContent(dp);
+        }
+        /// <summary>
+        /// Never use. It makes an HTML thing that can't be pasted into notepad++ (!)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnCopyForExcelHtml(object sender, RoutedEventArgs e)
+        {
+            var dp = new DataPackage();
+            var htmlFormat = HtmlFormatHelper.CreateHtmlFormat(CurrentHtml);
+            dp.SetHtmlFormat(htmlFormat);
+            dp.Properties.Title = "Wi-Fi Scan data";
+            Clipboard.SetContent(dp);
         }
         #endregion
 
