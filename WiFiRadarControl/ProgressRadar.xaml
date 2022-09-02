@@ -12,7 +12,7 @@
     <Grid>
         <Canvas x:Name="uiCanvas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         </Canvas>
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+        <StackPanel Visibility="Collapsed" Orientation="Horizontal" VerticalAlignment="Bottom">
             <Button Content="Redraw" Click="OnRedraw" />
             <TextBox x:Name="uiNDemo" InputScope="Number" Width="200" Text="15" />
             <Button Content="+1" Click="OnAddAndRedraw" Tag="1" />

@@ -14,10 +14,10 @@ namespace SmartWiFiHelpers
     {
         public double FrequencyInGigahertz { get; set; }
         public WiFiBandChannel WBC { get; set; }
-        public List<WifiNetworkInformation> InfoExactFrequency = new List<WifiNetworkInformation>();
-        public List<WifiNetworkInformation> InfoOverlapFrequency = new List<WifiNetworkInformation>();
-        public List<WifiNetworkInformation> InfoAllFrequency = new List<WifiNetworkInformation>();
-        public void AddWifiNetworkInformation(WifiNetworkInformation value)
+        public List<WiFiNetworkInformation> InfoExactFrequency = new List<WiFiNetworkInformation>();
+        public List<WiFiNetworkInformation> InfoOverlapFrequency = new List<WiFiNetworkInformation>();
+        public List<WiFiNetworkInformation> InfoAllFrequency = new List<WiFiNetworkInformation>();
+        public void AddWifiNetworkInformation(WiFiNetworkInformation value)
         {
             var list = (value.Frequency == FrequencyInGigahertz) ? InfoExactFrequency : InfoOverlapFrequency;
             list.Add(value);
@@ -45,7 +45,7 @@ namespace SmartWiFiHelpers
                 return obi;
             }
         }
-        public OrderedBandList(IList<WifiNetworkInformation> list)
+        public OrderedBandList(IList<WiFiNetworkInformation> list)
         {
             var wbcList = WiFiBandChannel.StaticWifiBandList;
             foreach (var item in list)

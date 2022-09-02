@@ -129,7 +129,7 @@ namespace WiFiRadarControl
         {
             Log(text); //TODO: do something bigger with this?
         }
-        ObservableCollection<WifiNetworkInformation> CurrentNetworkInformationList = new ObservableCollection<WifiNetworkInformation>();
+        ObservableCollection<WiFiNetworkInformation> CurrentNetworkInformationList = new ObservableCollection<WiFiNetworkInformation>();
         String CurrentCsv = "";
         List<Reflector> CurrentReflectorList = new List<Reflector>();
 
@@ -169,7 +169,6 @@ namespace WiFiRadarControl
                 CurrentCsv += NetworkToString.ToCsvData(item.NetworkReport);
                 NetworkToString.Fill(CurrentNetworkInformationList, item.NetworkReport, smd);
             }
-            //DoGridSort(uiGrid, NetworkInformationList, "SSID");
             Log($"\nScan ended at {DateTime.Now}");
             Log("\n\n");
             uiCsv.Text = CurrentCsv;
@@ -209,7 +208,7 @@ namespace WiFiRadarControl
             await uiRadar.StopAsync();
         }
 
-        private static List<Reflector> CreateReflectorList(IList<WifiNetworkInformation> list)
+        private static List<Reflector> CreateReflectorList(IList<WiFiNetworkInformation> list)
         {
             var retval = new List<Reflector>();
             foreach (var ninfo in list)
@@ -230,16 +229,16 @@ namespace WiFiRadarControl
         #endregion SCAN
 
         #region RADAR
-        public void Display(WifiNetworkInformation value)
+        public void Display(WiFiNetworkInformation value)
         {
             var text = NetworkToString.ToString("", value);
             uiWiFiDetailsText.Text = text + uiWiFiDetailsText.Text;
             uiRadarDetails.Visibility = Visibility.Visible;
         }
 
-        public void DisplayOneLine(WifiNetworkInformation value)
+        public void DisplayOneLine(WiFiNetworkInformation value)
         {
-            uiWiFiOneLineInformation.Text = $"{value.SSID} BSSID={value.Bssid} RSSI={value.Rssi}";
+            uiWiFiOneLineInformation.Text = $"{value.SSID.OrUnnamed()} BSSID={value.Bssid} RSSI={value.Rssi}";
         }
 
         private void OnHideRadarDetails(object sender, TappedRoutedEventArgs e)
@@ -261,7 +260,7 @@ namespace WiFiRadarControl
             var name = e.Column.Header.ToString();
             DoGridSort(dg, list, name, e);
         }
-        private void DoGridSort(DataGrid dg, IList<WifiNetworkInformation> list, string name, DataGridColumnEventArgs e)
+        private void DoGridSort(DataGrid dg, IList<WiFiNetworkInformation> list, string name, DataGridColumnEventArgs e)
         {
             var prop = list[0].GetType().GetProperty(name);
 
@@ -293,7 +292,7 @@ namespace WiFiRadarControl
             ;
         }
         private bool AmFiltering = false;
-        List<WifiNetworkInformation> SavedInformation = null;
+        List<WiFiNetworkInformation> SavedInformation = null;
 
         private void OnGridDoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
@@ -302,7 +301,7 @@ namespace WiFiRadarControl
             if (dg.CurrentColumn == null) return;
 
             var colName = dg.CurrentColumn.Header.ToString();
-            var row = dg.SelectedItem as WifiNetworkInformation;
+            var row = dg.SelectedItem as WiFiNetworkInformation;
             var prop = row.GetType().GetProperty(colName);
             var filterTo = prop.GetValue(row);
 
@@ -318,7 +317,7 @@ namespace WiFiRadarControl
             }
             else
             {
-                SavedInformation = new List<WifiNetworkInformation>();
+                SavedInformation = new List<WiFiNetworkInformation>();
                 foreach (var item in list)
                 {
                     SavedInformation.Add(item);

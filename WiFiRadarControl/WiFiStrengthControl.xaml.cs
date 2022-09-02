@@ -30,20 +30,34 @@ namespace WiFiRadarControl
         {
             this.InitializeComponent();
         }
+        private static Color rgb(byte r, byte g, byte b) // rgb(124, 119, 102)
+        {
+            return new Color() { R = r, G = g, B = b, A=255 };
+        }
 
         List<Brush> RectBrushes = new List<Brush>()
         {
-            new SolidColorBrush(Colors.Red),
-            new SolidColorBrush(Colors.Green),
-            new SolidColorBrush(Colors.Blue),
-            new SolidColorBrush(Colors.Cyan),
-            new SolidColorBrush(Colors.Magenta),
-
-            new SolidColorBrush(Colors.DarkRed),
-            new SolidColorBrush(Colors.DarkGreen),
-            new SolidColorBrush(Colors.DarkBlue),
-            new SolidColorBrush(Colors.DarkCyan),
-            new SolidColorBrush(Colors.DarkMagenta),
+            new SolidColorBrush(rgb(254, 176, 153)),
+            new SolidColorBrush(rgb(255, 164, 137)),
+            new SolidColorBrush(rgb(255, 157, 128)),
+            new SolidColorBrush(rgb(255, 151, 121)),
+            new SolidColorBrush(rgb(255, 145, 112)),
+            new SolidColorBrush(rgb(255, 126, 87)),
+            new SolidColorBrush(rgb(255, 114, 71)),
+            new SolidColorBrush(rgb(255, 101, 55)),
+            new SolidColorBrush(rgb(255, 87, 38)),
+            new SolidColorBrush(rgb(255, 75, 22)),
+            new SolidColorBrush(rgb(255, 63, 6)),
+            new SolidColorBrush(rgb(228, 53, 0)),
+            new SolidColorBrush(rgb(204, 48, 0)),
+            new SolidColorBrush(rgb(186, 43, 0)),
+            new SolidColorBrush(rgb(171, 39, 0)),
+            new SolidColorBrush(rgb(147, 34, 0)),
+            new SolidColorBrush(rgb(122, 28, 0)),
+            new SolidColorBrush(rgb(97, 22, 0)),
+            new SolidColorBrush(rgb(88, 20, 0)),
+            new SolidColorBrush(rgb(57, 13, 0)),
+            new SolidColorBrush(rgb(32, 7, 0)),
         };
         Brush OutlineExact = new SolidColorBrush(Colors.Black);
         Brush OutlineOverlap = new SolidColorBrush(Colors.White);
@@ -52,7 +66,7 @@ namespace WiFiRadarControl
 
         static Dictionary<string, Brush> BrushDictionary = new Dictionary<string, Brush>();
 
-        Brush GetBrush(int colorIndex, WifiNetworkInformation wifiNetworkInformation)
+        Brush GetBrush(int colorIndex, WiFiNetworkInformation wifiNetworkInformation)
         {
             if (wifiNetworkInformation.SSID == "MSFTCONNECT")
             {
@@ -72,7 +86,8 @@ namespace WiFiRadarControl
 
         public void SetStrength(BandUsageInfo list)
         {
-            uiText.Text = list.FrequencyInGigahertz.ToString();
+            uiFrequency.Text = list.FrequencyInGigahertz.ToString();
+            uiBandwidth.Text = (list.WBC.BandwidthInKilohertzList[0] / 1_000).ToString();
             const double HeightOverlap = 10.0;
             const double HeightExact = 20.0;
             var lf = MathLogisticFunctions.CreateAmbientNoiseBarSize();
@@ -107,7 +122,7 @@ namespace WiFiRadarControl
             rect.Margin = margin;
         }
 
-        private Rectangle CreateRect(MathLogisticFunctions lf, WifiNetworkInformation wifiNetworkInfo)
+        private Rectangle CreateRect(MathLogisticFunctions lf, WiFiNetworkInformation wifiNetworkInfo)
         {
             const double multiplier = 10.0;
             var width = lf.Calculate(wifiNetworkInfo.Rssi) * multiplier;
@@ -115,7 +130,7 @@ namespace WiFiRadarControl
             var rect = new Rectangle() { Width = width, Fill = brush, Tag = wifiNetworkInfo };
             rect.Tapped += Strength_Tapped;
             rect.DoubleTapped += Strength_DoubleTapped;
-            ToolTipService.SetToolTip(rect, new ToolTip() { Content = $"SSID={wifiNetworkInfo.SSID}" });
+            ToolTipService.SetToolTip(rect, new ToolTip() { Content = $"{wifiNetworkInfo.SSID.OrUnnamed()}" });
             return rect;
         }
         private void Log(string text)
@@ -124,12 +139,12 @@ namespace WiFiRadarControl
         }
         private void Strength_Tapped(object sender, TappedRoutedEventArgs e)
         {
-            var wni = (sender as FrameworkElement).Tag as WifiNetworkInformation;
+            var wni = (sender as FrameworkElement).Tag as WiFiNetworkInformation;
             DisplayInfo?.DisplayOneLine(wni);
         }
         private void Strength_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            var wni = (sender as FrameworkElement).Tag as WifiNetworkInformation;
+            var wni = (sender as FrameworkElement).Tag as WiFiNetworkInformation;
             DisplayInfo?.Display(wni);
         }
     }

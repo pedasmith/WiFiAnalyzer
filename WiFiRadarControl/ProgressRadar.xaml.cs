@@ -16,8 +16,8 @@ namespace WiFiRadarControl
 {
     public interface IDisplayWifiNetworkInformation
     {
-        void Display(WifiNetworkInformation value);
-        void DisplayOneLine(WifiNetworkInformation value);
+        void Display(WiFiNetworkInformation value);
+        void DisplayOneLine(WiFiNetworkInformation value);
     }
     /// <summary>
     /// The APs that have been discovered (or "dummy" APs)
@@ -33,8 +33,8 @@ namespace WiFiRadarControl
         public const string Icon_AP = ""; // MICROSOFT SYBOL APPBAR GLYPH NETWORKTOWER
         public const string Icon_ConnectedAP = ""; // WIFIHOTSPOT  ""; // MICROSOFT SYMBOL APPBAR GLYPH INTERNETSHARING
 
-        public string Name { get { return NetworkInformation.SSID; } }
-        public WifiNetworkInformation NetworkInformation { get; set; }
+        public string Name { get { return NetworkInformation.SSID.OrUnnamed(); } }
+        public WiFiNetworkInformation NetworkInformation { get; set; }
 
         public List<FrameworkElement> ToBeRemoved = new List<FrameworkElement>();
         public const int PreferredAPPerRing = 7;
@@ -482,7 +482,7 @@ namespace WiFiRadarControl
             for (int i=1; i<=nwifi; i++)
             {
                 var name = $"MyWifi_{i:D3}";
-                var wifi = new WifiNetworkInformation()
+                var wifi = new WiFiNetworkInformation()
                 {
                     SSID = name,
                     Bssid = i.ToString(),

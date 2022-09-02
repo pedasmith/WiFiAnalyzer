@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace SmartWiFiHelpers
 {
-    public class WifiNetworkInformation
+    public class WiFiNetworkInformation
     {
-        public string SSID { get; set; }
+        public string SSID { get; set; } // Is set with .OrUnnamed() so technically using it doesn't need the added .OrUnamed. I just put add it anyway.
         public string Bssid { get; set; }
         public string BandName { get; set; }
         public string ChannelName { get; set; }
@@ -34,7 +34,7 @@ namespace SmartWiFiHelpers
 
         public override string ToString()
         {
-            return $"{SSID} channel={ChannelName} band={BandName}";
+            return $"{SSID.OrUnnamed()} channel={ChannelName} band={BandName}";
         }
 
     }

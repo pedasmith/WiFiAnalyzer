@@ -1,5 +1,14 @@
 ﻿# Project Overview
 
+# Marketing Info
+
+**Display Name** Simple Wi-Fi Analyzer
+**Description**
+Simple Wi-Fi Analyzer provides basic information about the Wi-Fi environment you are in. It provides a graphical RADAR-like display of the Wi-Fi access points in range, shows a frequency breakdown of the access points, and provides a table-like like of the details of each access point.
+
+
+
+# Status
 ## Project current status and todo
 
 * **DONE** attach hotspots to the radar points. Hotspots should be marked with **?** for first scan, a W for a wireless point on second scan and C for the connected adapter

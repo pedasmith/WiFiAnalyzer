@@ -12,11 +12,13 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" MinWidth="50" />
-            <ColumnDefinition Width="auto" MinWidth="200" />
-            <ColumnDefinition Width="*"  />
+            <ColumnDefinition Width="auto" MinWidth="290" />
+            <ColumnDefinition Width="auto" MinWidth="70"  />
+            <ColumnDefinition Width="auto" MinWidth="70"  />
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Column="0" x:Name="uiChannelName" Text="11" TextAlignment="Right" />
         <StackPanel Grid.Column="1" x:Name="uiStrength" Orientation="Horizontal" Margin="20,0,0,0" />
-        <TextBlock Grid.Column="2" x:Name="uiText" Text="SSID=" Margin="20,0,0,0" />
+        <TextBlock Grid.Column="2" x:Name="uiFrequency"  Margin="10,0,0,0" />
+        <TextBlock Grid.Column="3" x:Name="uiBandwidth"  Margin="30,0,0,0" />
     </Grid>
 </UserControl>

@@ -14,6 +14,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)OrderedBandInfo.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ScanMetaData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WiFiBandChannel.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)WifiNetworkInformation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WiFiNetworkInformation.cs" />
   </ItemGroup>
 </Project>

@@ -12,6 +12,11 @@ namespace SmartWiFiHelpers
         /// Amount to indent each time indent is indented
         /// </summary>
         static string Tab = "    ";
+        public static string OrUnnamed(this string text, string defaultValue = "(no name)")
+        {
+            if (string.IsNullOrEmpty(text)) return defaultValue;
+            return text;
+        }
 
         public static string ToString(string indent, AttributedNetworkUsage value)
         {
@@ -190,7 +195,7 @@ namespace SmartWiFiHelpers
             retval += $"{indent}NetworkEncryptionType={value.NetworkEncryptionType}\n";
             return retval;
         }
-        public static void Fill(WifiNetworkInformation data, NetworkSecuritySettings value)
+        public static void Fill(WiFiNetworkInformation data, NetworkSecuritySettings value)
         {
             data.AuthenticationType = Decode (value.NetworkAuthenticationType);
             data.EncryptionType = Decode (value.NetworkEncryptionType);
@@ -219,7 +224,7 @@ namespace SmartWiFiHelpers
         public static string ToString(string indent, WiFiAvailableNetwork value)
         {
             if (value == null) return $"{indent}WiFiAvailableNetwork does not exist\n";
-            var retval = $"{indent}WiFiAvailableNetwork Name={value.Ssid} Bssid={value.Bssid}\n";
+            var retval = $"{indent}WiFiAvailableNetwork Name={value.Ssid.OrUnnamed()} Bssid={value.Bssid}\n";
             indent += Tab;
             retval += $"{indent}BeaconInterval={value.BeaconInterval.TotalSeconds}\n";
             retval += $"{indent}ChannelCenterFrequencyInGigahertz={(double)value.ChannelCenterFrequencyInKilohertz/1000000.0}\n";
@@ -233,9 +238,9 @@ namespace SmartWiFiHelpers
             retval += $"{ToString(indent, value.SecuritySettings)}\n";
             return retval;
         }
-        public static void Fill(WifiNetworkInformation dest, WiFiAvailableNetwork source, ScanMetadata smd)
+        public static void Fill(WiFiNetworkInformation dest, WiFiAvailableNetwork source, ScanMetadata smd)
         {
-            dest.SSID = source.Ssid;
+            dest.SSID = source.Ssid.OrUnnamed();
             dest.Bssid = source.Bssid;
             dest.BeaconInterval = source.BeaconInterval.TotalSeconds;
             dest.Frequency = (double)source.ChannelCenterFrequencyInKilohertz / 1_000_000.0; // Convert kilohertz to gigahertz
@@ -283,10 +288,10 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
-        public static string ToString(string indent, WifiNetworkInformation value)
+        public static string ToString(string indent, WiFiNetworkInformation value)
         {
             var retval = "";
-            retval += $"{indent}Name={value.SSID}\n";
+            retval += $"{indent}Name={value.SSID.OrUnnamed()}\n"; // The OrUnnamed isn't actually needed since it's filled in correctly
             indent += Tab;
             retval += $"{indent}BSSID={value.Bssid}\n";
             retval += $"{indent}Frequency={value.Frequency} GHz\n";
@@ -342,11 +347,11 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
-        public static void Fill(IList<WifiNetworkInformation> list, WiFiNetworkReport value, ScanMetadata smd)
+        public static void Fill(IList<WiFiNetworkInformation> list, WiFiNetworkReport value, ScanMetadata smd)
         {
             foreach (var item in value.AvailableNetworks)
             {
-                var data = new WifiNetworkInformation();
+                var data = new WiFiNetworkInformation();
                 Fill(data, item, smd);
                 list.Add(data);
             }

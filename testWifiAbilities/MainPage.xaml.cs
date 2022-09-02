@@ -37,7 +37,7 @@ namespace SimpleWiFiAnalyzer
 
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
-             // Noppe, no need to do this: MathLogisticFunctions.Demonstrate();
+             // Nope, no need to do this: MathLogisticFunctions.Demonstrate();
         }
     }
 }

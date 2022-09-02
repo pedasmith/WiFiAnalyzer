@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="800">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -20,7 +20,7 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.ColumnSpan="2" FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Wi-Fi Testing</TextBlock>
+        <TextBlock Grid.ColumnSpan="2" FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Simple Wi-Fi Analyzer</TextBlock>
         <Pivot Grid.Row="1" Grid.Column="0">
             <PivotItem Header="RADAR">
                 <Grid>
@@ -39,15 +39,27 @@
                         <RowDefinition Height="*" />
                         <RowDefinition Height="auto" />
                     </Grid.RowDefinitions>
+                    <Grid.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
+                    </Grid.Resources>
                     <StackPanel Grid.Row="0">
                         <TextBlock FontWeight="Bold" FontSize="20">Frequency chart</TextBlock>
-                        <TextBlock >Shows how crowded each channel is and how the channels overlap</TextBlock>
+                        <TextBlock>Shows how crowded each channel is and how the channels overlap. Full-height blocks show which channel each AP is centered on; the short blocks show what channels the each AP overlaps on. The longer the block, the stronger the signal. </TextBlock>
+                        <TextBlock>Hover over a block to see the name (SSID) of the associated access point (AP). Tap to show a single-line summary, and double-tab to see full details.</TextBlock>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontWeight="Bold" Text="Channel" Width="70" />
+                            <TextBlock FontWeight="Bold" Text="Usage" Width="250" ToolTipService.ToolTip="Tall bars=main use short bars=overlap" />
+                            <TextBlock FontWeight="Bold" Text="Frequency" Width="80" ToolTipService.ToolTip="Frequency in Gigahertz"/>
+                            <TextBlock FontWeight="Bold" Text="Bandwidth" Width="80" ToolTipService.ToolTip="Bandwidth in Megahertz"/>
+                        </StackPanel>
                     </StackPanel>
                     <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                         <StackPanel x:Name="uiStrength"></StackPanel>
                     </ScrollViewer>
                     <StackPanel Grid.Row="2">
-                        <TextBlock x:Name="uiWiFiOneLineInformation" />
+                        <TextBlock x:Name="uiWiFiOneLineInformation" IsTextSelectionEnabled="True" />
                     </StackPanel>
                 </Grid>
             </PivotItem>
@@ -116,7 +128,7 @@
                     <RowDefinition Height="auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <TextBlock FontWeight="Bold" FontSize="24" Tapped="OnHideRadarDetails">Details</TextBlock>
+                <TextBlock FontWeight="Bold" FontSize="24" Tapped="OnHideRadarDetails">Access Point Details</TextBlock>
                 <CommandBar Grid.Row="1" OverflowButtonVisibility="Collapsed" >
                     <CommandBar.PrimaryCommands>
                         <AppBarButton Content="Hide" Tapped="OnHideRadarDetails" />
