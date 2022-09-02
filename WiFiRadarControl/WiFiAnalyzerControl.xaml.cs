@@ -174,8 +174,9 @@ namespace WiFiRadarControl
             Log("\n\n");
             uiCsv.Text = CurrentCsv;
 
+            // Add logging for the bands
             var orderList = new OrderedBandList(CurrentNetworkInformationList);
-            Log("BANDS:");
+            Log("Frequency Chart:");
             foreach (var item in orderList.OrderedBands)
             {
                 var str = $"    {item.Key}: ";

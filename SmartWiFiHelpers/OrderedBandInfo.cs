@@ -10,7 +10,7 @@ namespace SmartWiFiHelpers
     /// Central class for a list of frequencies where each frequency is entered once, and there are lists of WifiNetworkInformations that
     /// are either centered on the frequency or are in range of the frequency (via their overlap)
     /// </summary>
-    public class OrderedBandInfo
+    public class BandUsageInfo
     {
         public double FrequencyInGigahertz { get; set; }
         public WiFiBandChannel WBC { get; set; }
@@ -27,8 +27,8 @@ namespace SmartWiFiHelpers
 
     public class OrderedBandList
     {
-        public SortedList<double, OrderedBandInfo> OrderedBands = new SortedList<double, OrderedBandInfo>();
-        private OrderedBandInfo GetOrCreate(double frequencyInGigahertz)
+        public SortedList<double, BandUsageInfo> OrderedBands = new SortedList<double, BandUsageInfo>();
+        private BandUsageInfo GetOrCreate(double frequencyInGigahertz)
         {
             if (OrderedBands.ContainsKey(frequencyInGigahertz))
             {
@@ -40,7 +40,7 @@ namespace SmartWiFiHelpers
                 var wbcList = WiFiBandChannel.StaticWifiBandList;
                 var wbcIndex = WiFiBandChannel.Find(wbcList, frequencyInKilohertz);
                 var wbc = wbcIndex >= 0 ? wbcList[wbcIndex] : null;
-                var obi = new OrderedBandInfo() { FrequencyInGigahertz = frequencyInGigahertz, WBC = wbc };
+                var obi = new BandUsageInfo() { FrequencyInGigahertz = frequencyInGigahertz, WBC = wbc };
                 OrderedBands.Add(frequencyInGigahertz, obi);
                 return obi;
             }
@@ -60,9 +60,7 @@ namespace SmartWiFiHelpers
                     var obi = GetOrCreate(wbc.GetChannelCenterFrequencyInGigahertz());
                     obi.AddWifiNetworkInformation(item);
                 }
-
             }
         }
     }
-
 }

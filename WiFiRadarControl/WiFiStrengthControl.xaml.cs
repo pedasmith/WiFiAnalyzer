@@ -70,7 +70,7 @@ namespace WiFiRadarControl
         static int ColorIndex = 0;
         public static void ResetColorIndex() { ColorIndex = 0; }
 
-        public void SetStrength(OrderedBandInfo list)
+        public void SetStrength(BandUsageInfo list)
         {
             uiText.Text = list.FrequencyInGigahertz.ToString();
             const double HeightOverlap = 10.0;
@@ -79,27 +79,32 @@ namespace WiFiRadarControl
 
             uiChannelName.Text = list.WBC?.ChannelName;
 
-            foreach (var wifiNetworkInfo in list.InfoOverlapFrequency)
+            //TODO: order these.
+            var orderedList = list.InfoOverlapFrequency.OrderBy(comparer => comparer.Rssi);   
+            foreach (var wifiNetworkInfo in orderedList)
             {
                 var rect = CreateRect(lf, wifiNetworkInfo);
-                rect.Height = HeightOverlap;
-                rect.Stroke = OutlineOverlap;
-                rect.Margin = RectMarginOverlap;
+                CustomizeRect(rect, HeightOverlap, OutlineOverlap, RectMarginOverlap);
                 uiStrength.Children.Add(rect);
                 ColorIndex++;
             }
-            foreach (var wifiNetworkInfo in list.InfoExactFrequency)
+            orderedList = list.InfoExactFrequency.OrderBy(comparer => comparer.Rssi);
+            foreach (var wifiNetworkInfo in orderedList)
             {
                 var rect = CreateRect(lf, wifiNetworkInfo);
-                rect.Height = HeightExact;
-                rect.Stroke = OutlineExact;
-                rect.Margin = RectMarginExact;
+                CustomizeRect(rect, HeightExact, OutlineExact, RectMarginExact);
                 uiStrength.Children.Add(rect);
 
                 ColorIndex++;
             }
             var weight = list.InfoExactFrequency.Count > 0 ? Windows.UI.Text.FontWeights.Bold : Windows.UI.Text.FontWeights.Normal;
             uiChannelName.FontWeight = weight;
+        }
+        private void CustomizeRect(Rectangle rect, double height, Brush outline, Thickness margin)
+        {
+            rect.Height = height;
+            rect.Stroke = outline;
+            rect.Margin = margin;
         }
 
         private Rectangle CreateRect(MathLogisticFunctions lf, WifiNetworkInformation wifiNetworkInfo)
