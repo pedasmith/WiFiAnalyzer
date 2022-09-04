@@ -10,16 +10,19 @@ Simple Wi-Fi Analyzer provides basic information about the Wi-Fi environment you
 # Status
 ## Project current status and todo
 
-* Output as HTML to paste into Excel!
-* Add "copy as CSV and "copy as Excel" to table!
-* Help system (standard Markdown style, of course)
-* convert IANA network type
-* Provide network information like "am I connected to the internet"
+* Add menu instead of silly buttons for copy?
+* **DONE** convert IANA network type
+* **DONE** Enable the progress ring while scanning
+* **DONE** Add status that shows which network user is connected to
+
+* **DONE** Output as HTML to paste into Excel!
+* **DONE** Add "copy as CSV and "copy as Excel" to table!
+* **DONE** Help system (standard Markdown style, of course)
 
 ## Bugs
-* notify the user on error e.g. the try/catch on ScanAsync
 * check all NOTE: TODO: DBG:
 * click on table is slow for no good reason?
+* **DONE** notify the user on error e.g. the try/catch on ScanAsync
 
 ## Project far backlog
 * Continuous scans add 2D location Map to map out physical strength of specific network

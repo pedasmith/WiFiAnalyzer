@@ -9,6 +9,7 @@
     <Import_RootNamespace>SmartWiFiHelpers</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)IanaNetworkType.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)MathLogisticFunctions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NetworkToString.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OrderedBandInfo.cs" />

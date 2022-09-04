@@ -6,20 +6,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.WiFi;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -126,10 +121,7 @@ namespace WiFiRadarControl
             await DoScanAsync();
         }
 
-        public void ScanFailed(string text)
-        {
-            Log(text); //TODO: do something bigger with this?
-        }
+
         ObservableCollection<WiFiNetworkInformation> CurrentNetworkInformationList = new ObservableCollection<WiFiNetworkInformation>();
         String CurrentCsv = "";
         String CurrentHtml = "";
@@ -138,47 +130,163 @@ namespace WiFiRadarControl
         private async Task DoScanAsync()
         {
             uiReport.Text = $"Scan started at {DateTime.Now}\n\n";
-            //var locatorTask = Locator.GetGeopositionAsync(new TimeSpan(0, 1, 0), new TimeSpan(0, 0, 5)); // allow 1-minue old data; timeout within 5 seconds
-
-            uiRadar.Initialize();
-            uiRadar.AddDummyReflectors();
-
-            var dg = uiGrid;
-            var smd = new ScanMetadata();
-
-
-            var adapterList = await WiFiAdapter.FindAllAdaptersAsync();
-            CurrentCsv = NetworkToString.ToCsvHeader_WiFiNetworkReport() + "\n";
-            CurrentHtml = NetworkToString.ToHtmlHeader_WiFiNetworkReport().tr();
-            CurrentNetworkInformationList.Clear();
-            foreach (var wifiAdapter in adapterList)
+            uiScanProgressRing.IsIndeterminate = true;
+            uiScanProgressRing.Visibility = Visibility.Visible;
+            try
             {
-                Log(await NetworkToString.ToStringAsync("", wifiAdapter));
-                wifiAdapter.AvailableNetworksChanged += Item_AvailableNetworksChanged;
-                try
-                {
-                    await wifiAdapter.ScanAsync();
-                    //var scanTask =  item.ScanAsync();
-                    //await Task.WhenAll(new Task[] { locatorTask.AsTask(), scanTask.AsTask() });
-                }
-                catch (Exception e)
-                {
-                    ScanFailed(e.Message); // TODO: do a message somehow?
-                }
-                Log(NetworkToString.ToString("    ", wifiAdapter.NetworkReport));
-                //if (locatorTask.Status != AsyncStatus.Error) smd.Position = locatorTask.GetResults();
-                //Log($"DBG: location status={locatorTask.Status} position={smd.Position}");
+                //var locatorTask = Locator.GetGeopositionAsync(new TimeSpan(0, 1, 0), new TimeSpan(0, 0, 5)); // allow 1-minue old data; timeout within 5 seconds
 
-                CurrentCsv += NetworkToString.ToCsvData(wifiAdapter.NetworkReport);
-                CurrentHtml += NetworkToString.ToHtmlData(wifiAdapter.NetworkReport);
-                NetworkToString.Fill(wifiAdapter, CurrentNetworkInformationList, wifiAdapter.NetworkReport, smd);
+                uiRadar.Initialize();
+                uiRadar.AddDummyReflectors();
+
+                var dg = uiGrid;
+                var smd = new ScanMetadata();
+
+                GetNetworkInfo();
+
+                var adapterList = await WiFiAdapter.FindAllAdaptersAsync();
+                CurrentCsv = NetworkToString.ToCsvHeader_WiFiNetworkReport() + "\n";
+                CurrentHtml = NetworkToString.ToHtmlHeader_WiFiNetworkReport().tr();
+                CurrentNetworkInformationList.Clear();
+                foreach (var wifiAdapter in adapterList)
+                {
+                    Log(await NetworkToString.ToStringAsync("", wifiAdapter));
+                    wifiAdapter.AvailableNetworksChanged += Item_AvailableNetworksChanged;
+                    try
+                    {
+                        await wifiAdapter.ScanAsync();
+                        //var scanTask =  item.ScanAsync();
+                        //await Task.WhenAll(new Task[] { locatorTask.AsTask(), scanTask.AsTask() });
+                    }
+                    catch (Exception e)
+                    {
+                        LogNetworkInfo($"Scan error: {e.Message}");
+                    }
+                    Log(NetworkToString.ToString("    ", wifiAdapter.NetworkReport));
+                    //if (locatorTask.Status != AsyncStatus.Error) smd.Position = locatorTask.GetResults();
+                    //Log($"DBG: location status={locatorTask.Status} position={smd.Position}");
+
+                    CurrentCsv += NetworkToString.ToCsvData(wifiAdapter.NetworkReport);
+                    CurrentHtml += NetworkToString.ToHtmlData(wifiAdapter.NetworkReport);
+                    NetworkToString.Fill(wifiAdapter, CurrentNetworkInformationList, wifiAdapter.NetworkReport, smd);
+                }
+                CurrentHtml = CurrentHtml.html(); // surrounds <tr>..</tr>\n lines with html+body+table
+                Log($"\nScan ended at {DateTime.Now}");
+                Log("\n\n");
+
+                // Set up the strength lists
+                var obl = new OrderedBandList(CurrentNetworkInformationList);
+                LogOrderedBandList(obl);
+                uiStrength.Children.Clear();
+                WiFiStrengthControl.ResetColorIndex();
+                foreach (var (freq, obi) in obl.OrderedBands)
+                {
+                    var ctrl = new WiFiStrengthControl() { DisplayInfo = this, };
+                    ctrl.SetStrength(obi);
+                    uiStrength.Children.Add(ctrl);
+                }
+
+                // Add the locations
+                CurrentReflectorList = CreateReflectorList(CurrentNetworkInformationList, CurrentSsid);
+                uiRadar.SetReflectors(CurrentReflectorList); // Update the reflectors to represent the new truth about WiFi
+
             }
-            CurrentHtml = CurrentHtml.html(); // surrounds <tr>..</tr>\n lines with html+body+table
-            Log($"\nScan ended at {DateTime.Now}");
-            Log("\n\n");
+            catch (Exception e)
+            {
+                LogNetworkInfo($"Scan report error: {e.Message}");
+            }
+            uiScanProgressRing.IsIndeterminate = false;
+            uiScanProgressRing.Visibility = Visibility.Collapsed;
+            await uiRadar.StopAsync();
+        }
 
-            // Add logging for the bands
-            var orderList = new OrderedBandList(CurrentNetworkInformationList);
+        private void GetNetworkInfo()
+        {
+            CurrentSsid = null;
+            try
+            {
+                var lanList = NetworkInformation.GetLanIdentifiers();
+                foreach (var lanItem in lanList)
+                {
+                    Log(lanItem.InfrastructureId.ToString());
+                }
+
+                // https://docs.microsoft.com/en-us/uwp/api/Windows.Networking.Connectivity.ConnectionProfile?view=winrt-22621
+                var cp = NetworkInformation.GetInternetConnectionProfile();
+                if (cp != null)
+                {
+                    Log("Internet Connected Profile");
+                    LogConnectionProfile(cp);
+                    Log("\n\n");
+                    LogNetworkInfo($"Connected on: {ConnectionProfileBestSSID(cp)}");
+                    if (cp.WlanConnectionProfileDetails != null)
+                    {
+                        CurrentSsid = cp.WlanConnectionProfileDetails.GetConnectedSsid();
+                    }
+                    else
+                    {
+                        CurrentSsid = null;
+                    }
+                }
+                else
+                {
+                    Log("No internet connection");
+                    CurrentSsid = null;
+                }
+            }
+            catch (Exception e)
+            {
+                Log($"Error while getting netowrk info {e.Message}");
+            }
+        }
+
+        string CurrentSsid = null;
+
+        /// <summary>
+        /// Given a ConnectionProfile, return the best name for the user, preferably the WLAN SSID if it exists and isn't empty.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        private string ConnectionProfileBestSSID(ConnectionProfile cp)
+        {
+            var retval = cp.ProfileName;
+            if (cp.WlanConnectionProfileDetails != null)
+            {
+                var ssid = cp.WlanConnectionProfileDetails.GetConnectedSsid();
+                if (!String.IsNullOrEmpty(ssid))
+                {
+                    retval = ssid;
+                }
+            }
+            return retval;
+        }
+
+        private void LogConnectionProfile (ConnectionProfile cp)
+        {
+            Log($"Profile name={cp.ProfileName}");
+            if (cp.IsWlanConnectionProfile)
+            {
+                var details = cp.WlanConnectionProfileDetails;
+                Log($"    WiFi SSID={details?.GetConnectedSsid()}");
+            }
+            Log($"    Adapter={cp.NetworkAdapter.NetworkAdapterId}");
+            Log($"    CanDelete={cp.CanDelete}");
+            if (cp.ServiceProviderGuid.HasValue)
+            {
+                Log($"    Service Provider GUID={cp.ServiceProviderGuid}");
+            }
+            if (cp.IsWwanConnectionProfile)
+            {
+                var details = cp.WwanConnectionProfileDetails;
+                Log($"    Cell AP={details?.AccessPointName}");
+                Log($"    Registration State={details.GetNetworkRegistrationState()}");
+                Log($"    Home Provider ID={details?.HomeProviderId}");
+                Log($"    IPKind={details?.IPKind}");
+            }
+        }
+
+        private void LogOrderedBandList(OrderedBandList orderList)
+        {
             Log("Frequency Chart:");
             foreach (var item in orderList.OrderedBands)
             {
@@ -194,25 +302,14 @@ namespace WiFiRadarControl
                 Log(str);
             }
             Log("\n\n");
-
-            // Set up the strength lists
-            var obl = new OrderedBandList(CurrentNetworkInformationList);
-            uiStrength.Children.Clear();
-            WiFiStrengthControl.ResetColorIndex();
-            foreach (var (freq,obi) in obl.OrderedBands)
-            {
-                var ctrl = new WiFiStrengthControl() { DisplayInfo = this, };
-                ctrl.SetStrength(obi);
-                uiStrength.Children.Add(ctrl);
-            }
-
-            // Add the locations
-            CurrentReflectorList = CreateReflectorList(CurrentNetworkInformationList);
-            uiRadar.SetReflectors(CurrentReflectorList); // Update the reflectors to represent the new truth about WiFi
-            await uiRadar.StopAsync();
         }
 
-        private static List<Reflector> CreateReflectorList(IList<WiFiNetworkInformation> list)
+        private void LogNetworkInfo (string text)
+        {
+            uiNetworkInfo.Text = text;
+        }
+
+        private static List<Reflector> CreateReflectorList(IList<WiFiNetworkInformation> list, string matchingSsid)
         {
             var retval = new List<Reflector>();
             foreach (var ninfo in list)
@@ -220,6 +317,7 @@ namespace WiFiRadarControl
                 var reflector = new Reflector();
                 reflector.Icon = Reflector.Icon_AP;
                 reflector.NetworkInformation = ninfo;
+                reflector.SsidToMatch = matchingSsid;
                 retval.Add(reflector);
             }
             retval = retval.OrderBy(value => value.NetworkInformation.Rssi).ToList();
@@ -228,7 +326,7 @@ namespace WiFiRadarControl
 
         private void Item_AvailableNetworksChanged(WiFiAdapter sender, object args)
         {
-            System.Diagnostics.Debug.WriteLine($"NetworkChange: {sender} args=<<{args}>>"); //TODO: remove
+            System.Diagnostics.Debug.WriteLine($"NetworkChange: {sender} args=<<{args}>>"); // NOTE: Just to track network changes
         }
         #endregion SCAN
 

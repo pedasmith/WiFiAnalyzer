@@ -143,7 +143,7 @@ namespace SmartWiFiHelpers
             var retval = $"{indent}NetworkAdapter\n";
             var profile = await value.GetConnectedProfileAsync();
             indent += Tab;
-            retval += $"{indent}IanaInterfaceType={value.IanaInterfaceType}\n";
+            retval += $"{indent}IanaInterfaceType={value.IanaInterfaceType} ({IanaNetworkType.Description(value.IanaInterfaceType)})\n";
             retval += $"{indent}InboundMaxBitsPerSecond={value.InboundMaxBitsPerSecond}\n";
             retval += $"{indent}OutboundMaxBitsPerSecond={value.OutboundMaxBitsPerSecond}\n";
 

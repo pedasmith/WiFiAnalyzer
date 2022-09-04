@@ -229,7 +229,7 @@ namespace WiFiRadarControl
         {
             if (Reflectors.Count == 0) return;
 
-            var center = new Point(uiCanvas.ActualWidth / 2.0, uiCanvas.ActualHeight / 2.0); // Canvas doesn't have a size until it's displayed once.
+            var center = new Point(uiCanvas.ActualWidth / 2.0, (uiCanvas.ActualHeight / 2.0) - 10.0); // Canvas doesn't have a size until it's displayed once.
             var maxRadius = 0.0;
             var minRadius = 100.0;
             var minDistance = Math.Min(center.X, center.Y);
@@ -259,6 +259,7 @@ namespace WiFiRadarControl
             layoutData.DrawnRingRadius = distanceDelta;
             layoutData.InnerRadius = minRadius;
             layoutData.OuterRadius = maxRadius;
+            layoutData.CenterYOffset = 10;
 
             var distance = minRadius;
             var offsetAngle = -Math.PI / 2; // at the top

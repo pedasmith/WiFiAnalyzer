@@ -10,6 +10,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Shapes;
 using SmartWiFiHelpers;
+using Windows.UI.Text;
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
 namespace WiFiRadarControl
@@ -35,6 +36,7 @@ namespace WiFiRadarControl
 
         public string Name { get { return NetworkInformation.SSID.OrUnnamed(); } }
         public WiFiNetworkInformation NetworkInformation { get; set; }
+        public string SsidToMatch { get; set; }
 
         public List<FrameworkElement> ToBeRemoved = new List<FrameworkElement>();
         public const int PreferredAPPerRing = 7;
@@ -213,6 +215,7 @@ namespace WiFiRadarControl
             public double InnerRadius = 0.0;
             public double OuterRadius = 0.0;
             public int NItemsInOuterRing = 0;
+            public double CenterYOffset = 0.0;
         }
         RingLayoutData RingLayout = new RingLayoutData();
 
@@ -233,11 +236,15 @@ namespace WiFiRadarControl
             bdr.Tapped += Bdr_Tapped;
             var sp = new StackPanel();
 
+            bool isMatching = reflector.NetworkInformation != null && reflector.NetworkInformation.SSID == reflector.SsidToMatch;
+            var weight = isMatching ? FontWeights.Bold : FontWeights.Normal;
+
             var tb = new TextBlock()
             {
                 Text = reflector.Icon,
                 FontSize = 15,
                 FontFamily = IconFontFamily,
+                FontWeight = weight,
                 Foreground = new SolidColorBrush(Colors.Black),
                 TextAlignment = TextAlignment.Center,
                 HorizontalTextAlignment = TextAlignment.Center,
@@ -259,9 +266,11 @@ namespace WiFiRadarControl
                     Text = reflector.NetworkInformation.SSID,
                     FontSize = 15,
                     FontFamily = IconFontFamily,
+                    FontWeight = weight,
                     Foreground = new SolidColorBrush(Colors.Black),
                     TextAlignment = TextAlignment.Center,
                     HorizontalTextAlignment = TextAlignment.Center
+
                 };
                 var bdrName = new Border()
                 {
@@ -295,7 +304,7 @@ namespace WiFiRadarControl
             double DotRadius = 10;
 
             double CX = (uiCanvas.ActualWidth / 2.0);
-            double CY = (uiCanvas.ActualHeight / 2.0);
+            double CY = (uiCanvas.ActualHeight / 2.0) - layoutData.CenterYOffset;
 
             var dot = new Ellipse()
             {
@@ -374,10 +383,13 @@ namespace WiFiRadarControl
 
         Random rnd = new Random(); 
 
-        private void AddRingsIfNeeded()
+        private void AddRingsIfNeeded(RingLayoutData layoutData)
         {
-            var center = new Point(uiCanvas.ActualWidth / 2.0, uiCanvas.ActualHeight / 2.0); // Canvas doesn't have a size until it's displayed once.
-            var maxRadius = Math.Max(uiCanvas.ActualWidth, uiCanvas.ActualHeight) / 2.0;
+            double CX = (uiCanvas.ActualWidth / 2.0);
+            double CY = (uiCanvas.ActualHeight / 2.0) - layoutData.CenterYOffset;
+
+            var center = new Point(CX, CY); // Canvas doesn't have a size until it's displayed once.
+            var maxRadius = Math.Max(CX, CY);
 
             bool addRing;
             addRing = Rings.Count == 0;
@@ -439,7 +451,7 @@ namespace WiFiRadarControl
 
 
             // Time to add a new ring?
-            AddRingsIfNeeded();
+            AddRingsIfNeeded(RingLayout);
             foreach (var ring in Rings)
             {
                 ring.Update(delta, amStopping);
@@ -503,7 +515,10 @@ namespace WiFiRadarControl
 
         private void OnRedrawRadar(object sender, RoutedEventArgs e)
         {
-            var center = new Point(uiCanvas.ActualWidth / 2.0, uiCanvas.ActualHeight / 2.0); // Canvas doesn't have a size until it's displayed once.
+            var layoutData = RingLayout;
+            double CX = (uiCanvas.ActualWidth / 2.0);
+            double CY = (uiCanvas.ActualHeight / 2.0) - layoutData.CenterYOffset;
+            var center = new Point(CX, CY); // Canvas doesn't have a size until it's displayed once.
             //DumpAllPositions($"Start: center  x={Math.Round(center.X)} y={Math.Round(center.Y)}");
 
 
@@ -526,7 +541,6 @@ namespace WiFiRadarControl
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)
         {
-            //Log($"DBG: SizeChange height={Math.Round(uiCanvas.ActualHeight)} width={Math.Round(uiCanvas.ActualWidth)}");
             OnRedrawRadar(null, null);
         }
 
