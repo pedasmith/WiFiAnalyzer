@@ -148,7 +148,7 @@ namespace SmartWiFiHelpers
         private static List<WiFiBandChannel> CreateWiFiMapping()
         {
             var retval = new List<WiFiBandChannel>();
-            const int BW24 = 22000; // in kilohertz
+            const int BW24 = 20000; // in kilohertz
             const string GH24 = "2.4 GHz";
             const string BGNAX = "802.11b/g/n/ax";
             retval.Add(new WiFiBandChannel(2412, BW24, BGNAX,  "1", GH24, 2401, 2423));
@@ -166,11 +166,11 @@ namespace SmartWiFiHelpers
             retval.Add(new WiFiBandChannel(2472, BW24, BGNAX, "13", GH24, 2461, 2483));
             retval.Add(new WiFiBandChannel(2484, BW24, BGNAX, "14", GH24, 2473, 2495));
 
-            const int BW10 = 10; // in megahertz
-            const int BW20 = 20; // in megahertz
-            const int BW40 = 40; // in megahertz
-            const int BW80 = 80; // in megahertz
-            const int BW160 = 160; // in megahertz
+            const int BW10 = 10_000; // in kilohertz
+            const int BW20 = 20_000; // in kilohertz
+            const int BW40 = 40_000; // in kilohertz
+            const int BW80 = 80_000; // in kilohertz
+            const int BW160 = 160_000; // in kilohertz
 
             retval.Add(Create5GhChannel(  "7", 5035, BW10));
             retval.Add(Create5GhChannel(  "8", 5040, BW20));
@@ -248,13 +248,13 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
-        private static WiFiBandChannel Create5GhChannel(string channelName, int centerFrequencyInMegahertz, int bandwidthInMegahertz)
+        private static WiFiBandChannel Create5GhChannel(string channelName, int centerFrequencyInMegahertz, int bandwidthInKilohertz)
         {
             const string GH5 = "5 GHz";
             const string AHJNACAX = "802.11a/h/j/n/ac/ax";
-            int minFrequencyInMegahertz = (centerFrequencyInMegahertz) - bandwidthInMegahertz / 2;
-            int maxFrequencyInMegahertz = (centerFrequencyInMegahertz) + bandwidthInMegahertz / 2;
-            return new WiFiBandChannel(centerFrequencyInMegahertz, bandwidthInMegahertz, AHJNACAX, channelName, GH5, minFrequencyInMegahertz, maxFrequencyInMegahertz);
+            int minFrequencyInMegahertz = (centerFrequencyInMegahertz) - (bandwidthInKilohertz / 1000) / 2;
+            int maxFrequencyInMegahertz = (centerFrequencyInMegahertz) + (bandwidthInKilohertz / 1000) / 2;
+            return new WiFiBandChannel(centerFrequencyInMegahertz, bandwidthInKilohertz, AHJNACAX, channelName, GH5, minFrequencyInMegahertz, maxFrequencyInMegahertz);
         }
     }
 }
