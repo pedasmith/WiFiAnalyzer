@@ -154,8 +154,10 @@
                 <TextBlock FontWeight="Bold" FontSize="24" Tapped="OnHideRadarDetails">Access Point Details</TextBlock>
                 <CommandBar Grid.Row="1" OverflowButtonVisibility="Collapsed" >
                     <CommandBar.PrimaryCommands>
+                        <!--
                         <AppBarButton Content="Connect" Tapped="OnConnectDetails" />
                         <AppBarButton Content="Disconnect" Tapped="OnDisconnectDetails" />
+                        -->
                         <AppBarButton Content="Hide" Tapped="OnHideRadarDetails" />
                         <AppBarButton Content="Clear" Tapped="OnClearRadarDetails" />
                     </CommandBar.PrimaryCommands>

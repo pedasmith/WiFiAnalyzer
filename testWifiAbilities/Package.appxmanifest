@@ -14,7 +14,7 @@
   <mp:PhoneIdentity PhoneProductId="a366cee8-238e-4fd9-866f-e7c4649f3159" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
-    <DisplayName>testWifiAbilities</DisplayName>
+    <DisplayName>Simple Wi-Fi Analyzer</DisplayName>
     <PublisherDisplayName>pesmith</PublisherDisplayName>
     <Logo>Assets\Icons\StoreLogo.png</Logo>
   </Properties>
@@ -30,7 +30,7 @@
   <Applications>
     <Application Id="App"
       Executable="$targetnametoken$.exe"
-      EntryPoint="testWifiAbilities.App">
+      EntryPoint="SimpleWiFiAnalyzer.App">
       <uap:VisualElements
         DisplayName="Simple Wi-Fi Analyzer"
         Square150x150Logo="Assets\Icons\Square150x150Logo.png"

@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWiFiAnalyzer", "testWifiAbilities\SimpleWiFiAnalyzer.csproj", "{38BBBCFC-BDFD-4867-B77F-22127F40EB6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWiFiAnalyzer", "testWiFiAbilities\SimpleWiFiAnalyzer.csproj", "{38BBBCFC-BDFD-4867-B77F-22127F40EB6E}"
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SmartWiFiHelpers", "SmartWiFiHelpers\SmartWiFiHelpers.shproj", "{32CAC13A-FF12-4AEF-A228-C69F67A213CB}"
 EndProject

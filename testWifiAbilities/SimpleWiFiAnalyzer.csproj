@@ -7,8 +7,8 @@
     <ProjectGuid>{38BBBCFC-BDFD-4867-B77F-22127F40EB6E}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>testWifiAbilities</RootNamespace>
-    <AssemblyName>testWifiAbilities</AssemblyName>
+    <RootNamespace>SimpleWiFiAnalyzer</RootNamespace>
+    <AssemblyName>SimpleWiFiAnalyzer</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.19041.0</TargetPlatformVersion>
