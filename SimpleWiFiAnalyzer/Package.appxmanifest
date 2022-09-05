@@ -9,13 +9,13 @@
   <Identity
     Name="a366cee8-238e-4fd9-866f-e7c4649f3159"
     Publisher="CN=pesmith"
-    Version="1.0.0.0" />
+    Version="1.1.988.0" />
 
   <mp:PhoneIdentity PhoneProductId="a366cee8-238e-4fd9-866f-e7c4649f3159" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>Simple Wi-Fi Analyzer</DisplayName>
-    <PublisherDisplayName>pesmith</PublisherDisplayName>
+    <PublisherDisplayName>Shipwreck Software</PublisherDisplayName>
     <Logo>Assets\Icons\StoreLogo.png</Logo>
   </Properties>
 
@@ -46,6 +46,5 @@
   <Capabilities>
     <Capability Name="internetClient" />
     <DeviceCapability Name="wifiControl" />
-    <DeviceCapability Name="location"/>
   </Capabilities>
 </Package>
