@@ -6,6 +6,15 @@
 **Description**
 Simple Wi-Fi Analyzer provides basic information about the Wi-Fi environment you are in. It provides a graphical RADAR-like display of the Wi-Fi access points in range, shows a frequency breakdown of the access points, and provides a table-like like of the details of each access point.
 
+**Properties**
+
+**Category** Utilities + Tools
+[**Privacy Policy**](https://shipwrecksoftware.wordpress.com/2019/02/24/common-privacy-policy/)
+[**Web Site**](https://shipwrecksoftware.wordpress.com/2022/09/06/simple-wi-fi-analyzer/) 
+**Support Contact** shipwrecksoftware@live.com
+**Store Listing**
+**Key features** includes Wi-Fi analyzer and Wi-Fi network analyzer
+
 
 # Status
 ## Project current status and todo

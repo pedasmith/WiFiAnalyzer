@@ -7,11 +7,11 @@
   IgnorableNamespaces="uap mp">
 
   <Identity
-    Name="a366cee8-238e-4fd9-866f-e7c4649f3159"
-    Publisher="CN=pesmith"
-    Version="1.1.988.0" />
+    Name="48425ShipwreckSoftware.597360E4258D0"
+    Publisher="CN=9A3276B6-661B-463D-9598-EFFF0974120A"
+    Version="1.1.991.0" />
 
-  <mp:PhoneIdentity PhoneProductId="a366cee8-238e-4fd9-866f-e7c4649f3159" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="605f4361-cac6-47f1-9333-44ca4f894dcc" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>Simple Wi-Fi Analyzer</DisplayName>

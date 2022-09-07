@@ -170,10 +170,13 @@ namespace SmartWiFiHelpers
                 case NetworkAuthenticationType.Owe: return "Hotspot Opportunistic Wireless Encryption (Owe)";
 
 
-                // case NetworkAuthenticationType.Wpa3: return "WPA3 (Wpa3)"; TODO: why is this enum 10 when the next is 10 also?
+                case NetworkAuthenticationType.Wpa3: return "WPA3 (Wpa3)"; //see MSDN for why this enum is 10 when the next is 10 also?
 #if !SupportWin10
-                case NetworkAuthenticationType.Wpa3Enterprise192Bits: return "WPA3 Enterprise 192 (Wpa3Enterprise192Bits)";
+                //case NetworkAuthenticationType.Wpa3Enterprise192Bits: return "WPA3 Enterprise 192 (Wpa3Enterprise192Bits)";
                 case NetworkAuthenticationType.Wpa3Enterprise: return "WPA3 Enterprise (Wpa3Enterprise)";
+#else
+                //case (NetworkAuthenticationType)10: return "WPA3 Enterprise 192 (Wpa3Enterprise192Bits)";
+                case (NetworkAuthenticationType)13: return "WPA3 Enterprise (Wpa3Enterprise)";
 #endif
             }
             return value.ToString();
@@ -196,6 +199,14 @@ namespace SmartWiFiHelpers
 #if !SupportWin10
                 case NetworkEncryptionType.Gcmp: return "GCMP (Gcmp)";
                 case NetworkEncryptionType.Gcmp256: return "GCMP 256-bit (Gcmp256)";
+
+#else
+                // The Windows 10 SDK doesn't have these values. When compiling on 
+                // a Windows 10 box, we have to just provide the integers values
+                // Values grabbed from https://docs.microsoft.com/en-us/uwp/api/Windows.Networking.Connectivity.NetworkEncryptionType?view=winrt-22621
+                case (NetworkEncryptionType)10: return "GCMP (Gcmp)";
+                case (NetworkEncryptionType)11: return "GCMP 256-bit (Gcmp256)";
+
 #endif
             }
             return value.ToString();
