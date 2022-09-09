@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.WiFi;
 using Windows.Networking.Connectivity;
+using Windows.Networking.NetworkOperators;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Automation.Peers;
@@ -49,6 +50,7 @@ namespace WiFiRadarControl
 
             uiGrid.ItemsSource = CurrentNetworkInformationList;
             uiRadar.DisplayWifiNetworkInformation = this;
+
             await DoScanAsync();
         }
 
@@ -509,8 +511,8 @@ namespace WiFiRadarControl
             dp.Properties.Title = "Wi-Fi Scan data";
             Clipboard.SetContent(dp);
         }
-        #endregion
 
+        #endregion
 
     }
 }

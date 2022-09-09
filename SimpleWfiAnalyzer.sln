@@ -9,6 +9,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SmartWiFiHelpers", "SmartWi
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WiFiRadarControl", "WiFiRadarControl\WiFiRadarControl.shproj", "{C3870EBF-59D6-4ABB-BFAE-BE394698E32A}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SmartWiFiControls", "SmartWiFiControls\SmartWiFiControls.shproj", "{7E076244-F346-46D1-B152-B9BC542BED85}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -54,8 +56,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		SmartWiFiHelpers\SmartWiFiHelpers.projitems*{32cac13a-ff12-4aef-a228-c69f67a213cb}*SharedItemsImports = 13
+		SmartWiFiControls\SmartWiFiControls.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 		SmartWiFiHelpers\SmartWiFiHelpers.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 		WiFiRadarControl\WiFiRadarControl.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
+		SmartWiFiControls\SmartWiFiControls.projitems*{7e076244-f346-46d1-b152-b9bc542bed85}*SharedItemsImports = 13
 		WiFiRadarControl\WiFiRadarControl.projitems*{c3870ebf-59d6-4abb-bfae-be394698e32a}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
