@@ -28,54 +28,64 @@ namespace SmartWiFiControls
         }
 
         NetworkOperatorTetheringManager TetheringManager = null;
+        private bool EnsureTetheringManager()
+        {
+            if (TetheringManager != null) return true;
+            try
+            {
+                var profile = NetworkInformation.GetInternetConnectionProfile();
+                var profileStr = NetworkToString.ToString("", profile);
+                TetheringLog(profileStr);
+                TetheringManager = NetworkOperatorTetheringManager.CreateFromConnectionProfile(profile);
+                TetheringLog(NetworkToString.ToString("", TetheringManager));
+            }
+            catch (Exception ex)
+            {
+                TetheringLog($"ERROR: Unable to make tethering manager: {ex.Message}");
+            }
+            return TetheringManager != null;
+        }
+        private NetworkOperatorTetheringAccessPointConfiguration CreateAPConfiguration()
+        {
+            var configure = new NetworkOperatorTetheringAccessPointConfiguration()
+            {
+                Ssid = uiTetheringSsid.Text,
+                Passphrase = uiTetheringPassphrase.Text,
+                Band = TetheringWiFiBand.FiveGigahertz,
+            };
+            return configure;
+        }
         private void TetheringLog(string text)
         {
             uiTetheringLog.Text += text + "\n";
         }
         private async void OnTetheringConfigureOnly(object sender, RoutedEventArgs e)
         {
+            if (!EnsureTetheringManager()) return ;
             uiTetheringLog.Text = "";
             TetheringLog("Starting Configure");
-            var configure = new NetworkOperatorTetheringAccessPointConfiguration()
-            {
-                Ssid = uiTetheringSsid.Text,
-                Passphrase = uiTetheringPassphrase.Text,
-                Band = TetheringWiFiBand.FiveGigahertz,
-            };
-            var profile = NetworkInformation.GetInternetConnectionProfile();
-            var profileStr = NetworkToString.ToString("", profile);
-            TetheringLog(profileStr);
-            var step = "Creating tethering";
+            var configure = CreateAPConfiguration();
             try
             {
-                TetheringManager = NetworkOperatorTetheringManager.CreateFromConnectionProfile(profile);
-                step = "Configuring";
                 await TetheringManager.ConfigureAccessPointAsync(configure);
             }
             catch (Exception ex)
             {
-                TetheringLog($"ERROR: {step}: {ex.Message}");
+                TetheringLog($"ERROR: Configure: {ex.Message}");
             }
             TetheringLog("Complete");
         }
 
         private async void OnTetheringConfigureStart(object sender, RoutedEventArgs e)
         {
+            if (!EnsureTetheringManager()) return;
+
             uiTetheringLog.Text = "";
             TetheringLog("Starting Configure");
-            var configure = new NetworkOperatorTetheringAccessPointConfiguration()
-            {
-                Ssid = uiTetheringSsid.Text,
-                Passphrase = uiTetheringPassphrase.Text,
-                Band = TetheringWiFiBand.FiveGigahertz,
-            };
-            var profile = NetworkInformation.GetInternetConnectionProfile();
-            var profileStr = NetworkToString.ToString("", profile);
-            TetheringLog(profileStr);
+            var configure = CreateAPConfiguration();
             var step = "Creating tethering";
             try
             {
-                TetheringManager = NetworkOperatorTetheringManager.CreateFromConnectionProfile(profile);
                 step = "Configuring";
                 await TetheringManager.ConfigureAccessPointAsync(configure);
 
@@ -116,6 +126,13 @@ namespace SmartWiFiControls
                 TetheringLog("\n\n");
             }
             TetheringLog("Complete");
+        }
+
+        private void OnTetheringShowManager(object sender, RoutedEventArgs e)
+        {
+            if (!EnsureTetheringManager()) return;
+            var str = NetworkToString.ToString("", TetheringManager);
+            TetheringLog(str);
         }
     }
 }

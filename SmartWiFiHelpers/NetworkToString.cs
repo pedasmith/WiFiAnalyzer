@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Devices.WiFi;
 using Windows.Networking.Connectivity;
+using Windows.Networking.NetworkOperators;
 
 namespace SmartWiFiHelpers
 {
@@ -222,6 +223,60 @@ namespace SmartWiFiHelpers
             if (ntype.HasFlag(NetworkTypes.PrivateNetwork)) nstr += "Private ";
             if (ntype.HasFlag(NetworkTypes.None)) nstr += "None ";
             retval += $"{indent}NetworkTypes={nstr}\n";
+            return retval;
+        }
+
+        public static string ToString(string indent, NetworkOperatorTetheringAccessPointConfiguration value)
+        {
+            if (value == null) return $"{indent}NetworkOperatorTetheringAccessPointConfiguration does not exist\n";
+            var retval = $"{indent}NetworkOperatorTetheringAccessPointConfiguration\n";
+            indent += Tab;
+            retval += $"{indent}Band={value.Band}\n";
+            retval += $"{indent}Passphrase={value.Passphrase}\n";
+            retval += $"{indent}Operational Ssid={value.Ssid}\n";
+            var bandstr = "";
+            var bandlist = new List<TetheringWiFiBand>() { TetheringWiFiBand.TwoPointFourGigahertz, TetheringWiFiBand.FiveGigahertz };
+            foreach (var band in bandlist)
+            {
+                if (value.IsBandSupported(band)) bandstr += band + " ";
+            }
+            retval += $"{indent}Supported Bands={bandstr}\n";
+            return retval;
+        }
+        public static string ToString(string indent, NetworkOperatorTetheringClient value)
+        {
+            if (value == null) return $"{indent}NetworkOperatorTetheringClient does not exist\n";
+            var retval = $"{indent}NetworkOperatorTetheringClient\n";
+            indent += Tab;
+            retval += $"{indent}MAC={value.MacAddress}\n";
+            var hoststr = "";
+            foreach (var host in value.HostNames)
+            {
+                hoststr += host.DisplayName + " ";
+            }
+            retval += $"{indent}Hosts={hoststr}\n";
+            return retval;
+        }
+
+        public static string ToString (string indent, NetworkOperatorTetheringManager value)
+        {
+            if (value == null) return $"{indent}NetworkOperatorTetheringManager does not exist\n";
+            var retval = $"{indent}NetworkOperatorTetheringManager\n";
+            indent += Tab;
+            retval += $"{indent}ClientCount={value.ClientCount}\n";
+            retval += $"{indent}MaxClientCount={value.MaxClientCount}\n";
+            retval += $"{indent}Operational State={value.TetheringOperationalState}\n";
+            var profile = NetworkInformation.GetInternetConnectionProfile();
+            var tcap = NetworkOperatorTetheringManager.GetTetheringCapabilityFromConnectionProfile(profile);
+            retval += $"{indent}Tethering Capability={tcap}\n"; // using internet profile
+
+            var apconfiguration = value.GetCurrentAccessPointConfiguration();
+            retval += ToString(indent, apconfiguration);
+            var clients = value.GetTetheringClients();
+            foreach (var client in clients)
+            {
+                retval += ToString(indent, client);
+            }
             return retval;
         }
         public static string ToString(string indent, NetworkSecuritySettings value)

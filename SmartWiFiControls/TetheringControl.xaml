@@ -28,10 +28,11 @@
                 <Setter Property="Margin" Value="10,4,0,0" />
               </Style>
             </StackPanel.Resources>
-            <Button Content="List Profiles" Click="OnTetheringListProfiles" />
             <Button Content="Start (+Configure)" Click="OnTetheringConfigureStart" />
             <Button Content="Configure" Click="OnTetheringConfigureOnly" />
             <Button Content="Stop" Click="OnTetheringStop" />
+            <Button Content="Show Manger" Click="OnTetheringShowManager" />
+            <Button Content="List Profiles" Click="OnTetheringListProfiles" />
           </StackPanel>
         </StackPanel>
       </Grid>
