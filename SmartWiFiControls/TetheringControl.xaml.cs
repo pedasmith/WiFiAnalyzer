@@ -34,10 +34,10 @@ namespace SmartWiFiControls
             try
             {
                 var profile = NetworkInformation.GetInternetConnectionProfile();
-                var profileStr = NetworkToString.ToString("", profile);
-                TetheringLog(profileStr);
+                //var profileStr = NetworkToString.ToString("", profile);
+                //TetheringLog(profileStr);
                 TetheringManager = NetworkOperatorTetheringManager.CreateFromConnectionProfile(profile);
-                TetheringLog(NetworkToString.ToString("", TetheringManager));
+                //TetheringLog(NetworkToString.ToString("", TetheringManager));
             }
             catch (Exception ex)
             {
@@ -133,6 +133,10 @@ namespace SmartWiFiControls
             if (!EnsureTetheringManager()) return;
             var str = NetworkToString.ToString("", TetheringManager);
             TetheringLog(str);
+        }
+        private void OnTetheringClearScreen(object sender, RoutedEventArgs e)
+        {
+            uiTetheringLog.Text = "";
         }
     }
 }

@@ -101,7 +101,7 @@
                     </StackPanel>
                 </Grid>
             </PivotItem>
-            <PivotItem Header="Tethering" Visibility="Visible">
+            <PivotItem Header="Hotspot" >
                 <smartwificontrols:TetheringControl />
             </PivotItem>
             <PivotItem Header="Log">

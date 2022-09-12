@@ -28,6 +28,7 @@ namespace SimpleWiFiAnalyzer
 
             int nerror = 0;
             nerror += WiFiBandChannel.TestFindOverlapping();
+            nerror += WiFiUrl.Test();
             if (nerror != 0)
             {
                 System.Diagnostics.Debug.WriteLine($"ERROR: NError is {nerror}; should be 0.");
