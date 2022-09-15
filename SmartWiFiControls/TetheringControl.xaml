@@ -9,33 +9,37 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+  <Grid>
     <Grid>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="auto" />
-            </Grid.RowDefinitions>
-            <ScrollViewer Grid.Row="1">
-                <TextBlock x:Name="uiTetheringLog" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
-            </ScrollViewer>
-            <StackPanel Grid.Row="2">
-                <TextBox Header="SSID" Text="stars"  x:Name="uiTetheringSsid" MinWidth="300" />
-                <TextBox Header="Password" Text="deeznuts" x:Name="uiTetheringPassphrase" MinWidth="300" />
-                <StackPanel Orientation="Horizontal">
-                    <StackPanel.Resources>
-                        <Style TargetType="Button">
-                            <Setter Property="Margin" Value="10,4,0,0" />
-                        </Style>
-                    </StackPanel.Resources>
-                    <Button Content="Start (+Configure)" Click="OnTetheringConfigureStart" />
-                    <Button Content="Configure" Click="OnTetheringConfigureOnly" />
-                    <Button Content="Stop" Click="OnTetheringStop" />
-                    <Button Content="Show Manger" Click="OnTetheringShowManager" />
-                    <Button Content="List Profiles" Click="OnTetheringListProfiles" />
-                    <Button Content="Clear Screen" Click="OnTetheringClearScreen" />
-                </StackPanel>
-            </StackPanel>
-        </Grid>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="auto" />
+        <RowDefinition Height="auto" />
+        <RowDefinition Height="*" />
+        <RowDefinition Height="auto" />
+      </Grid.RowDefinitions>
+      <StackPanel Grid.Row="1">
+        <StackPanel Orientation="Horizontal" />
+      </StackPanel>
+      <ScrollViewer Grid.Row="2">
+        <TextBlock x:Name="uiTetheringLog" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
+      </ScrollViewer>
+      <StackPanel Grid.Row="3">
+        <TextBox Header="SSID" Text="stars"  x:Name="uiTetheringSsid" MinWidth="300" />
+        <TextBox Header="Password" Text="deeznuts" x:Name="uiTetheringPassphrase" MinWidth="300" />
+        <StackPanel Orientation="Horizontal">
+          <StackPanel.Resources>
+            <Style TargetType="Button">
+              <Setter Property="Margin" Value="10,4,0,0" />
+            </Style>
+          </StackPanel.Resources>
+          <Button Content="Start (+Configure)" Click="OnTetheringConfigureStart" />
+          <Button Content="Configure" Click="OnTetheringConfigureOnly" />
+          <Button Content="Stop" Click="OnTetheringStop" />
+          <Button Content="Show Manger" Click="OnTetheringShowManager" />
+          <Button Content="List Profiles" Click="OnTetheringListProfiles" />
+          <Button Content="Clear Screen" Click="OnTetheringClearScreen" />
+        </StackPanel>
+      </StackPanel>
     </Grid>
+  </Grid>
 </UserControl>

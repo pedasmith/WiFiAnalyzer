@@ -13,8 +13,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)MathLogisticFunctions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)NetworkToString.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)OrderedBandInfo.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RfcParserHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ScanMetaData.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WiFiBandChannel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WiFiNetworkInformation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WiFiUrl.cs" />
   </ItemGroup>
 </Project>
