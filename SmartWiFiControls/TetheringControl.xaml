@@ -3,43 +3,57 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:SmartWiFiControls"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-  <Grid>
     <Grid>
-      <Grid.RowDefinitions>
-        <RowDefinition Height="auto" />
-        <RowDefinition Height="auto" />
-        <RowDefinition Height="*" />
-        <RowDefinition Height="auto" />
-      </Grid.RowDefinitions>
-      <StackPanel Grid.Row="1">
-        <StackPanel Orientation="Horizontal" />
-      </StackPanel>
-      <ScrollViewer Grid.Row="2">
-        <TextBlock x:Name="uiTetheringLog" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
-      </ScrollViewer>
-      <StackPanel Grid.Row="3">
-        <TextBox Header="SSID" Text="stars"  x:Name="uiTetheringSsid" MinWidth="300" />
-        <TextBox Header="Password" Text="deeznuts" x:Name="uiTetheringPassphrase" MinWidth="300" />
-        <StackPanel Orientation="Horizontal">
-          <StackPanel.Resources>
-            <Style TargetType="Button">
-              <Setter Property="Margin" Value="10,4,0,0" />
-            </Style>
-          </StackPanel.Resources>
-          <Button Content="Start (+Configure)" Click="OnTetheringConfigureStart" />
-          <Button Content="Configure" Click="OnTetheringConfigureOnly" />
-          <Button Content="Stop" Click="OnTetheringStop" />
-          <Button Content="Show Manger" Click="OnTetheringShowManager" />
-          <Button Content="List Profiles" Click="OnTetheringListProfiles" />
-          <Button Content="Clear Screen" Click="OnTetheringClearScreen" />
-        </StackPanel>
-      </StackPanel>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <StackPanel Grid.Row="1">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="uiSsid" FontWeight="Bold" FontSize="20" Text="SSID" />
+                    <TextBlock x:Name="uiStatus" FontWeight="Bold" FontSize="20" Text="--" Margin="10,0,0,0" />
+                    <TextBlock  FontWeight="Bold" FontSize="20" Margin="10,0,0,0" >
+                        <Run x:Name="uiCount" Text="____"  />
+                        <Run  Text=" / "  />
+                        <Run x:Name="uiMaxCount" Text="____"  />
+                    </TextBlock>
+                </StackPanel>
+                <muxc:Expander>
+                    <StackPanel>
+                        <TextBlock x:Name="uiPassword" />
+                    </StackPanel>
+                </muxc:Expander>
+            </StackPanel>
+            <ScrollViewer Grid.Row="2">
+                <TextBlock x:Name="uiTetheringLog" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
+            </ScrollViewer>
+            <StackPanel Grid.Row="3">
+                <TextBox Header="SSID" Text="stars"  x:Name="uiTetheringSsid" MinWidth="300" />
+                <TextBox Header="Password" Text="deeznuts" x:Name="uiTetheringPassphrase" MinWidth="300" />
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="Margin" Value="10,4,0,0" />
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Content="Start (+Configure)" Click="OnTetheringConfigureStart" />
+                    <Button Content="Configure" Click="OnTetheringConfigureOnly" />
+                    <Button Content="Stop" Click="OnTetheringStop" />
+                    <Button Content="Show Manger" Click="OnTetheringShowManager" />
+                    <Button Content="List Profiles" Click="OnTetheringListProfiles" />
+                    <Button Content="Clear Screen" Click="OnTetheringClearScreen" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
     </Grid>
-  </Grid>
 </UserControl>
