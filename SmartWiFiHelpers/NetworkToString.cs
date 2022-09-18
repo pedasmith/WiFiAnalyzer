@@ -226,6 +226,7 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
+
         public static string ToString(string indent, NetworkOperatorTetheringAccessPointConfiguration value)
         {
             if (value == null) return $"{indent}NetworkOperatorTetheringAccessPointConfiguration does not exist\n";
@@ -238,7 +239,7 @@ namespace SmartWiFiHelpers
             var bandlist = new List<TetheringWiFiBand>() { TetheringWiFiBand.TwoPointFourGigahertz, TetheringWiFiBand.FiveGigahertz };
             foreach (var band in bandlist)
             {
-                if (value.IsBandSupported(band)) bandstr += band + " ";
+                if (value.IsBandSupported(band)) bandstr += ToString(band) + " ";
             }
             retval += $"{indent}Supported Bands={bandstr}\n";
             return retval;
@@ -312,6 +313,21 @@ namespace SmartWiFiHelpers
             if (value == null) return $"".td()+"".td();
             return $"{value.NetworkAuthenticationType.ToString().td()}{value.NetworkEncryptionType.ToString().td()}";
         }
+
+        /// <summary>
+        /// Converts value like "TwoPointFourGigahertz" to user-friendly "2.4 GHz"
+        /// </summary>
+        public static string ToString(TetheringWiFiBand value)
+        {
+            switch (value)
+            {
+                case TetheringWiFiBand.TwoPointFourGigahertz: return "2.4 GHz";
+                case TetheringWiFiBand.FiveGigahertz: return "5 GHz";
+                case TetheringWiFiBand.Auto: return "Any available";
+            }
+            return value.ToString(); // handles any other case that might come up.
+        }
+
 
         public static async Task<string> ToStringAsync(string indent, WiFiAdapter value)
         {

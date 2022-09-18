@@ -514,5 +514,26 @@ namespace WiFiRadarControl
 
         #endregion
 
+        private void OnPivotSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count == 1)
+            {
+                var pivot = e.AddedItems[0] as PivotItem;
+                var tag = pivot.Tag as string;
+                if (tag == "MobileHotspot")
+                {
+                    uiMobileHotspot.TabTo();
+                }
+            }
+            if (e.RemovedItems.Count == 1)
+            {
+                var pivot = e.RemovedItems[0] as PivotItem;
+                var tag = pivot.Tag as string;
+                if (tag == "MobileHotspot")
+                {
+                    uiMobileHotspot.TabAway();
+                }
+            }
+        }
     }
 }

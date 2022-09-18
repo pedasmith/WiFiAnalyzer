@@ -22,7 +22,7 @@
             <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.ColumnSpan="2" FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Simple Wi-Fi Analyzer</TextBlock>
-        <Pivot Grid.Row="1" Grid.Column="0">
+        <Pivot Grid.Row="1" Grid.Column="0" SelectionChanged="OnPivotSelectionChanged">
             <PivotItem Header="RADAR">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -101,8 +101,8 @@
                     </StackPanel>
                 </Grid>
             </PivotItem>
-            <PivotItem Header="Hotspot" >
-                <smartwificontrols:TetheringControl />
+            <PivotItem Header="Hotspot" Tag="MobileHotspot" >
+                <smartwificontrols:TetheringControl x:Name="uiMobileHotspot" />
             </PivotItem>
             <PivotItem Header="Log">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">

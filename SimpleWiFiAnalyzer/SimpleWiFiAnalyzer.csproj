@@ -137,6 +137,9 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\0AboutSimpleWifiAnalyzer.md">
+      <Link>0AboutSimpleWifiAnalyzer.md</Link>
+    </None>
     <None Include="Assets\0AboutWiFiRadar.md" />
     <Content Include="Assets\Icons\LargeTile.scale-200.png" />
     <Content Include="Assets\Icons\SplashScreen.scale-200.png" />

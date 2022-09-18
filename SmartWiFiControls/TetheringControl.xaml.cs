@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Networking.Connectivity;
@@ -26,6 +27,45 @@ namespace SmartWiFiControls
         {
             this.InitializeComponent();
         }
+        DispatcherTimer RefreshTimer = null;
+        static int NLoaded = 0;
+        const int RefreshTimerPeriodInSeconds = 10;
+        public void TabTo()
+        {
+            NLoaded++;
+            TetheringLog($"✨Loaded={NLoaded}");
+
+            if (RefreshTimer == null)
+            {
+                // Pause a little and then get data?
+                RefreshTimer = new DispatcherTimer()
+                {
+                    Interval = new TimeSpan(0, 0, RefreshTimerPeriodInSeconds),
+                };
+                RefreshTimer.Tick += RefreshTimer_Tick;
+            }
+            RefreshTimer.Start();
+            if (!EnsureTetheringManager()) return;
+            Show(TetheringManager);
+        }
+
+        private void RefreshTimer_Tick(object sender, object e)
+        {
+            if (!EnsureTetheringManager()) return;
+            TetheringLog(". ");
+            Show(TetheringManager);
+        }
+
+        public void TabAway()
+        {
+            NLoaded--;
+            TetheringLog($"✨Unloaded={NLoaded}");
+            if (RefreshTimer == null) return;
+            //RefreshTimer.Change(Timeout.Infinite, RefreshTimerPeriodInSeconds);
+            RefreshTimer.Stop();
+        }
+
+
 
         NetworkOperatorTetheringManager TetheringManager = null;
         private bool EnsureTetheringManager()
@@ -51,13 +91,18 @@ namespace SmartWiFiControls
             {
                 Ssid = uiTetheringSsid.Text,
                 Passphrase = uiTetheringPassphrase.Text,
-                Band = TetheringWiFiBand.FiveGigahertz,
+                Band = TetheringWiFiBand.FiveGigahertz, //TODO: select band, too?
             };
             return configure;
         }
         private void TetheringLog(string text)
         {
-            uiTetheringLog.Text += text + "\n";
+            var start = uiTetheringLog.Text;
+            const int maxlen = 100;
+            if (start.Length > maxlen) start = "…" + start.Substring(start.Length - maxlen);
+            if (start.Length > 0) start += "    ";
+            var newtext = start + text;
+            uiTetheringLog.Text = newtext;
         }
         private async void OnTetheringConfigureOnly(object sender, RoutedEventArgs e)
         {
@@ -74,30 +119,26 @@ namespace SmartWiFiControls
                 TetheringLog($"ERROR: Configure: {ex.Message}");
             }
             TetheringLog("Complete");
+            Show(TetheringManager);
         }
 
-        private async void OnTetheringConfigureStart(object sender, RoutedEventArgs e)
+        private async void OnTetheringStart(object sender, RoutedEventArgs e)
         {
             if (!EnsureTetheringManager()) return;
 
             uiTetheringLog.Text = "";
-            TetheringLog("Starting Configure");
-            var configure = CreateAPConfiguration();
-            var step = "Creating tethering";
+            TetheringLog("Starting mobile hotspot");
             try
             {
-                step = "Configuring";
-                await TetheringManager.ConfigureAccessPointAsync(configure);
-
-                step = "Starting";
                 var result = await TetheringManager.StartTetheringAsync();
                 TetheringLog($"Tether: {result.Status} {result.AdditionalErrorMessage}");
             }
             catch (Exception ex)
             {
-                TetheringLog($"ERROR: {step}: {ex.Message}");
+                TetheringLog($"ERROR: {ex.Message}");
             }
             TetheringLog("Complete");
+            Show(TetheringManager);
         }
         private async void OnTetheringStop(object sender, RoutedEventArgs e)
         {
@@ -114,6 +155,7 @@ namespace SmartWiFiControls
                 TetheringLog($"ERROR: {step}: {ex.Message}");
             }
             TetheringLog("Complete");
+            Show(TetheringManager);
         }
         private void OnTetheringListProfiles(object sender, RoutedEventArgs e)
         {
@@ -137,6 +179,82 @@ namespace SmartWiFiControls
         private void OnTetheringClearScreen(object sender, RoutedEventArgs e)
         {
             uiTetheringLog.Text = "";
+        }
+        private void OnTetheringConfigureShow(object sender, RoutedEventArgs e)
+        {
+            if (!EnsureTetheringManager()) return;
+            Show(TetheringManager);
+        }
+        private void Show(NetworkOperatorTetheringManager manager = null)
+        {
+            if (manager == null)
+            {
+                manager = TetheringManager;
+                if (manager == null)
+                {
+                    EnsureTetheringManager();
+                    manager = TetheringManager;
+                }
+            }
+            if (manager == null) return;
+            uiStatus.Text = manager.TetheringOperationalState.ToString();
+            uiCount.Text = manager.ClientCount.ToString();
+            uiMaxCount.Text = manager.MaxClientCount.ToString();
+
+            // Set the visibility of the buttons. If the state is transition or unknown, both buttons will be disabled.
+            uiTetherStartButton.Visibility = manager.TetheringOperationalState == TetheringOperationalState.Off ? Visibility.Visible : Visibility.Collapsed;
+            uiTetherStopButton.Visibility = manager.TetheringOperationalState == TetheringOperationalState.On ? Visibility.Visible : Visibility.Collapsed;
+
+            var apconfiguration = manager.GetCurrentAccessPointConfiguration();
+            if (apconfiguration != null)
+            {
+                uiSsid.Text = apconfiguration.Ssid;
+                uiPassword.Text = apconfiguration.Passphrase;
+                uiBand.Text = NetworkToString.ToString(apconfiguration.Band);
+                var bandstr = "";
+                var bandlist = new List<TetheringWiFiBand>() { TetheringWiFiBand.TwoPointFourGigahertz, TetheringWiFiBand.FiveGigahertz };
+                foreach (var band in bandlist)
+                {
+                    if (apconfiguration.IsBandSupported(band)) bandstr += NetworkToString.ToString(band) + " ";
+                }
+                uiSupportedBand.Text = bandstr;
+            }
+
+            var profile = NetworkInformation.GetInternetConnectionProfile();
+            if (profile != null)
+            {
+                var tcap = NetworkOperatorTetheringManager.GetTetheringCapabilityFromConnectionProfile(profile);
+                uiTetheringEnabled.Text = tcap.ToString();
+                uiConnectedToProfileName.Text = profile.ProfileName;
+            }
+
+            var clients = manager.GetTetheringClients();
+            if (clients.Count == 0)
+            {
+                uiConnectedClientsTitle.Visibility = Visibility.Collapsed;
+                uiConnectedClients.Visibility = Visibility.Collapsed;
+                uiConnectedClients.Children.Clear();
+            }
+            else
+            {
+                uiConnectedClientsTitle.Visibility = Visibility.Visible;
+                uiConnectedClients.Visibility = Visibility.Visible;
+                uiConnectedClients.Children.Clear();
+                foreach (var client in clients)
+                {
+                    var clientstr ="    ";
+                    foreach (var host in client.HostNames)
+                    {
+                        clientstr += host.DisplayName + " ";
+                    }
+                    clientstr += $"MAC={client.MacAddress}";
+                    var tb = new TextBlock()
+                    {
+                        Text = clientstr
+                    };
+                    uiConnectedClients.Children.Add(tb);
+                }
+            }
         }
     }
 }
