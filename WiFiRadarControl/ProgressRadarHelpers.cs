@@ -54,6 +54,7 @@ namespace WiFiRadarControl
             {
                 Stroke = stroke,
                 StrokeThickness = Thickness,
+                IsHitTestVisible = false,
             };
             Center = center;
             Radius = minSize;
