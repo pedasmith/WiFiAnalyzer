@@ -370,7 +370,7 @@ namespace WiFiRadarControl
 
         public void Log(string text)
         {
-            System.Diagnostics.Debug.WriteLine(text); //TODO: remove
+            System.Diagnostics.Debug.WriteLine(text); //NOTE: remove when this gets overwhelming.
         }
 
         public void AddDummyReflectors()

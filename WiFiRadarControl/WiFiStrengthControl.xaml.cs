@@ -94,7 +94,6 @@ namespace WiFiRadarControl
 
             uiChannelName.Text = list.WBC?.ChannelName;
 
-            //TODO: order these.
             var orderedList = list.InfoOverlapFrequency.OrderBy(comparer => comparer.Rssi);   
             foreach (var wifiNetworkInfo in orderedList)
             {

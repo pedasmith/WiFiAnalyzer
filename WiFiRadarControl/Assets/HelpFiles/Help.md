@@ -43,7 +43,24 @@ Click on **Copy as CSV** top copy the data to the clipboard as a CSV table.
 
 The Log tab shows a text listing of every access point and the associated details along with detailed information about the Wi-Fi network adapters and the current connected network. It's sometimes useful when debugging a complex network problem.
 
+## Hotspot
+![Hotspot Display](../HelpImages/Hotspot-Details.png)
+
+The mobile hotspot display shows the current Mobile Hotspot (otherwise known as a SoftAP) configuration. 
+
+The first row shows the hotspot name, whether it's on or off, the number of clients currently connected, and a button to turn the hotspot on or off. 
+
+In the Details expander you can see the profile name (the Wi-Fi connection that the internet is connected on), the password for the hotspot, and the band information for the hotspot. 
+
+The list of connected clients will show the "host name" for each connected client (often the IP address and can also include the computer's name), plus the client MAC address. This is sometimes useful for debugging connections.
+
+The information will refresh every few seconds. When it does, the little astronomical image at the far-right of the top line of information will update.
+
+You can also **configure** the hotspot with a name and password. Simply enter a name and password (otherwise known as a passphrase) and press "Configure"
+
+
 # Lexicon and helpful links
 
+* All the app [Versions](Versions.md).
 * Full Wi-Fi [Lexicon](Lexicon.md).
 * Wi-Fi on [Wikipedia](https://en.wikipedia.org/wiki/Wi-Fi)

@@ -29,18 +29,20 @@ namespace SmartWiFiControls
         }
         DispatcherTimer RefreshTimer = null;
         static int NLoaded = 0;
-        const int RefreshTimerPeriodInSeconds = 10;
+        const double RefreshTimerPeriodInSeconds = 5;
         public void TabTo()
         {
             NLoaded++;
-            TetheringLog($"✨Loaded={NLoaded}");
+            //TetheringLog($"✨Loaded={NLoaded}");
 
             if (RefreshTimer == null)
             {
                 // Pause a little and then get data?
+                int s = (int)Math.Floor(RefreshTimerPeriodInSeconds);
+                int ms = (int)Math.Round(((double)s - RefreshTimerPeriodInSeconds) * 1000.0);
                 RefreshTimer = new DispatcherTimer()
                 {
-                    Interval = new TimeSpan(0, 0, RefreshTimerPeriodInSeconds),
+                    Interval = new TimeSpan(0, 0, 0, s, ms),
                 };
                 RefreshTimer.Tick += RefreshTimer_Tick;
             }
@@ -49,17 +51,23 @@ namespace SmartWiFiControls
             Show(TetheringManager);
         }
 
+        String[] AnimationTimerStringsCat = { "🐱", "😸", "😺", "😼", "😻", };
+        String[] AnimationTimerStrings = { "🪐", "🪨", "🌌", "🌑", };
+
+        long AnimationTimerCount = 0;
         private void RefreshTimer_Tick(object sender, object e)
         {
             if (!EnsureTetheringManager()) return;
-            TetheringLog(". ");
             Show(TetheringManager);
+
+            uiAnimationTimer.Text = AnimationTimerStrings[AnimationTimerCount % AnimationTimerStrings.Length];
+            AnimationTimerCount++;
         }
 
         public void TabAway()
         {
             NLoaded--;
-            TetheringLog($"✨Unloaded={NLoaded}");
+            //TetheringLog($"✨Unloaded={NLoaded}");
             if (RefreshTimer == null) return;
             //RefreshTimer.Change(Timeout.Infinite, RefreshTimerPeriodInSeconds);
             RefreshTimer.Stop();
@@ -179,11 +187,6 @@ namespace SmartWiFiControls
         private void OnTetheringClearScreen(object sender, RoutedEventArgs e)
         {
             uiTetheringLog.Text = "";
-        }
-        private void OnTetheringConfigureShow(object sender, RoutedEventArgs e)
-        {
-            if (!EnsureTetheringManager()) return;
-            Show(TetheringManager);
         }
         private void Show(NetworkOperatorTetheringManager manager = null)
         {

@@ -137,7 +137,7 @@ namespace WiFiRadarControl
         public double Thickness = 7.0;
         public const double FinalThicknessMultiplier = 10.0;
 
-        public double AngleDegrees = -45.0; // TODO: need to calculate this
+        public double AngleDegrees = -45.0; // This is updated as needed
         const double AngleWidth = .45;
 
         const int ArcZIndex = -2;
