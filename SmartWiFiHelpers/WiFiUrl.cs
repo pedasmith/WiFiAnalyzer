@@ -8,6 +8,9 @@ using Windows.Networking.NetworkOperators;
 
 namespace SmartWiFiHelpers
 {
+    /// <summary>
+    /// Helpers for wifi: and wifisetup: URL schemes. The wifi: url as of 2022-09-27 matches the WPA3 official scheme, even though it's bad and not widely followed.
+    /// </summary>
     public class WiFiUrl
     {
         public WiFiUrl(NetworkOperatorTetheringAccessPointConfiguration value)
@@ -36,13 +39,21 @@ namespace SmartWiFiHelpers
                 this.ErrorMessage = "WiFi url is too short";
                 return;
             }
-            var scheme = urlString.Substring(0, 5).ToLowerInvariant();
-            if (scheme != "wifi:")
+            var firstColon= urlString.IndexOf(':');
+            if (firstColon < 0)
+            {
+                this.IsValid = Validity.InvalidWrongScheme;
+                this.ErrorMessage = "WiFi URL doesn't start with a scheme like wifi:";
+                return;
+            }
+            var scheme = urlString.Substring(0, firstColon+1).ToLowerInvariant();
+            if (scheme != "wifi:" && scheme != "wifisetup:")
             {
                 this.IsValid = Validity.InvalidWrongScheme;
                 this.ErrorMessage = "WiFi URL doesn't start with wifi:";
                 return;
             }
+            this.Scheme = scheme.Substring(0, firstColon); // should not include the ':'
             var len = urlString.Length;
             if (urlString[len-1] != ';' || urlString[len-2] != ';' || urlString[len-3] == ';') // wrong number of semi-colons
             {
@@ -64,7 +75,7 @@ namespace SmartWiFiHelpers
             int lastFoundOrder = -1;
             var foundOpcodes = new HashSet<int>();
 
-            var split = urlString.Substring(5).Split(';');
+            var split = urlString.Substring(firstColon+1).Split(';');
             foreach (var item in split)
             {
                 // is, e.g., S:starpainter
@@ -352,7 +363,11 @@ namespace SmartWiFiHelpers
         public Validity IsValid { get; set; } = Validity.InvalidOther;
         public string ErrorMessage { get; set; } = null;
 
-        public string Scheme { get; set; } = "wifi"; // is always wifi. Idiotic: Schemes should be lowercase per https://www.rfc-editor.org/rfc/rfc7595
+        public string Scheme { get; set; } = "wifi"; // is always wifi or wifisetup. Idiotic: Schemes should be lowercase per https://www.rfc-editor.org/rfc/rfc7595
+
+        /// <summary>
+        /// WiFi Security type. When present, must be WPA which includes WPA3. When not present, implies open (or similar), which won't work on Android
+        /// </summary>
         public string WiFiType { get; set; } // type = “T:” *(unreserved) ; security type. Must be WPA
         /// <summary>
         /// Property saved is raw HEX digits

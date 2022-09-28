@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Networking.Connectivity;
@@ -116,8 +117,15 @@ namespace SmartWiFiControls
         {
             if (!EnsureTetheringManager()) return ;
             uiTetheringLog.Text = "";
-            TetheringLog("Starting Configure");
             var configure = CreateAPConfiguration();
+            await DoTetheringConfigureAsync(configure);
+            Show(TetheringManager);
+        }
+
+        public async Task<bool> DoTetheringConfigureAsync(NetworkOperatorTetheringAccessPointConfiguration configure)
+        {
+            var retval = true;
+            TetheringLog("Starting Configure");
             try
             {
                 await TetheringManager.ConfigureAccessPointAsync(configure);
@@ -125,9 +133,10 @@ namespace SmartWiFiControls
             catch (Exception ex)
             {
                 TetheringLog($"ERROR: Configure: {ex.Message}");
+                retval = false;
             }
             TetheringLog("Complete");
-            Show(TetheringManager);
+            return retval;
         }
 
         private async void OnTetheringStart(object sender, RoutedEventArgs e)
@@ -135,18 +144,30 @@ namespace SmartWiFiControls
             if (!EnsureTetheringManager()) return;
 
             uiTetheringLog.Text = "";
+            await DoTetheringStartAsync();
+            Show(TetheringManager);
+        }
+
+        private async Task<bool> DoTetheringStartAsync()
+        {
+            if (!EnsureTetheringManager()) return false;
+
+            var retval = false;
             TetheringLog("Starting mobile hotspot");
             try
             {
                 var result = await TetheringManager.StartTetheringAsync();
                 TetheringLog($"Tether: {result.Status} {result.AdditionalErrorMessage}");
+                retval = result.Status == TetheringOperationStatus.Success;
             }
             catch (Exception ex)
             {
                 TetheringLog($"ERROR: {ex.Message}");
+                retval = false;
             }
             TetheringLog("Complete");
             Show(TetheringManager);
+            return retval;
         }
         private async void OnTetheringStop(object sender, RoutedEventArgs e)
         {
@@ -257,6 +278,31 @@ namespace SmartWiFiControls
                     };
                     uiConnectedClients.Children.Add(tb);
                 }
+            }
+        }
+
+        public async Task SetupFromWiFiSetupUrl(WiFiUrl url)
+        {
+            if (url == null || url.Scheme != "wifisetup") return;
+            uiTetheringSsid.Text = url.Ssid;
+            uiTetheringPassphrase.Text = url.Password;
+
+            var configure = CreateAPConfiguration();
+            var configureOk = await DoTetheringConfigureAsync(configure);
+            bool startOk = false;
+            if (configureOk) startOk = await DoTetheringStartAsync();
+            var ok = configureOk && startOk;
+
+            if (!ok)
+            {
+                uiConnectQR.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                uiConnectQR.Visibility = Visibility.Visible;
+                url.Scheme = "wifi"; // switch over the wifi: url for the QR Code.
+                url.WiFiType = "WPA"; // we always make a WPA connection
+                await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
             }
         }
     }

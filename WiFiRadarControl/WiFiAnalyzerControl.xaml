@@ -101,7 +101,7 @@
                     </StackPanel>
                 </Grid>
             </PivotItem>
-            <PivotItem Header="Hotspot" Tag="MobileHotspot" >
+            <PivotItem Header="Hotspot" Tag="MobileHotspot" x:Name="uiMobileHotspotPivot" >
                 <smartwificontrols:TetheringControl x:Name="uiMobileHotspot" />
             </PivotItem>
             <PivotItem Header="Connect" Tag="Connect" x:Name="uiConnectPivot" >

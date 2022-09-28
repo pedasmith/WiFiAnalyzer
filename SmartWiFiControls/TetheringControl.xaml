@@ -73,6 +73,7 @@
                     </StackPanel>
                 </ScrollViewer>
             </controls:Expander>
+            <Image Grid.Row="2" Grid.RowSpan="1" VerticalAlignment="Top" HorizontalAlignment="Right" x:Name="uiConnectQR" Stretch="Uniform"  Margin="0,10,0,0" Width="200" Height="200" Visibility="Collapsed"/>
             <TextBlock Grid.Row="3" x:Name="uiTetheringLog" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
             <StackPanel Grid.Row="4">
                 <TextBlock>

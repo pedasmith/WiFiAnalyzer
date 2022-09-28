@@ -47,6 +47,12 @@
             <uap:DisplayName>WIFI</uap:DisplayName>
           </uap:Protocol>
         </uap:Extension>
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="wifisetup">
+            <uap:Logo>Assets\Icons\UrlIcon44x44.png</uap:Logo>
+            <uap:DisplayName>Wi-Fi Setup</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
       </Extensions>
     </Application>
   </Applications>

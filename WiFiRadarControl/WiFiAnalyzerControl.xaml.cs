@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Controls;
 using QRCoder;
 using SimpleWiFiAnalyzer;
+using SmartWiFiControls;
 using SmartWiFiHelpers;
 using System;
 using System.Collections.Generic;
@@ -526,6 +527,15 @@ namespace WiFiRadarControl
 
         #endregion
 
+        #region HOTSPOT
+        // Called from MainPage.cs NavigateToWiFiUrlConnect(WiFiUrl url)
+        // From app.xaml.cs OnActivated(IActivatedEventArgs args) when started with wifisetup:S:starpainter;P:deeznuts;;
+        public Task NavigateToWiFiHotspotSetupUrl(WiFiUrl url)
+        {
+            uiPivot.SelectedItem = uiMobileHotspotPivot;
+            return uiMobileHotspot.SetupFromWiFiSetupUrl(url);
+        }
+        #endregion
 
         #region CONNECT
 
@@ -549,34 +559,11 @@ namespace WiFiRadarControl
             uiConnectUrl.Text = url.ToString();
             await ConnectFromUrlAsync(url);
         }
-        private async Task ConnectWriteQR(Image image, WiFiUrl url)
-        {
-            QRCodeGenerator.ECCLevel eccLevel = QRCodeGenerator.ECCLevel.M;
 
-            //Create raw qr code data
-            QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            QRCodeData qrCodeData = qrGenerator.CreateQrCode(url.ToString(), eccLevel);
-
-            //Create byte/raw bitmap qr code
-            BitmapByteQRCode qrCodeBmp = new BitmapByteQRCode(qrCodeData);
-            byte[] qrCodeImageBmp = qrCodeBmp.GetGraphic(20); // Note: these are colors from the original sample (but they are ugly): , new byte[] { 118, 126, 152 }, new byte[] { 144, 201, 111 });
-            using (InMemoryRandomAccessStream stream = new InMemoryRandomAccessStream())
-            {
-                using (DataWriter writer = new DataWriter(stream.GetOutputStreamAt(0)))
-                {
-                    writer.WriteBytes(qrCodeImageBmp);
-                    await writer.StoreAsync();
-                }
-                var bitmapImage = new BitmapImage();
-                await bitmapImage.SetSourceAsync(stream);
-
-                image.Source = bitmapImage;
-            }
-        }
         private async Task ConnectFromUrlAsync(WiFiUrl url)
         {
             url.WiFiType = "WPA";
-            await ConnectWriteQR(uiConnectQR, url);
+            await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
             var adapterList = await WiFiAdapter.FindAllAdaptersAsync();
             LogConnectInfo($"Finding Wi-Fi network for URL {url}", true);
             LogNetworkInfo($"Finding Wi-Fi network {url.Ssid}");
