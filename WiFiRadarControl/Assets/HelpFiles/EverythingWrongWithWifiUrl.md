@@ -14,6 +14,8 @@ The protocol clearly provides a rigid and required ordering of the fields. But t
 
 The protocol requires that each wifi url end with two semi-colons. These are also absent in real-world examples.
 
+The **T:WPA type is required** for Android. If you specify a url wifi:S:star216;P:deeznuts;; without the T:WPA;, and it's a Windows Hotspot, and you try to connect from Android, then it will fail. Why? Because Android will insist on opening as an open hotspot (but with a password), and fail.
+
 ## Links
 
 The Wifi: URL scheme is defined by the [Wi-Fi.org](https://www.wi-fi.org/) in the [WPA-3 specification](https://www.wi-fi.org/download.php?file=/sites/default/files/private/WPA3_Specification_v3.0.pdf)
@@ -38,7 +40,7 @@ PKCHAR = ALPHA / DIGIT / %x2b / %x2f / %x3d
 
 |Command|Meaning
 |-----|-----
-|T|**Type**, must be WPA3
+|T|**Type**, must be WPA or nothing. Won't work as nothing on Android.
 |R|**Transition Disable**
 |S|**SSID** to connect to
 |H|**Hidden**, must be true if present
