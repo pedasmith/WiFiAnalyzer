@@ -239,7 +239,14 @@ namespace SmartWiFiControls
                 var bandlist = new List<TetheringWiFiBand>() { TetheringWiFiBand.TwoPointFourGigahertz, TetheringWiFiBand.FiveGigahertz };
                 foreach (var band in bandlist)
                 {
-                    if (apconfiguration.IsBandSupported(band)) bandstr += NetworkToString.ToString(band) + " ";
+                    try
+                    {
+                        if (apconfiguration.IsBandSupported(band)) bandstr += NetworkToString.ToString(band) + " ";
+                    }
+                    catch (Exception)
+                    {
+                        ; // TODO: this failed at work -- why?
+                    }
                 }
                 uiSupportedBand.Text = bandstr;
             }
