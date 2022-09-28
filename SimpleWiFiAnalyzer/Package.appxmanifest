@@ -40,6 +40,14 @@
         <uap:DefaultTile Wide310x150Logo="Assets\Icons\Wide310x150Logo.png" Square310x310Logo="Assets\Icons\LargeTile.png" Square71x71Logo="Assets\Icons\SquareSmall.png"/>
         <uap:SplashScreen Image="Assets\Icons\SplashScreen.png" />
       </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="wifi">
+            <uap:Logo>Assets\Icons\UrlIcon44x44.png</uap:Logo>
+            <uap:DisplayName>WIFI</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+      </Extensions>
     </Application>
   </Applications>
 

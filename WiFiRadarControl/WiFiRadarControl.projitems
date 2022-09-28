@@ -36,6 +36,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="$(MSBuildThisFileDirectory)Assets\HelpFiles\EverythingWrongWithWifiUrl.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="$(MSBuildThisFileDirectory)Assets\HelpFiles\Help.md">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

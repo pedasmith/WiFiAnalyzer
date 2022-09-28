@@ -6,11 +6,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.WiFi;
 using Windows.Networking.Connectivity;
 using Windows.Networking.NetworkOperators;
+using Windows.Security.Credentials;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Automation.Peers;
@@ -65,6 +67,7 @@ namespace WiFiRadarControl
             HelpHistory.NavigatedTo(place);
             HelpNavigatedTo = place;
         }
+
 
         #region HELP
         private async Task<bool> HelpGotoAsync(string filename)
@@ -311,6 +314,12 @@ namespace WiFiRadarControl
             uiNetworkInfo.Text = text;
         }
 
+        private void LogConnectInfo(string text, bool clear = false)
+        {
+            if (clear) uiConnectLog.Text = "";
+            uiConnectLog.Text = text + "\r" + uiConnectLog.Text;
+        }
+
         private static List<Reflector> CreateReflectorList(IList<WiFiNetworkInformation> list, string matchingSsid)
         {
             var retval = new List<Reflector>();
@@ -514,6 +523,98 @@ namespace WiFiRadarControl
 
         #endregion
 
+
+        #region CONNECT
+
+        // Called from MainPage.cs NavigateToWiFiUrlConnect(WiFiUrl url)
+        // From app.xaml.cs OnActivated(IActivatedEventArgs args) when started with wifi:S:starpainter;P:deeznuts;;
+        public Task NavigateToWiFiConnectUrl(WiFiUrl url)
+        {
+            uiPivot.SelectedItem = uiConnectPivot;
+            uiConnectPassword.Text = url.Password ?? "";
+            uiConnectSsid.Text = url.Ssid ?? "";
+            uiConnectUrl.Text = url.ToString();
+            return ConnectFromUrlAsync(url);
+        }
+
+        private async void OnConnect(object sender, RoutedEventArgs e)
+        {
+            ; // TODO: wire this up
+            var ssid = uiConnectSsid.Text;
+            var pwd = uiConnectPassword.Text;
+            WiFiUrl url = new WiFiUrl(ssid, pwd);
+            uiConnectUrl.Text = url.ToString();
+            await ConnectFromUrlAsync(url);
+        }
+
+        private async Task ConnectFromUrlAsync(WiFiUrl url)
+        {
+            ; // TODO: actually connect
+            var adapterList = await WiFiAdapter.FindAllAdaptersAsync();
+            LogConnectInfo($"Finding Wi-Fi network for URL {url}", true);
+            LogNetworkInfo($"Finding Wi-Fi network {url.Ssid}");
+            if (adapterList.Count < 1)
+            {
+                LogConnectInfo($"Unable to connect to {url.Ssid}: no Wi-Fi adapters found");
+                LogNetworkInfo($"Unable to connect to {url.Ssid}: no Wi-Fi adapters found");
+                return; 
+            }
+            int nFoundAdapter = 0;
+            int nConnectedFail = 0;
+            int nConnectedSuccess = 0;
+            WiFiConnectionStatus lastConnectionStatus = WiFiConnectionStatus.Success;
+            foreach (var wifiAdapter in adapterList)
+            {
+                try
+                {
+                    await wifiAdapter.ScanAsync();
+                }
+                catch (Exception e)
+                {
+                    LogConnectInfo($"Scan error: {e.Message}");
+                    LogNetworkInfo($"Scan error: {e.Message}");
+                }
+                foreach (var network in wifiAdapter.NetworkReport.AvailableNetworks)
+                {
+                    if (network.Ssid == url.Ssid)
+                    {
+                        nFoundAdapter++;
+                        var pwd = new PasswordCredential() { Password = url.Password };
+                        LogConnectInfo($"Found adapter on {url.Ssid}; connecting");
+                        var result = await wifiAdapter.ConnectAsync(network, WiFiReconnectionKind.Automatic, pwd);
+                        lastConnectionStatus = result.ConnectionStatus;
+                        if (result.ConnectionStatus == WiFiConnectionStatus.Success)
+                        {
+                            nConnectedSuccess++;
+                            LogConnectInfo($"Found adapter on {url.Ssid}; connect success");
+                            break;// all done.
+                        }
+                        else
+                        {
+                            LogConnectInfo($"Found adapter on {url.Ssid}; connect fail reason={result.ConnectionStatus}");
+                            nConnectedFail++;
+                        }
+                    }
+                }
+            }
+            if (nConnectedSuccess > 0)
+            {
+                LogConnectInfo($"Connected to {url.Ssid}");
+                LogNetworkInfo($"Connected to {url.Ssid}");
+            }
+            else if (nConnectedFail > 0)
+            {
+                LogConnectInfo($"Unable to connect to {url.Ssid} Reason={lastConnectionStatus}");
+                LogNetworkInfo($"Unable to connect to {url.Ssid} Reason={lastConnectionStatus}");
+            }
+            else
+            {
+                LogConnectInfo($"No such network: {url.Ssid}");
+                LogNetworkInfo($"No such network: {url.Ssid}");
+            }
+        }
+
+        #endregion
         private void OnPivotSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count == 1)

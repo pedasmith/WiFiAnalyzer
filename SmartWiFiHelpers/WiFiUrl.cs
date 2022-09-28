@@ -8,7 +8,7 @@ using Windows.Networking.NetworkOperators;
 
 namespace SmartWiFiHelpers
 {
-    class WiFiUrl
+    public class WiFiUrl
     {
         public WiFiUrl(NetworkOperatorTetheringAccessPointConfiguration value)
         {

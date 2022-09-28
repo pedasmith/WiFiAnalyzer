@@ -36,6 +36,12 @@ namespace SimpleWiFiAnalyzer
             this.Loaded += MainPage_Loaded;
         }
 
+        public Task NavigateToWiFiUrlConnect(WiFiUrl url)
+        {
+            return uiWiFiAnalyzer.NavigateToWiFiConnectUrl(url);
+            ;
+        }
+
         private void MainPage_Loaded(object sender, RoutedEventArgs e)
         {
              // Nope, no need to do this: MathLogisticFunctions.Demonstrate();

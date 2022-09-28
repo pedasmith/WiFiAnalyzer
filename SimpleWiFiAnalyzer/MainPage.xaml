@@ -12,6 +12,6 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <radar:WiFiAnalyzerControl />
+        <radar:WiFiAnalyzerControl x:Name="uiWiFiAnalyzer" />
     </Grid>
 </Page>

@@ -150,6 +150,7 @@
     <Content Include="Assets\Icons\Square44x44Logo.targetsize-48.png" />
     <Content Include="Assets\Icons\SquareSmall.scale-200.png" />
     <Content Include="Assets\Icons\StoreLogo.scale-200.png" />
+    <Content Include="Assets\Icons\UrlIcon44x44.png" />
     <Content Include="Assets\Icons\Wide310x150Logo.scale-200.png" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />

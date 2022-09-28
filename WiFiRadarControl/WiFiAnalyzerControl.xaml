@@ -22,7 +22,7 @@
             <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.ColumnSpan="2" FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Simple Wi-Fi Analyzer</TextBlock>
-        <Pivot Grid.Row="1" Grid.Column="0" SelectionChanged="OnPivotSelectionChanged">
+        <Pivot x:Name="uiPivot" Grid.Row="1" Grid.Column="0" SelectionChanged="OnPivotSelectionChanged">
             <PivotItem Header="RADAR">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -103,6 +103,31 @@
             </PivotItem>
             <PivotItem Header="Hotspot" Tag="MobileHotspot" >
                 <smartwificontrols:TetheringControl x:Name="uiMobileHotspot" />
+            </PivotItem>
+            <PivotItem Header="Connect" Tag="Connect" x:Name="uiConnectPivot" >
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.Row="0" HorizontalAlignment="Left">
+                        <TextBlock FontWeight="Bold" FontSize="20">Connect to Wi-Fi</TextBlock>
+                        <TextBlock>Lets you connect to a Wi-Fi access point</TextBlock>
+                        <TextBlock> </TextBlock>
+                        
+                        <TextBox x:Name="uiConnectSsid" Header="SSID to connect to" Text="" MaxWidth="500" />
+                        <TextBox x:Name="uiConnectPassword" Header="Password for access point" Text="" MaxWidth="500" />
+                    </StackPanel>
+                    <ScrollViewer Grid.Row="1">
+                        <TextBlock x:Name="uiConnectLog" Text="" IsTextSelectionEnabled="True" />
+                    </ScrollViewer>
+                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                        <Button Content="Connect" Click="OnConnect" />
+                        <TextBlock  x:Name="uiConnectUrl" IsTextSelectionEnabled="True" VerticalAlignment="Center" Text="wifi:" Margin="20,0,0,0" />
+                    </StackPanel>
+
+                </Grid>
             </PivotItem>
             <PivotItem Header="Log">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
