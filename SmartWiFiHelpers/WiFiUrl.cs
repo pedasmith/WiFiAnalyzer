@@ -234,7 +234,7 @@ namespace SmartWiFiHelpers
         }
         public override string ToString()
         {
-            var retval = $"{Scheme}:";
+            var retval = $"{Scheme.ToUpper()}:";
             if (WiFiType!=null) retval += "T:" + WiFiType + ";";
             if (TRDisable!=null) retval += "R:" + TRDisable + ";";
             if (Ssid!=null) retval += "S:" + HttpUtility.UrlEncode(Ssid) + ";";
