@@ -301,7 +301,7 @@ namespace SmartWiFiControls
             {
                 uiConnectQR.Visibility = Visibility.Visible;
                 url.Scheme = "wifi"; // switch over the wifi: url for the QR Code.
-                url.WiFiType = "WPA"; // we always make a WPA connection
+                url.WiFiAuthType = "WPA"; // we always make a WPA connection
                 await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
             }
         }

@@ -552,7 +552,6 @@ namespace WiFiRadarControl
 
         private async void OnConnect(object sender, RoutedEventArgs e)
         {
-            ; // TODO: wire this up
             var ssid = uiConnectSsid.Text;
             var pwd = uiConnectPassword.Text;
             WiFiUrl url = new WiFiUrl(ssid, pwd);
@@ -562,7 +561,7 @@ namespace WiFiRadarControl
 
         private async Task ConnectFromUrlAsync(WiFiUrl url)
         {
-            url.WiFiType = "WPA";
+            url.WiFiAuthType = "WPA";
             await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
             var adapterList = await WiFiAdapter.FindAllAdaptersAsync();
             LogConnectInfo($"Finding Wi-Fi network for URL {url}", true);

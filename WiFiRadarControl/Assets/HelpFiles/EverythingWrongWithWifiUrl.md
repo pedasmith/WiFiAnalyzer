@@ -6,19 +6,32 @@ In Windows, you have to specify whether you're connecting just the one time, or 
 
 There are two things you might be doing with a wifi: URL: you might be connecting (the common case, and covered), or you might be setting up a Mobile Hotspot or AP. This is not covered. One solution is to have a 'wifisetup:' URL. Note that to set up a Wi-Fi you will need e.g. the band and channel information which is not present in the URL definition.
 
-The URL fields specification is underdefined. Each field (e.g, "S:ssid") is definied seperatately but consistantly -- that is, each field in practice is <opcode>:<value>;. However, this is not technically required, meaning that future field might use a different specification. At the same time, parsers are told to accept potential new fields even though the new field definition is unknown.
+The protocol spec doesn't clearly define the fields. Each field today (e.g, "S:ssid") is definied seperatately but consistantly -- that is, each field in practice is *<opcode>:<value>;*, and neither the opcode nor the value includes a semicolon and the opcode never includes a colon. A good spec would first define what a field looks like and then list the meaning of the opcodes and details about the value. 
 
-Instead, the protocol should clearly define what a field must be. The field definitions should also clearly state that they will never include an unencoded semi-colon so that we can always split the URL into fields based on semi-colons.
 
-The protocol clearly provides a rigid and required ordering of the fields. But the examples (e.g., in wikipedia) ignore those ordered.
+The protocol clearly provides a rigid and required ordering of the fields. But the examples (e.g., in wikipedia) ignore those ordered, and many examples in Github and the web use different orders.
 
-The protocol requires that each wifi url end with two semi-colons. These are also absent in real-world examples.
+The protocol requires that each wifi url end with two semi-colons. These are also absent in some real-world examples (and it's a silly requirement)
 
 The **T:WPA type is required** for Android. If you specify a url wifi:S:star216;P:deeznuts;; without the T:WPA;, and it's a Windows Hotspot, and you try to connect from Android, then it will fail. Why? Because Android will insist on opening as an open hotspot (but with a password), and fail.
 
+The **WIFI: scheme must be uppercase** for Apple. This is contrary to all URL RFCs where all schemes are case insensitive. It is also contrary to the WPA3 BNF definition, where the wifi is put in quotes. Quoted strings in RFCs are always case insensitive (IMHO, now an error with modern protocols)
+
+## WIFI: parsers on Github
+
+Github search is not powerful enough to find "wifi:" with the colon. Some links I did find by search for wifi:s: include
+
+[SKYZYX](https://github.com/skyzyx/lambda-qr/wiki/Wi-Fi-Connection) lists fields for wifi:but it is just from [ZXING](https://github.com/zxing/zxing/wiki/Barcode-Contents). Assertions include: iOS support started in iOS 11 in 2017 and Android since 2010; order of fields (TSPH) does not matter; special chararacters to encode include quote, semicolon, comma, colon and should be escaped with \ (this is contrary to the WPA3) to match MeCard.
+
+
+[ZXING](https://github.com/zxing/zxing/wiki/Barcode-Contents)
+
+[DoCoMo](https://web.archive.org/web/20160304025131/https://www.nttdocomo.co.jp/english/service/developer/make/content/barcode/function/application/addressbook/index.html) MeCard format from DoCoMo. This is more a vague sketch of a description and not a detailed protocol.
+
+
 ## Links
 
-The Wifi: URL scheme is defined by the [Wi-Fi.org](https://www.wi-fi.org/) in the [WPA-3 specification](https://www.wi-fi.org/download.php?file=/sites/default/files/private/WPA3_Specification_v3.0.pdf)
+The Wifi: URL scheme is defined by the [Wi-Fi.org](https://www.wi-fi.org/) in the [WPA-3 specification](https://www.wi-fi.org/download.php?file=/sites/default/files/private/WPA3_Specification_v3.0.pdf). However, they are merely regularizing an existing practice.
 
 ## wifi: scheme Summary
 
@@ -58,4 +71,4 @@ Sample WIFI:S:MySSID;T:WPA;P:MyPassW0rd;;
 
 Explanation at [zxing](https://github.com/zxing/zxing/wiki/Barcode-Contents) which talks about the Android URI scheme. It's got more stuff in it than the WPA3 one.
 
-Example: **wifi:S:starpainter;P:deeznuts**
+Example: **wifi:S:starpainter;P:deeznuts;;**

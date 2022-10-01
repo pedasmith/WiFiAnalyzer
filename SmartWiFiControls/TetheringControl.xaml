@@ -9,6 +9,13 @@
     mc:Ignorable="d"
     d:DesignHeight="600"
     d:DesignWidth="800">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="AppDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <Grid>
         <Grid>
@@ -20,9 +27,9 @@
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
             <StackPanel Grid.Row="0">
-                <TextBlock FontSize="18" TextWrapping="Wrap">
-                        <Run FontWeight="Bold" >About Mobile Hotspot (SoftAP)</Run><LineBreak />
-                    <Run>Mobile Hotspot lets you create a temporary Wi-Fi accessp point (AP), also called 
+                <TextBlock Style="{StaticResource styleHelpHeader}">About Mobile Hotspot (SoftAP)</TextBlock>
+                <TextBlock Style="{StaticResource styleHelpText}">
+                    <Run>Mobile Hotspot lets you create a temporary Wi-Fi access point (AP), also called 
                         a Mobile Hotspot or SoftAP. This page will show you the current status of your
                         hotspot: whether or not it's turned on, its name and passphrase (password),
                         and lists the clients that are connected.

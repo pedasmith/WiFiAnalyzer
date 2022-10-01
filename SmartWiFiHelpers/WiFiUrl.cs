@@ -9,7 +9,7 @@ using Windows.Networking.NetworkOperators;
 namespace SmartWiFiHelpers
 {
     /// <summary>
-    /// Helpers for wifi: and wifisetup: URL schemes. The wifi: url as of 2022-09-27 matches the WPA3 official scheme, even though it's bad and not widely followed.
+    /// Helpers for WIFI: and WIFISETUP: URL schemes. The WIFI: url as of 2022-09-27 matches the WPA3 official scheme, even though it's bad and not widely followed.
     /// </summary>
     public class WiFiUrl
     {
@@ -23,6 +23,7 @@ namespace SmartWiFiHelpers
         {
             this.Ssid = ssid;
             this.Password = password;
+            this.WiFiAuthType = "WPA";
             this.IsValid = Validity.Valid;
         }
         public WiFiUrl(string urlString)
@@ -46,14 +47,14 @@ namespace SmartWiFiHelpers
                 this.ErrorMessage = "WiFi URL doesn't start with a scheme like wifi:";
                 return;
             }
-            var scheme = urlString.Substring(0, firstColon+1).ToLowerInvariant();
-            if (scheme != "wifi:" && scheme != "wifisetup:")
+            var scheme = urlString.Substring(0, firstColon+1).ToUpperInvariant();
+            if (scheme != "WIFI:" && scheme != "WIFISETUP:")
             {
                 this.IsValid = Validity.InvalidWrongScheme;
-                this.ErrorMessage = "WiFi URL doesn't start with wifi:";
+                this.ErrorMessage = "WiFi URL doesn't start with WIFI:";
                 return;
             }
-            this.Scheme = scheme.Substring(0, firstColon); // should not include the ':'
+            this.Scheme = scheme.Substring(0, firstColon).ToUpperInvariant(); // should not include the ':'
             var len = urlString.Length;
             if (urlString[len-1] != ';' || urlString[len-2] != ';' || urlString[len-3] == ';') // wrong number of semi-colons
             {
@@ -188,7 +189,7 @@ namespace SmartWiFiHelpers
                                 this.ErrorMessage = $"Item type {opcode} has non-unreserved characters";
                                 return;
                             }
-                            this.WiFiType = value;
+                            this.WiFiAuthType = value;
                             break;
                         default:
                             break; // Unknowns should just be accepted. TODO: save in an unknowns array
@@ -211,9 +212,10 @@ namespace SmartWiFiHelpers
 
 
 
-        public WiFiUrl(string scheme, string wifiType, string trdisable, string ssid, bool hidden, string id, string password, string publicKey) : this(scheme)
+        public WiFiUrl(string scheme, string wifiType, string trdisable, string ssid, bool hidden, string id, string password, string publicKey)
         {
-            WiFiType = wifiType;
+            Scheme = scheme;
+            WiFiAuthType = wifiType;
             TRDisable = trdisable;
             Ssid = ssid;
             Hidden = hidden;
@@ -235,7 +237,7 @@ namespace SmartWiFiHelpers
         public override string ToString()
         {
             var retval = $"{Scheme}:";
-            if (WiFiType!=null) retval += "T:" + WiFiType + ";";
+            if (WiFiAuthType!=null) retval += "T:" + WiFiAuthType + ";";
             if (TRDisable!=null) retval += "R:" + TRDisable + ";";
             if (Ssid!=null) retval += "S:" + HttpUtility.UrlEncode(Ssid) + ";";
             if (Hidden) retval += "H:true;";
@@ -309,41 +311,41 @@ namespace SmartWiFiHelpers
         {
             int nerror = 0;
             // Valid parsing
-            nerror += TestOneFailure("wifi:S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts");
-            nerror += TestOneFailure("wifi:S:starpainter;;", Validity.Valid, "starpainter", null);
-            nerror += TestOneFailure("WIFI:S:starpainter;;", Validity.Valid, "starpainter", null, TestFlags.NoRoundtrip); // WIFI: is a valid scheme.
+            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts");
+            nerror += TestOneFailure("WIFI:S:starpainter;;", Validity.Valid, "starpainter", null);
+            nerror += TestOneFailure("wifi:S:starpainter;;", Validity.Valid, "starpainter", null, TestFlags.NoRoundtrip); // WIFI: is a valid scheme.
 
             // Test all of the opcodes. S and P are already tested.
-            nerror += TestOneFailure("wifi:T:WPA;S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts"); // verify one T
-            nerror += TestOneFailure("wifi:R:Af01;S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts"); // verify one R
-            nerror += TestOneFailure("wifi:S:starpainter;H:true;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts"); // verify one H
-            nerror += TestOneFailure("wifi:S:starpainter;I:value;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts"); // verify one I
-            nerror += TestOneFailure("wifi:S:starpainter;P:deeznuts;K:isbase64;;", Validity.Valid, "starpainter", "deeznuts"); // verify one K
+            nerror += TestOneFailure("WIFI:T:WPA;S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts"); // verify one T
+            nerror += TestOneFailure("WIFI:R:Af01;S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts"); // verify one R
+            nerror += TestOneFailure("WIFI:S:starpainter;H:true;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts"); // verify one H
+            nerror += TestOneFailure("WIFI:S:starpainter;I:value;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts"); // verify one I
+            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;K:isbase64;;", Validity.Valid, "starpainter", "deeznuts"); // verify one K
 
             // Catch the big errors
             nerror += TestOneFailure(null, Validity.InvalidNull);
             nerror += TestOneFailure("http://example.com", Validity.InvalidWrongScheme);
-            nerror += TestOneFailure("wifi:", Validity.InvalidLength);
+            nerror += TestOneFailure("WIFI:", Validity.InvalidLength);
 
             // Catch parsing errors
-            nerror += TestOneFailure("wifi:S:has\rcr;;", Validity.InvalidNotUrlEncoded);
-            nerror += TestOneFailure("wifi:S:starpainter;P:has\rcr;;", Validity.InvalidNotUrlEncoded);
-            nerror += TestOneFailure("wifi:T:*;S:starpainter;P:deeznuts;;", Validity.InvalidNotUnreserved); 
-            nerror += TestOneFailure("wifi:R:ZZ;S:starpainter;P:has\rcr;;", Validity.InvalidNotHex);
-            nerror += TestOneFailure("wifi:S:starpainter;H:t;P:deeznuts;;", Validity.InvalidNotTrue);
-            nerror += TestOneFailure("wifi:S:starpainter;P:deeznuts;K:(not64);;", Validity.InvalidNotBase64); 
+            nerror += TestOneFailure("WIFI:S:has\rcr;;", Validity.InvalidNotUrlEncoded);
+            nerror += TestOneFailure("WIFI:S:starpainter;P:has\rcr;;", Validity.InvalidNotUrlEncoded);
+            nerror += TestOneFailure("WIFI:T:*;S:starpainter;P:deeznuts;;", Validity.InvalidNotUnreserved); 
+            nerror += TestOneFailure("WIFI:R:ZZ;S:starpainter;P:has\rcr;;", Validity.InvalidNotHex);
+            nerror += TestOneFailure("WIFI:S:starpainter;H:t;P:deeznuts;;", Validity.InvalidNotTrue);
+            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;K:(not64);;", Validity.InvalidNotBase64); 
 
-            nerror += TestOneFailure("wifi:S:starpainter;P:deeznuts;", Validity.InvalidEndSemicolons); // needs two, not one
-            nerror += TestOneFailure("wifi:S:starpainter;P:deeznuts", Validity.InvalidEndSemicolons); // needs two, not none
+            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;", Validity.InvalidEndSemicolons); // needs two, not one
+            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts", Validity.InvalidEndSemicolons); // needs two, not none
 
             // Catch higher level issues
-            nerror += TestOneFailure("wifi:P:deeznuts;S:starpainter;;", Validity.InvalidOpcodeOrder);
-            nerror += TestOneFailure("wifi:S:starpainter;S:starpainter;P:deeznuts;;", Validity.InvalidOpcodeDuplicate);
-            nerror += TestOneFailure("wifi:P:deeznuts;;", Validity.InvalidNoSsid);
+            nerror += TestOneFailure("WIFI:P:deeznuts;S:starpainter;;", Validity.InvalidOpcodeOrder);
+            nerror += TestOneFailure("WIFI:S:starpainter;S:starpainter;P:deeznuts;;", Validity.InvalidOpcodeDuplicate);
+            nerror += TestOneFailure("WIFI:P:deeznuts;;", Validity.InvalidNoSsid);
 
             // Terrible error catching that is mandated by spec
-            nerror += TestOneFailure("wifi:S:starpainter;P:has%ZZbadpercent;;", Validity.Valid, "starpainter", "has%ZZbadpercent", TestFlags.NoRoundtrip); // Idiotic: ? percent decoding doesn't catch failures
-            nerror += TestOneFailure("wifi://T:WPA;S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts", TestFlags.NoRoundtrip); // Idiotic; can't catch this error easily
+            nerror += TestOneFailure("WIFI:S:starpainter;P:has%ZZbadpercent;;", Validity.Valid, "starpainter", "has%ZZbadpercent", TestFlags.NoRoundtrip); // Idiotic: ? percent decoding doesn't catch failures
+            nerror += TestOneFailure("WIFI://T:WPA;S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts", TestFlags.NoRoundtrip); // Idiotic; can't catch this error easily
 
             // Test round-trips
             nerror += TestRoundtrip("starpainter", "deeznuts");
@@ -363,12 +365,12 @@ namespace SmartWiFiHelpers
         public Validity IsValid { get; set; } = Validity.InvalidOther;
         public string ErrorMessage { get; set; } = null;
 
-        public string Scheme { get; set; } = "wifi"; // is always wifi or wifisetup. Idiotic: Schemes should be lowercase per https://www.rfc-editor.org/rfc/rfc7595
+        public string Scheme { get; set; } = "WIFI"; // is always WIFI or WIFISETUP. Idiotic: Schemes should be lowercase per https://www.rfc-editor.org/rfc/rfc7595
 
         /// <summary>
         /// WiFi Security type. When present, must be WPA which includes WPA3. When not present, implies open (or similar), which won't work on Android
         /// </summary>
-        public string WiFiType { get; set; } // type = “T:” *(unreserved) ; security type. Must be WPA
+        public string WiFiAuthType { get; set; } // type = “T:” *(unreserved) ; security type. Must be WPA
         /// <summary>
         /// Property saved is raw HEX digits
         /// </summary>
