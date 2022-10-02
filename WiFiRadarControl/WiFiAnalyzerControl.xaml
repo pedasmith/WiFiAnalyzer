@@ -29,9 +29,10 @@
             <ColumnDefinition Width="auto"/>
         </Grid.ColumnDefinitions>
         <TextBlock Grid.ColumnSpan="2" FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Simple Wi-Fi Analyzer</TextBlock>
-        <Pivot x:Name="uiPivot" Grid.Row="1" Grid.Column="0" SelectionChanged="OnPivotSelectionChanged">
+        <Pivot Style="{StaticResource PivotStyleNoStupidBorder}" x:Name="uiPivot" Grid.Row="1" Grid.Column="0" SelectionChanged="OnPivotSelectionChanged"
+               >
             <PivotItem Header="RADAR">
-                <Grid>
+                <Grid AllowFocusOnInteraction="False">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="auto"/>
