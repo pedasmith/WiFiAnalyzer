@@ -115,25 +115,30 @@
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
                     <StackPanel Grid.Row="0" HorizontalAlignment="Left">
                         <TextBlock Style="{StaticResource styleHelpHeader}">Connect to Wi-Fi</TextBlock>
                         <TextBlock Style="{StaticResource styleHelpText}">
-                            <Run>Lets you connect to a Wi-Fi access point</Run><LineBreak />
+                            <Run>Lets you connect to a Wi-Fi access point. This is the tab that shows when a WIFI: URL is clicked and this app pops up.</Run><LineBreak />
                         </TextBlock>
-                        
-                        <TextBox x:Name="uiConnectSsid" Header="SSID to connect to" Text="" MaxWidth="500" />
-                        <TextBox x:Name="uiConnectPassword" Header="Password for access point" Text="" MaxWidth="500" />
+                        </StackPanel>
+                    <StackPanel Grid.Row="1" HorizontalAlignment="Left">
+                        <TextBox x:Name="uiConnectSsid" Header="SSID to connect to" Text="" MaxWidth="500" MinWidth="200" TextChanged="OnConnectTextChange" HorizontalAlignment="Left" />
+                        <TextBox x:Name="uiConnectPassword" Header="Password for access point" Text="" MaxWidth="500" MinWidth="200" TextChanged="OnConnectTextChange" HorizontalAlignment="Left" />
                     </StackPanel>
-                    <ScrollViewer Grid.Row="1">
+                    <ScrollViewer Grid.Row="2">
                         <TextBlock x:Name="uiConnectLog" Text="" IsTextSelectionEnabled="True" />
                     </ScrollViewer>
-                    <Image Grid.Row="0" Grid.RowSpan="2" VerticalAlignment="Top" HorizontalAlignment="Right" x:Name="uiConnectQR" Stretch="Uniform"  Margin="0,10,0,0" Width="200" Height="200"/>
-                    <StackPanel Grid.Row="2" Orientation="Horizontal">
+                    <StackPanel x:Name="uiConnectQRPanel" Visibility="Collapsed" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Top" HorizontalAlignment="Right">
+                        <Image x:Name="uiConnectQR" Stretch="Uniform"  Margin="0,10,0,0" Width="200" Height="200" />
+                        <TextBlock Style="{StaticResource styleWifiUrl}" x:Name="uiConnectWifiUrl" Width="200" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3" Orientation="Horizontal">
                         <Button Content="Connect" Click="OnConnect" />
-                        <TextBlock  x:Name="uiConnectUrl" IsTextSelectionEnabled="True" VerticalAlignment="Center" Text="WIFI:" Margin="20,0,0,0" />
                     </StackPanel>
                 </Grid>
             </PivotItem>

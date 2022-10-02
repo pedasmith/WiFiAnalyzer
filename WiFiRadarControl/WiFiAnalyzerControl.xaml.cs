@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Controls;
+using Microsoft.Toolkit.Uwp.UI.Converters;
 using QRCoder;
 using SimpleWiFiAnalyzer;
 using SmartWiFiControls;
@@ -546,23 +547,39 @@ namespace WiFiRadarControl
             uiPivot.SelectedItem = uiConnectPivot;
             uiConnectPassword.Text = url.Password ?? "";
             uiConnectSsid.Text = url.Ssid ?? "";
-            uiConnectUrl.Text = url.ToString();
             return ConnectFromUrlAsync(url);
         }
 
         private async void OnConnect(object sender, RoutedEventArgs e)
         {
-            var ssid = uiConnectSsid.Text;
-            var pwd = uiConnectPassword.Text;
-            WiFiUrl url = new WiFiUrl(ssid, pwd);
-            uiConnectUrl.Text = url.ToString();
+            var url = WiFiUrlFromConnectUI();
             await ConnectFromUrlAsync(url);
         }
 
+        private WiFiUrl WiFiUrlFromConnectUI()
+        {
+            var ssid = uiConnectSsid.Text;
+            var pwd = uiConnectPassword.Text;
+            WiFiUrl url = new WiFiUrl(ssid, pwd);
+            return url;
+        }
+
+        private async Task UpdateConnectUI(WiFiUrl url)
+        {
+            uiConnectQRPanel.Visibility = Visibility.Visible;
+            url.WiFiAuthType = "WPA";
+            uiConnectWifiUrl.Text = url.ToString();
+            await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
+        }
+
+        private async void OnConnectTextChange(object sender, TextChangedEventArgs args)
+        {
+            var url = WiFiUrlFromConnectUI();
+            await UpdateConnectUI(url);
+        }
         private async Task ConnectFromUrlAsync(WiFiUrl url)
         {
-            url.WiFiAuthType = "WPA";
-            await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
+            await UpdateConnectUI(url); // Will set the AuthType
             var adapterList = await WiFiAdapter.FindAllAdaptersAsync();
             LogConnectInfo($"Finding Wi-Fi network for URL {url}", true);
             LogNetworkInfo($"Finding Wi-Fi network {url.Ssid}");
