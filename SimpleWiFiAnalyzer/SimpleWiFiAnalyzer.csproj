@@ -152,6 +152,7 @@
     <Content Include="Assets\Icons\StoreLogo.scale-200.png" />
     <Content Include="Assets\Icons\UrlIcon44x44.png" />
     <Content Include="Assets\Icons\Wide310x150Logo.scale-200.png" />
+    <None Include="Assets\3SimpleResourcesInXaml.md" />
     <None Include="Package.StoreAssociation.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <None Include="Assets\1AddingMarkdownHelpFiles.md" />

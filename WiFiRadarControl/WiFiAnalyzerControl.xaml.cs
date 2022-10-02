@@ -628,7 +628,7 @@ namespace WiFiRadarControl
         }
 
         #endregion
-        private void OnPivotSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void OnPivotSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count == 1)
             {
@@ -636,7 +636,7 @@ namespace WiFiRadarControl
                 var tag = pivot.Tag as string;
                 if (tag == "MobileHotspot")
                 {
-                    uiMobileHotspot.TabTo();
+                    await uiMobileHotspot.TabToAsync();
                 }
             }
             if (e.RemovedItems.Count == 1)

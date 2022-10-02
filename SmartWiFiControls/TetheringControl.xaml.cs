@@ -17,6 +17,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using static QRCoder.PayloadGenerator;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -31,7 +32,7 @@ namespace SmartWiFiControls
         DispatcherTimer RefreshTimer = null;
         static int NLoaded = 0;
         const double RefreshTimerPeriodInSeconds = 5;
-        public void TabTo()
+        public async Task TabToAsync()
         {
             NLoaded++;
             //TetheringLog($"✨Loaded={NLoaded}");
@@ -49,7 +50,7 @@ namespace SmartWiFiControls
             }
             RefreshTimer.Start();
             if (!EnsureTetheringManager()) return;
-            Show(TetheringManager);
+            await ShowAsync(TetheringManager);
         }
 
         String[] AnimationTimerStringsCat = { "🐱", "😸", "😺", "😼", "😻", };
@@ -59,7 +60,7 @@ namespace SmartWiFiControls
         private void RefreshTimer_Tick(object sender, object e)
         {
             if (!EnsureTetheringManager()) return;
-            Show(TetheringManager);
+            var task = ShowAsync(TetheringManager);
 
             uiAnimationTimer.Text = AnimationTimerStrings[AnimationTimerCount % AnimationTimerStrings.Length];
             AnimationTimerCount++;
@@ -119,7 +120,7 @@ namespace SmartWiFiControls
             uiTetheringLog.Text = "";
             var configure = CreateAPConfiguration();
             await DoTetheringConfigureAsync(configure);
-            Show(TetheringManager);
+            await ShowAsync(TetheringManager);
         }
 
         public async Task<bool> DoTetheringConfigureAsync(NetworkOperatorTetheringAccessPointConfiguration configure)
@@ -145,7 +146,7 @@ namespace SmartWiFiControls
 
             uiTetheringLog.Text = "";
             await DoTetheringStartAsync();
-            Show(TetheringManager);
+            await ShowAsync(TetheringManager);
         }
 
         private async Task<bool> DoTetheringStartAsync()
@@ -166,7 +167,7 @@ namespace SmartWiFiControls
                 retval = false;
             }
             TetheringLog("Complete");
-            Show(TetheringManager);
+            await ShowAsync(TetheringManager);
             return retval;
         }
         private async void OnTetheringStop(object sender, RoutedEventArgs e)
@@ -184,7 +185,7 @@ namespace SmartWiFiControls
                 TetheringLog($"ERROR: {step}: {ex.Message}");
             }
             TetheringLog("Complete");
-            Show(TetheringManager);
+            await ShowAsync(TetheringManager);
         }
         private void OnTetheringListProfiles(object sender, RoutedEventArgs e)
         {
@@ -209,7 +210,7 @@ namespace SmartWiFiControls
         {
             uiTetheringLog.Text = "";
         }
-        private void Show(NetworkOperatorTetheringManager manager = null)
+        private async Task ShowAsync(NetworkOperatorTetheringManager manager = null)
         {
             if (manager == null)
             {
@@ -235,6 +236,10 @@ namespace SmartWiFiControls
                 uiSsid.Text = apconfiguration.Ssid;
                 uiPassword.Text = apconfiguration.Passphrase;
                 uiBand.Text = NetworkToString.ToString(apconfiguration.Band);
+
+                var url = new WiFiUrl(apconfiguration);
+                await ShowWiFiQRCodeAsync(url); // Note that the url is modified
+
                 var bandstr = "";
                 var bandlist = new List<TetheringWiFiBand>() { TetheringWiFiBand.TwoPointFourGigahertz, TetheringWiFiBand.FiveGigahertz };
                 foreach (var band in bandlist)
@@ -290,7 +295,7 @@ namespace SmartWiFiControls
 
         public async Task SetupFromWiFiSetupUrl(WiFiUrl url)
         {
-            if (url == null || url.Scheme != "wifisetup") return;
+            if (url == null || url.Scheme != "WIFISETUP") return;
             uiTetheringSsid.Text = url.Ssid;
             uiTetheringPassphrase.Text = url.Password;
 
@@ -302,13 +307,25 @@ namespace SmartWiFiControls
 
             if (!ok)
             {
-                uiConnectQR.Visibility = Visibility.Collapsed;
+                uiConnectQRPanel.Visibility = Visibility.Collapsed;
             }
             else
             {
-                uiConnectQR.Visibility = Visibility.Visible;
-                url.Scheme = "wifi"; // switch over the wifi: url for the QR Code.
-                url.WiFiAuthType = "WPA"; // we always make a WPA connection
+                await ShowWiFiQRCodeAsync(url); // Note that the url is modified
+            }
+        }
+
+        private async Task ShowWiFiQRCodeAsync(WiFiUrl url)
+        {
+            if (url == null || (url.Scheme != "WIFISETUP" && url.Scheme != "WIFI")) return;
+
+            uiConnectQRPanel.Visibility = Visibility.Visible;
+            url.Scheme = "WIFI"; // switch over the wifi: url for the QR Code.
+            url.WiFiAuthType = "WPA"; // we always make a WPA connection
+            var newText = url.ToString();
+            if (newText != uiConnectWifiUrl.Text) // Only update if it's changed.
+            {
+                uiConnectWifiUrl.Text = newText;
                 await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
             }
         }

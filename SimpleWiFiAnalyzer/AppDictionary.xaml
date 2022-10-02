@@ -24,4 +24,11 @@
         <Setter Property="Background" Value="BlanchedAlmond" />
         <Setter Property="Padding" Value="5" />
     </Style>
+    <Style x:Key="styleWifiUrl" TargetType="TextBlock">
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="IsTextSelectionEnabled" Value="True" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+        <Setter Property="FontFamily" Value="Cascadia Mono" />
+    </Style>
 </ResourceDictionary>
