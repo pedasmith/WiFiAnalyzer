@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Controls;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.Toolkit.Uwp.UI.Converters;
 using QRCoder;
 using SimpleWiFiAnalyzer;
@@ -43,6 +44,8 @@ namespace WiFiRadarControl
             var pagename = "Help.md";
             uiHelpText.UriPrefix = "ms-appx:///Assets/HelpFiles/";
             uiHelpText.LinkClicked += UiHelpText_LinkClicked;
+            var version = SystemInformation.Instance.ApplicationVersion;
+            uiHelpVersion.Text = $"Version {version.Major}.{version.Minor}";
 
             const string StartPage = "Help.md";
             //pagename = this.DataContext as string;

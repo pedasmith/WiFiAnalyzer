@@ -156,10 +156,16 @@
                         <RowDefinition Height="auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <StackPanel Grid.Row="0" Orientation="Horizontal">
-                        <Button Content="🡨" Click="OnHelpBack" Padding="0" Margin="0" Background="White"                    />
-                        <TextBlock Style="{StaticResource styleHelpHeader}" Text="Help for Wi-Fi Analyzer"  />
-                    </StackPanel>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="🡨" Click="OnHelpBack" Padding="0" Margin="0" Background="White"                    />
+                        <TextBlock Grid.Column="1" Style="{StaticResource styleHelpHeader}" Text="Help for Wi-Fi Analyzer"  />
+                        <TextBlock Grid.Column="2" x:Name="uiHelpVersion" TextAlignment="Right"  Text="version"  />
+                    </Grid>
                     <ScrollViewer Grid.Row="1">
                         <controls:MarkdownTextBlock x:Name="uiHelpText" FontFamily="Segoe UI,Segoe MDL2 Assets" />
                     </ScrollViewer>

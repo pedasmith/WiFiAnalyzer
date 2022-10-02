@@ -1,6 +1,12 @@
 ﻿![Quick Overview](../HelpImages/Help_Header.png)
 
-# Main help
+# Lexicon and helpful links
+
+* All the app [Versions](Versions.md).
+* Full Wi-Fi [Lexicon](Lexicon.md).
+* Wi-Fi on [Wikipedia](https://en.wikipedia.org/wiki/Wi-Fi)
+
+# Quick help
 
 The Simple Wi-Fi Analyzer provides basic information about the Wi-Fi environment you are in. It provides a graphical RADAR-like display of the Wi-Fi access points in range, shows a frequency breakdown of the access points, and provides a table-like like of the details of each access point.
 
@@ -10,7 +16,7 @@ The sample display shows the results of a scan at a nearby shopping mall. Access
 
 Click on an access point to show details about the access point.
 
-Click on the other tabs (Chart, Table, Log, and Help) to show the data in different formats.
+Click on the other tabs (Chart, Table, Hotspot, Connect, Log, and Help) to show the data in different formats.
 
 # All the tabs
 ## RADAR
@@ -39,9 +45,6 @@ Click on a column header to sort by that column; click again to sort in reverse 
 Click on **Copy for Excel** to copy the data to the clipboard in a format that Excel will access. (It's an HTML table).
 
 Click on **Copy as CSV** top copy the data to the clipboard as a CSV table.
-## Log
-
-The Log tab shows a text listing of every access point and the associated details along with detailed information about the Wi-Fi network adapters and the current connected network. It's sometimes useful when debugging a complex network problem.
 
 ## Hotspot
 ![Hotspot Display](../HelpImages/Hotspot-Details.png)
@@ -58,9 +61,30 @@ The information will refresh every few seconds. When it does, the little astrono
 
 You can also **configure** the hotspot with a name and password. Simply enter a name and password (otherwise known as a passphrase) and press "Configure"
 
+Some PC administrators will block the hotspot. This is set in the registry with the **NC_ShowSharedAccessUi** key. When it has a value of 0, you will be blocked from starting a hotspot. When this happens, you will see this in the Hotspot mini-log:
 
-# Lexicon and helpful links
+```
+Starting mobile hotspot    Tether: Unknown     Complete
+```
 
-* All the app [Versions](Versions.md).
-* Full Wi-Fi [Lexicon](Lexicon.md).
-* Wi-Fi on [Wikipedia](https://en.wikipedia.org/wiki/Wi-Fi)
+### Registry commands for examining and changing NC_ShowSharedAccessUi
+```
+reg query "HKLM\SOFTWARE\Policies\Microsoft\Windows\Network Connections"
+
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Network Connections" /v NC_ShowSharedAccessUi /t REG_DWORD /d 1
+```
+You can also use the RegEdit command to update the registry.
+
+## Connect
+![Connect Display](../HelpImages/Connect-Details.png)
+
+The connect display lets you connect to a Wi-Fi network or hotspot. It will provide a WIFI: style QR code and URL to the network and provides some simple logging.
+
+The Simple Wi-Fi Analyzer will act as a handler for the WIFI: and WIFISETUP: URL schemes. The Connect tab is the one that pops up when you use a WIFI: URL or scan a WIFI: QR Code.
+
+## Log
+
+The Log tab shows a text listing of every access point and the associated details along with detailed information about the Wi-Fi network adapters and the current connected network. It's sometimes useful when debugging a complex network problem.
+
+
+

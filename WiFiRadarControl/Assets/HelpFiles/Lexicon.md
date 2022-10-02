@@ -1,6 +1,13 @@
 ﻿![Lexicon](../HelpImages/Help_Header.png)
 
-Definitions of words and acronyms commonly used in Wi-Fi networking
+# The WIFI: URL
+
+The WIFIL URL and QR code are defined in [ZXING](https://github.com/zxing/zxing/wiki/Barcode-Contents). A WIFI: url contains the authentication type (**T:WPA;**) of a hotspot plus the SSID (**S:ssid;**) and the password (**P:password;**). The URL should always end in two semi-colons.
+
+The WPA3 spec at the [Wi-Fi.org](https://www.wi-fi.org/) in the [WPA-3 specification](https://www.wi-fi.org/download.php?file=/sites/default/files/private/WPA3_Specification_v3.0.pdf) section **7** includes a definition of the WIFI: scheme, but it's not very compatible with iOS and Android.
+
+
+#Definitions of words and acronyms commonly used in Wi-Fi networking
 
 |Word|Meaning|
 |-----|-----|
