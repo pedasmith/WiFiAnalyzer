@@ -559,6 +559,62 @@ namespace WiFiRadarControl
             await ConnectFromUrlAsync(url);
         }
 
+        private void OnConnectCopy(object sender, RoutedEventArgs e)
+        {
+            var dataPackage = new DataPackage();
+            dataPackage.RequestedOperation = DataPackageOperation.Copy;
+
+            var wifiurl = WiFiUrlFromConnectUI();
+            Uri uri = new Uri(wifiurl.ToString(), UriKind.Absolute);
+            dataPackage.Properties.Title = "Wi-Fi URL to connect to";
+            dataPackage.Properties.Description = "Wi-Fi URL and QR Code to connect to";
+            //request.SetUri(uri);
+            //request.SetWebLink(uri);
+            dataPackage.SetApplicationLink(uri);
+            dataPackage.SetText(wifiurl.ToString());
+            if (uiConnectQRPanel.Visibility == Visibility.Visible && ImageStream != null)
+            {
+                // Must have an image; grab it.
+                var streamref = RandomAccessStreamReference.CreateFromStream(ImageStream);
+                dataPackage.SetBitmap(streamref);
+            }
+
+            Clipboard.SetContent(dataPackage);
+        }
+
+        DataTransferManager Dtm = null;
+
+        private void OnConnectShare(object sender, RoutedEventArgs e)
+        {
+            var url = WiFiUrlFromConnectUI();
+            if (Dtm == null)
+            {
+                Dtm = DataTransferManager.GetForCurrentView();
+                Dtm.DataRequested += ConnectDtm_DataRequested;
+            }
+            DataTransferManager.ShowShareUI();
+        }
+
+        private void ConnectDtm_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
+        {
+            var dataPackage = args.Request.Data;
+
+            var wifiurl = WiFiUrlFromConnectUI();
+            Uri uri = new Uri(wifiurl.ToString(), UriKind.Absolute);
+            dataPackage.Properties.Title = "Wi-Fi URL to connect to";
+            dataPackage.Properties.Description = "Wi-Fi URL and QR Code to connect to";
+            //request.SetUri(uri);
+            //request.SetWebLink(uri);
+            dataPackage.SetApplicationLink(uri);
+            dataPackage.SetText(wifiurl.ToString());
+            if (uiConnectQRPanel.Visibility == Visibility.Visible && ImageStream != null)
+            {
+                // Must have an image; grab it.
+                var streamref = RandomAccessStreamReference.CreateFromStream(ImageStream);
+                dataPackage.SetBitmap(streamref);
+            }
+        }
+
         private WiFiUrl WiFiUrlFromConnectUI()
         {
             var ssid = uiConnectSsid.Text;
@@ -567,12 +623,13 @@ namespace WiFiRadarControl
             return url;
         }
 
+        IRandomAccessStream ImageStream = null;
         private async Task UpdateConnectUI(WiFiUrl url)
         {
             uiConnectQRPanel.Visibility = Visibility.Visible;
             url.WiFiAuthType = "WPA";
             uiConnectWifiUrl.Text = url.ToString();
-            await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
+            ImageStream = await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
         }
 
         private async void OnConnectTextChange(object sender, TextChangedEventArgs args)
@@ -669,5 +726,6 @@ namespace WiFiRadarControl
                 }
             }
         }
+
     }
 }

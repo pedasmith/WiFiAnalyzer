@@ -140,6 +140,8 @@
 
                     <StackPanel Grid.Row="3" Orientation="Horizontal">
                         <Button Content="Connect" Click="OnConnect" />
+                        <Button Content="Share" Click="OnConnectShare" />
+                        <Button Content="Copy" Click="OnConnectCopy" />
                     </StackPanel>
                 </Grid>
             </PivotItem>
