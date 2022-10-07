@@ -15,51 +15,56 @@ namespace SmartWiFiHelpers
     {
         public WiFiUrl(NetworkOperatorTetheringAccessPointConfiguration value)
         {
-            this.Ssid = value.Ssid;
-            this.Password = value.Passphrase;
-            this.IsValid = Validity.Valid;
+            Ssid = value.Ssid;
+            Password = value.Passphrase;
+            IsValid = Validity.Valid;
         }
         public WiFiUrl(string ssid, string password)
         {
-            this.Ssid = ssid;
-            this.Password = password;
-            this.WiFiAuthType = "WPA";
-            this.IsValid = Validity.Valid;
+            Ssid = ssid;
+            Password = password;
+            WiFiAuthType = "WPA";
+            IsValid = Validity.Valid;
         }
         public WiFiUrl(string urlString)
         {
             if (urlString == null)
             {
-                this.IsValid = Validity.InvalidNull;
-                this.ErrorMessage = "WifiUrl was null";
+                IsValid = Validity.InvalidNull;
+                ErrorMessage = "WifiUrl was null";
                 return;
             }
-            if (urlString.Length < "wifi:S:A;;".Length) // Absolute minimal WIFI: url
+            if (urlString.Length < "WIFI:S:A;;".Length) // Absolute minimal WIFI: url
             {
-                this.IsValid = Validity.InvalidLength;
-                this.ErrorMessage = "WiFi url is too short";
+                IsValid = Validity.InvalidLength;
+                ErrorMessage = "WiFi url is too short";
                 return;
             }
             var firstColon= urlString.IndexOf(':');
             if (firstColon < 0)
             {
-                this.IsValid = Validity.InvalidWrongScheme;
-                this.ErrorMessage = "WiFi URL doesn't start with a scheme like wifi:";
+                IsValid = Validity.InvalidWrongScheme;
+                ErrorMessage = "WiFi URL doesn't start with a scheme like wifi:";
                 return;
             }
             var scheme = urlString.Substring(0, firstColon+1).ToUpperInvariant();
             if (scheme != "WIFI:" && scheme != "WIFISETUP:")
             {
-                this.IsValid = Validity.InvalidWrongScheme;
-                this.ErrorMessage = "WiFi URL doesn't start with WIFI:";
+                IsValid = Validity.InvalidWrongScheme;
+                ErrorMessage = "WiFi URL doesn't start with WIFI:";
                 return;
             }
-            this.Scheme = scheme.Substring(0, firstColon).ToUpperInvariant(); // should not include the ':'
+            Scheme = scheme.Substring(0, firstColon).ToUpperInvariant(); // should not include the ':'
+            switch (Scheme)
+            {
+                case "WIFI": Action = "CONNECT"; break;
+                case "WIFISETUP": Action = "SETUP"; break;
+            }
             var len = urlString.Length;
             if (urlString[len-1] != ';' || urlString[len-2] != ';' || urlString[len-3] == ';') // wrong number of semi-colons
             {
-                this.IsValid = Validity.InvalidEndSemicolons;
-                this.ErrorMessage = "WiFi URL doesn't end with exactly 2 semicolons";
+                IsValid = Validity.InvalidEndSemicolons;
+                ErrorMessage = "WiFi URL doesn't end with exactly 2 semicolons";
                 return;
             }
 
@@ -91,123 +96,143 @@ namespace SmartWiFiHelpers
                     {
                         if (foundOpcodes.Contains(newOrder))
                         {
-                            this.IsValid = Validity.InvalidOpcodeDuplicate;
-                            this.ErrorMessage = "WiFi URL contains a duplicate opcode";
+                            IsValid = Validity.InvalidOpcodeDuplicate;
+                            ErrorMessage = "WiFi URL contains a duplicate opcode";
                             return;
                         }
                         if (newOrder <= lastFoundOrder)
                         {
-                            this.IsValid = Validity.InvalidOpcodeOrder;
-                            this.ErrorMessage = "WiFi URL is not in correct order (T, R, S, H I, P, K)";
+                            IsValid = Validity.InvalidOpcodeOrder;
+                            ErrorMessage = "WiFi URL is not in correct order (T, R, S, H I, P, K)";
                             return;
                         }
                         foundOpcodes.Add(newOrder);
                         lastFoundOrder = newOrder;
                     }
 
-                    switch (opcode) //TODO: technically, there's a specified order :-(
+                    switch (opcode) 
                     {
                         case 'H':
                             if (value != "true")
                             {
-                                this.IsValid = Validity.InvalidNotTrue;
-                                this.ErrorMessage = $"Item type {opcode} can only be true";
+                                IsValid = Validity.InvalidNotTrue;
+                                ErrorMessage = $"Item type {opcode} can only be true";
                                 return;
                             }
-                            this.Hidden = true;
+                            Hidden = true;
                             break;
                         case 'I':
                             if (!value.IsPercentEncoded()) // UrlDecode doesn't do this check.
                             {
-                                this.IsValid = Validity.InvalidNotUrlEncoded;
-                                this.ErrorMessage = $"Item type {opcode} was not URL encoded";
+                                IsValid = Validity.InvalidNotUrlEncoded;
+                                ErrorMessage = $"Item type {opcode} was not URL encoded";
                                 return;
                             }
                             value = HttpUtility.UrlDecode(value);
                             if (value == null)
                             {
-                                this.IsValid = Validity.InvalidNotUrlEncoded;
-                                this.ErrorMessage = $"Item type {opcode} was not URL encoded";
+                                IsValid = Validity.InvalidNotUrlEncoded;
+                                ErrorMessage = $"Item type {opcode} was not URL encoded";
                                 return;
                             }
-                            this.Id = value;
+                            Id = value;
                             break;
                         case 'K':
                             if (!value.IsPKChar())
                             {
-                                this.IsValid = Validity.InvalidNotBase64;
-                                this.ErrorMessage = $"Item type {opcode} has not bsase 64";
+                                IsValid = Validity.InvalidNotBase64;
+                                ErrorMessage = $"Item type {opcode} has not bsase 64";
                                 return;
                             }
-                            this.PublicKey = value;
+                            PublicKey = value;
                             break;
                         case 'P': // Password
                             if (!value.IsPercentEncoded()) // UrlDecode doesn't do this check.
                             {
-                                this.IsValid = Validity.InvalidNotUrlEncoded;
-                                this.ErrorMessage = $"Item type {opcode} was not URL encoded";
+                                IsValid = Validity.InvalidNotUrlEncoded;
+                                ErrorMessage = $"Item type {opcode} was not URL encoded";
                                 return;
                             }
                             value = HttpUtility.UrlDecode(value);
                             if (value == null)
                             {
-                                this.IsValid = Validity.InvalidNotUrlEncoded;
-                                this.ErrorMessage = $"Item type {opcode} was not URL encoded";
+                                IsValid = Validity.InvalidNotUrlEncoded;
+                                ErrorMessage = $"Item type {opcode} was not URL encoded";
                                 return;
                             }
-                            this.Password = value;
+                            Password = value;
                             break;
                         case 'R':
                             if (!value.IsHexDigit())
                             {
-                                this.IsValid = Validity.InvalidNotHex;
-                                this.ErrorMessage = $"Item type {opcode} has incorrect non-hex chars";
+                                IsValid = Validity.InvalidNotHex;
+                                ErrorMessage = $"Item type {opcode} has incorrect non-hex chars";
                                 return;
                             }
-                            this.TRDisable = value;
+                            TRDisable = value;
                             break;
                         case 'S': // SSID
                             if (!value.IsPercentEncoded()) // UrlDecode doesn't do this check.
                             {
-                                this.IsValid = Validity.InvalidNotUrlEncoded;
-                                this.ErrorMessage = $"Item type {opcode} was not URL encoded";
+                                IsValid = Validity.InvalidNotUrlEncoded;
+                                ErrorMessage = $"Item type {opcode} was not URL encoded";
                                 return;
                             }
                             value = HttpUtility.UrlDecode(value);
                             if (value == null)
                             {
-                                this.IsValid = Validity.InvalidNotUrlEncoded;
-                                this.ErrorMessage = $"Item type {opcode} was not URL encoded";
+                                IsValid = Validity.InvalidNotUrlEncoded;
+                                ErrorMessage = $"Item type {opcode} was not URL encoded";
                                 return;
                             }
-                            this.Ssid = value;
+                            Ssid = value;
                             break;
                         case 'T': // Type
                             if (!value.IsUnreserved()) 
                             {
-                                this.IsValid = Validity.InvalidNotUnreserved;
-                                this.ErrorMessage = $"Item type {opcode} has non-unreserved characters";
+                                IsValid = Validity.InvalidNotUnreserved;
+                                ErrorMessage = $"Item type {opcode} has non-unreserved characters";
                                 return;
                             }
-                            this.WiFiAuthType = value;
+                            WiFiAuthType = value;
                             break;
                         default:
                             break; // Unknowns should just be accepted. TODO: save in an unknowns array
                     }
                 }
-                else // either a known item that's malformed or an unknown item
+                else // either a known item that's malformed or an unknown item or a multi-char op like ACTION
                 {
+                    // Maybe it's the ACTION option. Or might be an empty string from the last two semicolons.
+                    if (item.Length == 0)
+                    {
 
+                    }
+                    else
+                    {
+                        var nv = item.Split(new char[] { ':' });
+                        if (nv.Length != 2)
+                        {
+                            IsValid = Validity.InvalidColon;
+                            ErrorMessage = $"Item type should have 1 colon, not {nv.Length}";
+                            return;
+                        }
+                        string value = nv[1];
+                        string opcode = nv[0];
+                        switch (opcode)
+                        {
+                            case "ACTION": Action = value; break;
+                        }
+                    }
                 }
             }
-            if (this.Ssid == null)
+            if (Ssid == null)
             {
-                this.IsValid = Validity.InvalidNoSsid;
-                this.ErrorMessage = "WiFi URL does not include a required S: value";
+                IsValid = Validity.InvalidNoSsid;
+                ErrorMessage = "WiFi URL does not include a required S: value";
                 return;
             }
 
-            this.IsValid = Validity.Valid;
+            IsValid = Validity.Valid;
         }
 
 
@@ -237,6 +262,10 @@ namespace SmartWiFiHelpers
         public override string ToString()
         {
             var retval = $"{Scheme}:";
+            if (Scheme!="WIFI" || Action!="CONNECT")
+            {
+                if (Action != null) retval += "ACTION:" + Action + ";"; // actions never have a bad character.
+            }
             if (WiFiAuthType!=null) retval += "T:" + WiFiAuthType + ";";
             if (TRDisable!=null) retval += "R:" + TRDisable + ";";
             if (Ssid!=null) retval += "S:" + HttpUtility.UrlEncode(Ssid) + ";";
@@ -359,13 +388,21 @@ namespace SmartWiFiHelpers
             return nerror;
         }
         public enum Validity {  Valid, InvalidOther, InvalidNull, InvalidLength, InvalidWrongScheme,  // these are all "can't even try to parse"
-            InvalidNotUrlEncoded, InvalidNotUnreserved, InvalidNotHex, InvalidNotTrue, InvalidNotBase64, InvalidEndSemicolons, // these are "low level details are wrong"
+            InvalidNotUrlEncoded, InvalidNotUnreserved, InvalidNotHex, InvalidNotTrue, InvalidNotBase64, InvalidEndSemicolons, InvalidColon, // these are "low level details are wrong"
             InvalidNoSsid, InvalidOpcodeDuplicate, InvalidOpcodeOrder // these are all high-level opcode issues
         };
         public Validity IsValid { get; set; } = Validity.InvalidOther;
         public string ErrorMessage { get; set; } = null;
 
+        public bool ActionIsConnect { get { return Action == "CONNECT"; } }
+        public bool ActionIsSetup { get { return Action == "SETUP"; } }
         public string Scheme { get; set; } = "WIFI"; // is always WIFI or WIFISETUP. Idiotic: Schemes should be lowercase per https://www.rfc-editor.org/rfc/rfc7595
+
+
+        /// <summary>
+        /// New field, ACTION=CONNECT; or ACTION=SETUP;. Default is CONNECT for WIFI: scheme (and SETUP for WIFISETUP: scheme)
+        /// </summary>
+        public string Action { get; set; } = "CONNECT";
 
         /// <summary>
         /// WiFi Security type. When present, must be WPA which includes WPA3. When not present, implies open (or similar), which won't work on Android

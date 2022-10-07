@@ -38,16 +38,16 @@ namespace SimpleWiFiAnalyzer
 
         public Task NavigateToWiFiUrlConnect(WiFiUrl url)
         {
-            if (url.Scheme == "wifi")
+            if (url.ActionIsConnect)
             {
                 return uiWiFiAnalyzer.NavigateToWiFiConnectUrl(url);
             }
-            if (url.Scheme == "wifisetup")
+            if (url.ActionIsSetup)
             {
                 return uiWiFiAnalyzer.NavigateToWiFiHotspotSetupUrl(url);
             }
 
-            return null;
+            return Task.Delay(0);
         }
 
         private void MainPage_Loaded(object sender, RoutedEventArgs e)

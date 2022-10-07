@@ -295,7 +295,7 @@ namespace SmartWiFiControls
 
         public async Task SetupFromWiFiSetupUrl(WiFiUrl url)
         {
-            if (url == null || url.Scheme != "WIFISETUP") return;
+            if (url == null || url.Action != "SETUP") return;
             uiTetheringSsid.Text = url.Ssid;
             uiTetheringPassphrase.Text = url.Password;
 
