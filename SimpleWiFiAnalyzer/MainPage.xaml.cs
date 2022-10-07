@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI.Controls;
+﻿using MeCardParsers;
+using Microsoft.Toolkit.Uwp.UI.Controls;
 using SmartWiFiHelpers;
 using System;
 using System.Collections.Generic;

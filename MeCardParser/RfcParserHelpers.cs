@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SmartWiFiHelpers
+namespace MeCardParsers
 {
     public static class RfcParserHelpers
     {

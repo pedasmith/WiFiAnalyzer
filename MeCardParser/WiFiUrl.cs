@@ -6,7 +6,7 @@ using System.Web;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Networking.NetworkOperators;
 
-namespace SmartWiFiHelpers
+namespace MeCardParsers
 {
     /// <summary>
     /// Helpers for WIFI: and WIFISETUP: URL schemes. The WIFI: url as of 2022-09-27 matches the WPA3 official scheme, even though it's bad and not widely followed.

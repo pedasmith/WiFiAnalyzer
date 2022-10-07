@@ -11,6 +11,8 @@ Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "WiFiRadarControl", "WiFiRad
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SmartWiFiControls", "SmartWiFiControls\SmartWiFiControls.shproj", "{7E076244-F346-46D1-B152-B9BC542BED85}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MeCardParser", "MeCardParser\MeCardParser.shproj", "{4201F1C2-7F72-423E-A564-1EA7C0D6C0E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -56,9 +58,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		SmartWiFiHelpers\SmartWiFiHelpers.projitems*{32cac13a-ff12-4aef-a228-c69f67a213cb}*SharedItemsImports = 13
+		MeCardParser\MeCardParser.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 		SmartWiFiControls\SmartWiFiControls.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 		SmartWiFiHelpers\SmartWiFiHelpers.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 		WiFiRadarControl\WiFiRadarControl.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
+		MeCardParser\MeCardParser.projitems*{4201f1c2-7f72-423e-a564-1ea7c0d6c0e7}*SharedItemsImports = 13
 		SmartWiFiControls\SmartWiFiControls.projitems*{7e076244-f346-46d1-b152-b9bc542bed85}*SharedItemsImports = 13
 		WiFiRadarControl\WiFiRadarControl.projitems*{c3870ebf-59d6-4abb-bfae-be394698e32a}*SharedItemsImports = 13
 	EndGlobalSection

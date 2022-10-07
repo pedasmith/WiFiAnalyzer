@@ -1,4 +1,5 @@
-﻿using QRCoder;
+﻿using MeCardParsers;
+using QRCoder;
 using SmartWiFiHelpers;
 using System;
 using System.Collections.Generic;
