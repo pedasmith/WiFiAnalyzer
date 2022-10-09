@@ -1,5 +1,10 @@
 # Simple Wi-Fi Analyzer Versions
 
+## Version 1.3: Add share for QR codes
+
+Version 1.3 adds sharing and copying for QR codes and URLs. 
+Also added: the WIFI: startup path has better error handling and should crash less.
+
 ## Version 1.2; Adding Connect, WIFI: URL and QR; October 2022
 
 Version 1.2 adds some automation features:

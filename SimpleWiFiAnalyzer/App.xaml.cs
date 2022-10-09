@@ -40,38 +40,45 @@ namespace SimpleWiFiAnalyzer
         {
             if (args.Kind == ActivationKind.Protocol)
             {
-                ProtocolActivatedEventArgs eventArgs = args as ProtocolActivatedEventArgs;
-                // Example: wifi:S:starpainter;P:deeznuts
-                // Parsed with WiFiUrl.cs
-                var uristr = eventArgs.Uri.AbsoluteUri;
-                var url = new WiFiUrl(uristr);
-                if (url.IsValid != Validity.Valid)
+                try
                 {
-                    // Not a valid URL; tell the user
-                    var md = new MessageDialog(url.ErrorMessage)
+                    ProtocolActivatedEventArgs eventArgs = args as ProtocolActivatedEventArgs;
+                    // Example: wifi:S:starpainter;P:deeznuts
+                    // Parsed with WiFiUrl.cs
+                    var uristr = eventArgs.Uri.AbsoluteUri;
+                    var url = new WiFiUrl(uristr);
+                    if (url.IsValid != Validity.Valid)
                     {
-                        Title="Error: invalid WIFI URL",
-                    };
-                    await md.ShowAsync();
-                    return; // TODO: bring down window?
-                }
-
-                CreateRootFrame("");
-                Frame rootFrame = Window.Current.Content as Frame;
-
-                if (rootFrame.Content == null)
-                {
-                    if (!rootFrame.Navigate(typeof(MainPage)))
-                    {
-                        throw new Exception("Failed to create initial page");
+                        // Not a valid URL; tell the user
+                        var md = new MessageDialog(url.ErrorMessage)
+                        {
+                            Title = "Error: invalid WIFI URL",
+                        };
+                        await md.ShowAsync();
+                        return; // TODO: bring down window?
                     }
+
+                    CreateRootFrame("");
+                    Frame rootFrame = Window.Current.Content as Frame;
+
+                    if (rootFrame.Content == null)
+                    {
+                        if (!rootFrame.Navigate(typeof(MainPage)))
+                        {
+                            throw new Exception("Failed to create initial page");
+                        }
+                    }
+
+                    var p = rootFrame.Content as MainPage;
+                    await p.NavigateToWiFiUrlConnect(url);
+
+                    // Ensure the current window is active
+                    Window.Current.Activate();
                 }
-
-                var p = rootFrame.Content as MainPage;
-                await p.NavigateToWiFiUrlConnect(url);
-
-                // Ensure the current window is active
-                Window.Current.Activate();
+                catch (Exception)
+                {
+                    ; // Something happened, but we don't know what.
+                }
             }
         }
 
