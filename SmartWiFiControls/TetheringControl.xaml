@@ -80,10 +80,6 @@
                     </StackPanel>
                 </ScrollViewer>
             </controls:Expander>
-            <StackPanel x:Name="uiConnectQRPanel" Visibility="Collapsed" Grid.Row="2" Grid.RowSpan="3" VerticalAlignment="Top" HorizontalAlignment="Right">
-                <Image x:Name="uiConnectQR" Stretch="Uniform"  Margin="0,10,0,0" Width="200" Height="200" />
-                <TextBlock Style="{StaticResource styleWifiUrl}" x:Name="uiConnectWifiUrl" Width="200" />
-            </StackPanel>
             <TextBlock Grid.Row="3" x:Name="uiTetheringLog" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
             <StackPanel Grid.Row="4">
                 <TextBlock>
@@ -115,6 +111,15 @@
                     </StackPanel.Resources>
                     <Button Content="Show Manger" Click="OnTetheringShowManager" />
                     <Button Content="List Profiles" Click="OnTetheringListProfiles" />
+                </StackPanel>
+            </StackPanel>
+            <!-- At the bottom of the XAML so it lays on top of the other UI elements. -->
+            <StackPanel x:Name="uiConnectQRPanel" Visibility="Collapsed" Grid.Row="2" Grid.RowSpan="3" VerticalAlignment="Top" HorizontalAlignment="Right" >
+                <Image x:Name="uiConnectQR" Stretch="Uniform"  Margin="0,10,0,0" Width="200" Height="200" />
+                <TextBlock Style="{StaticResource styleWifiUrl}" x:Name="uiConnectWifiUrl" Width="200" />
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Share" Click="OnConnectShare" />
+                    <Button Content="Copy" Click="OnConnectCopy" />
                 </StackPanel>
             </StackPanel>
         </Grid>

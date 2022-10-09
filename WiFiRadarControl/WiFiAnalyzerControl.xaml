@@ -136,12 +136,14 @@
                     <StackPanel x:Name="uiConnectQRPanel" Visibility="Collapsed" Grid.Row="1" Grid.RowSpan="3" VerticalAlignment="Top" HorizontalAlignment="Right">
                         <Image x:Name="uiConnectQR" Stretch="Uniform"  Margin="0,10,0,0" Width="200" Height="200" />
                         <TextBlock Style="{StaticResource styleWifiUrl}" x:Name="uiConnectWifiUrl" Width="200" />
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="Share" Click="OnConnectShare" />
+                            <Button Content="Copy" Click="OnConnectCopy" />
+                        </StackPanel>
                     </StackPanel>
 
                     <StackPanel Grid.Row="3" Orientation="Horizontal">
                         <Button Content="Connect" Click="OnConnect" />
-                        <Button Content="Share" Click="OnConnectShare" />
-                        <Button Content="Copy" Click="OnConnectCopy" />
                     </StackPanel>
                 </Grid>
             </PivotItem>

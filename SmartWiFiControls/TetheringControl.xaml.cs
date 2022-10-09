@@ -7,10 +7,12 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Networking.Connectivity;
 using Windows.Networking.NetworkOperators;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -316,10 +318,11 @@ namespace SmartWiFiControls
             }
         }
 
+        WiFiUrl CurrWiFiUrl = null;
         private async Task ShowWiFiQRCodeAsync(WiFiUrl url)
         {
             if (url == null || (url.Scheme != "WIFISETUP" && url.Scheme != "WIFI")) return;
-
+            CurrWiFiUrl = url;
             uiConnectQRPanel.Visibility = Visibility.Visible;
             url.Scheme = "WIFI"; // switch over the wifi: url for the QR Code.
             url.WiFiAuthType = "WPA"; // we always make a WPA connection
@@ -327,8 +330,45 @@ namespace SmartWiFiControls
             if (newText != uiConnectWifiUrl.Text) // Only update if it's changed.
             {
                 uiConnectWifiUrl.Text = newText;
-                await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
+                ImageStream = await WiFiUrlToQRCode.ConnectWriteQR(uiConnectQR, url);
             }
+        }
+
+        private WiFiUrl WiFiUrlFromConnectUI()
+        {
+            return CurrWiFiUrl;
+        }
+        DataTransferManager Dtm = null;
+        IRandomAccessStream ImageStream = null;
+
+        private void OnConnectCopy(object sender, RoutedEventArgs e)
+        {
+            var wifiurl = WiFiUrlFromConnectUI();
+            if (wifiurl == null) return;
+            var imageStream = (uiConnectQRPanel.Visibility == Visibility.Visible) ? ImageStream : null; // can be null;
+            CopyAndShare.Copy(wifiurl, imageStream);
+        }
+
+
+        private void OnConnectShare(object sender, RoutedEventArgs e)
+        {
+            var wifiurl = WiFiUrlFromConnectUI();
+            if (wifiurl == null) return;
+            if (Dtm == null)
+            {
+                Dtm = DataTransferManager.GetForCurrentView();
+                Dtm.DataRequested += ConnectDtm_DataRequested;
+            }
+            DataTransferManager.ShowShareUI();
+        }
+
+        private void ConnectDtm_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
+        {
+            var dataPackage = args.Request.Data;
+            var wifiurl = WiFiUrlFromConnectUI();
+            if (wifiurl == null) return;
+            var imageStream = (uiConnectQRPanel.Visibility == Visibility.Visible) ? ImageStream : null; // can be null;
+            CopyAndShare.FillDataPackage(dataPackage, wifiurl, imageStream);
         }
     }
 }

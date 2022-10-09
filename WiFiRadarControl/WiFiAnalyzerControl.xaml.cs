@@ -559,31 +559,16 @@ namespace WiFiRadarControl
             var url = WiFiUrlFromConnectUI();
             await ConnectFromUrlAsync(url);
         }
+        DataTransferManager Dtm = null;
+        IRandomAccessStream ImageStream = null;
 
         private void OnConnectCopy(object sender, RoutedEventArgs e)
         {
-            var dataPackage = new DataPackage();
-            dataPackage.RequestedOperation = DataPackageOperation.Copy;
-
             var wifiurl = WiFiUrlFromConnectUI();
-            Uri uri = new Uri(wifiurl.ToString(), UriKind.Absolute);
-            dataPackage.Properties.Title = "Wi-Fi URL to connect to";
-            dataPackage.Properties.Description = "Wi-Fi URL and QR Code to connect to";
-            //request.SetUri(uri);
-            //request.SetWebLink(uri);
-            dataPackage.SetApplicationLink(uri);
-            dataPackage.SetText(wifiurl.ToString());
-            if (uiConnectQRPanel.Visibility == Visibility.Visible && ImageStream != null)
-            {
-                // Must have an image; grab it.
-                var streamref = RandomAccessStreamReference.CreateFromStream(ImageStream);
-                dataPackage.SetBitmap(streamref);
-            }
-
-            Clipboard.SetContent(dataPackage);
+            var imageStream = (uiConnectQRPanel.Visibility == Visibility.Visible) ? ImageStream : null; // can be null;
+            CopyAndShare.Copy(wifiurl, imageStream);
         }
 
-        DataTransferManager Dtm = null;
 
         private void OnConnectShare(object sender, RoutedEventArgs e)
         {
@@ -599,21 +584,9 @@ namespace WiFiRadarControl
         private void ConnectDtm_DataRequested(DataTransferManager sender, DataRequestedEventArgs args)
         {
             var dataPackage = args.Request.Data;
-
             var wifiurl = WiFiUrlFromConnectUI();
-            Uri uri = new Uri(wifiurl.ToString(), UriKind.Absolute);
-            dataPackage.Properties.Title = "Wi-Fi URL to connect to";
-            dataPackage.Properties.Description = "Wi-Fi URL and QR Code to connect to";
-            //request.SetUri(uri);
-            //request.SetWebLink(uri);
-            dataPackage.SetApplicationLink(uri);
-            dataPackage.SetText(wifiurl.ToString());
-            if (uiConnectQRPanel.Visibility == Visibility.Visible && ImageStream != null)
-            {
-                // Must have an image; grab it.
-                var streamref = RandomAccessStreamReference.CreateFromStream(ImageStream);
-                dataPackage.SetBitmap(streamref);
-            }
+            var imageStream = (uiConnectQRPanel.Visibility == Visibility.Visible) ? ImageStream : null; // can be null;
+            CopyAndShare.FillDataPackage(dataPackage, wifiurl, imageStream);
         }
 
         private WiFiUrl WiFiUrlFromConnectUI()
@@ -624,7 +597,6 @@ namespace WiFiRadarControl
             return url;
         }
 
-        IRandomAccessStream ImageStream = null;
         private async Task UpdateConnectUI(WiFiUrl url)
         {
             uiConnectQRPanel.Visibility = Visibility.Visible;
