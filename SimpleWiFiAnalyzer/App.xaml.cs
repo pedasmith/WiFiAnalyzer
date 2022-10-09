@@ -1,4 +1,4 @@
-﻿using MeCardParsers;
+﻿using MeCardParser;
 using SmartWiFiHelpers;
 using System;
 using System.Collections.Generic;
@@ -17,6 +17,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using static MeCardParser.MeCardRawWiFi;
 
 namespace SimpleWiFiAnalyzer
 {
@@ -44,7 +45,7 @@ namespace SimpleWiFiAnalyzer
                 // Parsed with WiFiUrl.cs
                 var uristr = eventArgs.Uri.AbsoluteUri;
                 var url = new WiFiUrl(uristr);
-                if (url.IsValid != WiFiUrl.Validity.Valid)
+                if (url.IsValid != Validity.Valid)
                 {
                     // Not a valid URL; tell the user
                     var md = new MessageDialog(url.ErrorMessage)

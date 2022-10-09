@@ -5,8 +5,9 @@ using System.Text;
 using System.Web;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Networking.NetworkOperators;
+using static MeCardParser.MeCardRawWiFi;
 
-namespace MeCardParsers
+namespace MeCardParser
 {
     /// <summary>
     /// Helpers for WIFI: and WIFISETUP: URL schemes. The WIFI: url as of 2022-09-27 matches the WPA3 official scheme, even though it's bad and not widely followed.
@@ -26,8 +27,47 @@ namespace MeCardParsers
             WiFiAuthType = "WPA";
             IsValid = Validity.Valid;
         }
+        /// <summary>
+        /// Parse a WiFiUrl from a string like WIFI:S:starpainter;P:deeznuts;;
+        /// Catches every possible error.
+        /// </summary>
+        /// <param name="urlString"></param>
         public WiFiUrl(string urlString)
         {
+            var meCard = MeCardParser.Parse(urlString);
+            MeCardRawWiFi.ValidateAsWiFi(meCard);
+            if (meCard.IsValid != MeCardRaw.Validity.Valid)
+            {
+                IsValid = (MeCardRawWiFi.Validity)meCard.IsValidWiFi;
+                ErrorMessage = meCard.ErrorMessage;
+                return;
+            }
+
+            // URL was a totally valid WIFI: or WIFISETUP: url; update everything.
+            MeCardRawWiFi.WiFiFillDefaults(meCard);
+            var fieldvalue = meCard.GetFieldValue("H", ""); // QUESTION: what if user had %20%34%43=="true"? Should we decode this?
+            Hidden = fieldvalue == "true";
+
+            fieldvalue = meCard.GetFieldValue("I", null);
+            if (fieldvalue != null) Id = HttpUtility.UrlDecode(fieldvalue);
+
+            PublicKey = meCard.GetFieldValue("K", null); // This is BASE64 string and should be decoded from that.
+
+            fieldvalue = meCard.GetFieldValue("P", null);
+            if (fieldvalue != null) Password = HttpUtility.UrlDecode(fieldvalue);
+
+            fieldvalue = meCard.GetFieldValue("R", null);
+            if (fieldvalue != null) TRDisable = fieldvalue; // This is a HEX string and should be decoded from that.
+
+            fieldvalue = meCard.GetFieldValue("S", null);
+            if (fieldvalue != null) Ssid = HttpUtility.UrlDecode(fieldvalue);
+
+            fieldvalue = meCard.GetFieldValue("T", null);
+            if (fieldvalue != null) WiFiAuthType = fieldvalue; // QUESTION: not decoded??
+
+            IsValid = Validity.Valid;
+#if EVER_EVER_DEFINED
+            // Original code; to be replaced with MeCardRaw based parser.
             if (urlString == null)
             {
                 IsValid = Validity.InvalidNull;
@@ -43,7 +83,7 @@ namespace MeCardParsers
             var firstColon= urlString.IndexOf(':');
             if (firstColon < 0)
             {
-                IsValid = Validity.InvalidWrongScheme;
+                IsValid = Validity.InvalidNoScheme;
                 ErrorMessage = "WiFi URL doesn't start with a scheme like wifi:";
                 return;
             }
@@ -233,6 +273,7 @@ namespace MeCardParsers
             }
 
             IsValid = Validity.Valid;
+#endif
         }
 
 
@@ -353,7 +394,7 @@ namespace MeCardParsers
 
             // Catch the big errors
             nerror += TestOneFailure(null, Validity.InvalidNull);
-            nerror += TestOneFailure("http://example.com", Validity.InvalidWrongScheme);
+            nerror += TestOneFailure("http://example.com/", Validity.InvalidWrongScheme);
             nerror += TestOneFailure("WIFI:", Validity.InvalidLength);
 
             // Catch parsing errors
@@ -387,10 +428,10 @@ namespace MeCardParsers
 
             return nerror;
         }
-        public enum Validity {  Valid, InvalidOther, InvalidNull, InvalidLength, InvalidWrongScheme,  // these are all "can't even try to parse"
-            InvalidNotUrlEncoded, InvalidNotUnreserved, InvalidNotHex, InvalidNotTrue, InvalidNotBase64, InvalidEndSemicolons, InvalidColon, // these are "low level details are wrong"
-            InvalidNoSsid, InvalidOpcodeDuplicate, InvalidOpcodeOrder // these are all high-level opcode issues
-        };
+        //public enum Validity {  Valid, InvalidOther, InvalidNull, InvalidLength, InvalidWrongScheme,  // these are all "can't even try to parse"
+        //    InvalidNotUrlEncoded, InvalidNotUnreserved, InvalidNotHex, InvalidNotTrue, InvalidNotBase64, InvalidEndSemicolons, InvalidColon, // these are "low level details are wrong"
+        //    InvalidNoSsid, InvalidOpcodeDuplicate, InvalidOpcodeOrder // these are all high-level opcode issues
+        //};
         public Validity IsValid { get; set; } = Validity.InvalidOther;
         public string ErrorMessage { get; set; } = null;
 

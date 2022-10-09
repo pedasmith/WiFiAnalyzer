@@ -1,4 +1,4 @@
-﻿using MeCardParsers;
+﻿using MeCardParser;
 using SmartWiFiHelpers;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using MeCardParsers;
+﻿using MeCardParser;
 using QRCoder;
 using SmartWiFiHelpers;
 using System;

@@ -1,4 +1,4 @@
-﻿using MeCardParsers;
+﻿using MeCardParser;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using Microsoft.Toolkit.Uwp.UI.Converters;
