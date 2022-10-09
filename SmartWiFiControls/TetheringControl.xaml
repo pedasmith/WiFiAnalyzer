@@ -80,7 +80,7 @@
                     </StackPanel>
                 </ScrollViewer>
             </controls:Expander>
-            <StackPanel x:Name="uiConnectQRPanel" Visibility="Collapsed" Grid.Row="2" Grid.RowSpan="1" VerticalAlignment="Top" HorizontalAlignment="Right">
+            <StackPanel x:Name="uiConnectQRPanel" Visibility="Collapsed" Grid.Row="2" Grid.RowSpan="3" VerticalAlignment="Top" HorizontalAlignment="Right">
                 <Image x:Name="uiConnectQR" Stretch="Uniform"  Margin="0,10,0,0" Width="200" Height="200" />
                 <TextBlock Style="{StaticResource styleWifiUrl}" x:Name="uiConnectWifiUrl" Width="200" />
             </StackPanel>

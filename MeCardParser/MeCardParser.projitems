@@ -9,5 +9,11 @@
     <Import_RootNamespace>MeCardParser</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)MeCard.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MeCardParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MeCardRaw.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MeCardTest.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)RfcParserHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)WiFiUrl.cs" />
   </ItemGroup>
 </Project>

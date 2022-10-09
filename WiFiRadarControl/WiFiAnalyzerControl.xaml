@@ -133,7 +133,7 @@
                     <ScrollViewer Grid.Row="2">
                         <TextBlock x:Name="uiConnectLog" Text="" IsTextSelectionEnabled="True" />
                     </ScrollViewer>
-                    <StackPanel x:Name="uiConnectQRPanel" Visibility="Collapsed" Grid.Row="1" Grid.RowSpan="2" VerticalAlignment="Top" HorizontalAlignment="Right">
+                    <StackPanel x:Name="uiConnectQRPanel" Visibility="Collapsed" Grid.Row="1" Grid.RowSpan="3" VerticalAlignment="Top" HorizontalAlignment="Right">
                         <Image x:Name="uiConnectQR" Stretch="Uniform"  Margin="0,10,0,0" Width="200" Height="200" />
                         <TextBlock Style="{StaticResource styleWifiUrl}" x:Name="uiConnectWifiUrl" Width="200" />
                     </StackPanel>
