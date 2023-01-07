@@ -485,7 +485,7 @@ namespace WiFiRadarControl
         {
             var delta = Int32.Parse((sender as Button).Tag as string);
             NDemo += delta;
-            uiNDemo.Text = NDemo.ToString();
+            Utilities.UIThreadHelper.CallOnUIThread(() => uiNDemo.Text = NDemo.ToString());
             await DoRedraw(NDemo);
         }
         private async Task DoRedraw(int nwifi)

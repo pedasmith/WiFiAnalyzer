@@ -7,6 +7,9 @@ using Windows.Networking.NetworkOperators;
 
 namespace SmartWiFiHelpers
 {
+    /// <summary>
+    /// Lots of static methods that convert network classes into user-readable strings.
+    /// </summary>
     static class NetworkToString
     {
         /// <summary>

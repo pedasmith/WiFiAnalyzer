@@ -67,7 +67,7 @@ namespace WiFiRadarControl
 
         private void Log(string text)
         {
-            uiReport.Text += text + "\n";
+            Utilities.UIThreadHelper.CallOnUIThread(() => uiReport.Text += text + "\n");
         }
         HelpPageHistory HelpHistory = new HelpPageHistory();
         public static string HelpNavigatedTo = "";
@@ -143,7 +143,7 @@ namespace WiFiRadarControl
 
         private async Task DoScanAsync()
         {
-            uiReport.Text = $"Scan started at {DateTime.Now}\n\n";
+            Utilities.UIThreadHelper.CallOnUIThread(() => uiReport.Text = $"Scan started at {DateTime.Now}\n\n");
             uiScanProgressRing.IsIndeterminate = true;
             uiScanProgressRing.Visibility = Visibility.Visible;
             try
@@ -320,13 +320,16 @@ namespace WiFiRadarControl
 
         private void LogNetworkInfo (string text)
         {
-            uiNetworkInfo.Text = text;
+            Utilities.UIThreadHelper.CallOnUIThread(() => uiNetworkInfo.Text = text);
         }
 
         private void LogConnectInfo(string text, bool clear = false)
         {
-            if (clear) uiConnectLog.Text = "";
-            uiConnectLog.Text = text + "\r" + uiConnectLog.Text;
+            Utilities.UIThreadHelper.CallOnUIThread(() =>
+            {
+                if (clear) uiConnectLog.Text = "";
+                uiConnectLog.Text = text + "\r" + uiConnectLog.Text;
+            });
         }
 
         private static List<Reflector> CreateReflectorList(IList<WiFiNetworkInformation> list, string matchingSsid)
@@ -366,7 +369,8 @@ namespace WiFiRadarControl
 
         public void DisplayOneLine(WiFiNetworkInformation value)
         {
-            uiWiFiOneLineInformation.Text = $"{value.SSID.OrUnnamed()} BSSID={value.Bssid} RSSI={value.Rssi}";
+            Utilities.UIThreadHelper.CallOnUIThread(() 
+                => uiWiFiOneLineInformation.Text = $"{value.SSID.OrUnnamed()} BSSID={value.Bssid} RSSI={value.Rssi}");
         }
 
         private void OnHideRadarDetails(object sender, TappedRoutedEventArgs e)
@@ -376,7 +380,7 @@ namespace WiFiRadarControl
 
         private void OnClearRadarDetails(object sender, TappedRoutedEventArgs e)
         {
-            uiWiFiDetailsText.Text = "";
+            Utilities.UIThreadHelper.CallOnUIThread(() => uiWiFiDetailsText.Text = "");
         }
 
         private async void OnConnectDetails(object sender, TappedRoutedEventArgs e)
@@ -548,9 +552,12 @@ namespace WiFiRadarControl
         // From app.xaml.cs OnActivated(IActivatedEventArgs args) when started with wifi:S:starpainter;P:deeznuts;;
         public Task NavigateToWiFiConnectUrl(WiFiUrl url)
         {
-            uiPivot.SelectedItem = uiConnectPivot;
-            uiConnectPassword.Text = url.Password ?? "";
-            uiConnectSsid.Text = url.Ssid ?? "";
+            Utilities.UIThreadHelper.CallOnUIThread(() => 
+            { 
+                uiPivot.SelectedItem = uiConnectPivot;
+                uiConnectPassword.Text = url.Password ?? "";
+                uiConnectSsid.Text = url.Ssid ?? "";
+            });
             return ConnectFromUrlAsync(url);
         }
 
@@ -699,6 +706,5 @@ namespace WiFiRadarControl
                 }
             }
         }
-
     }
 }

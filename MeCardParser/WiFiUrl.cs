@@ -45,7 +45,11 @@ namespace MeCardParser
 
             // URL was a totally valid WIFI: or WIFISETUP: url; update everything.
             MeCardRawWiFi.WiFiFillDefaults(meCard);
-            var fieldvalue = meCard.GetFieldValue("H", ""); // QUESTION: what if user had %20%34%43=="true"? Should we decode this?
+            Scheme = meCard.SchemeCanonical;
+            var fieldvalue = meCard.GetFieldValue("ACTION", "CONNECT"); // QUESTION: what if user had %20%34%43=="true"? Should we decode this?
+            Action = fieldvalue; ;
+
+            fieldvalue = meCard.GetFieldValue("H", ""); // QUESTION: what if user had %20%34%43=="true"? Should we decode this?
             Hidden = fieldvalue == "true";
 
             fieldvalue = meCard.GetFieldValue("I", null);
@@ -423,6 +427,11 @@ namespace MeCardParser
             nerror += TestRoundtrip("starpainter", "");
             nerror += TestRoundtrip("star\x0000painter", "deez\x0000nuts");
             nerror += TestRoundtrip("star;;painter", "deez;;nuts");
+
+            // Test WIFISETUP:
+            nerror += TestOneFailure("WIFISETUP:ACTION:SETUP;S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts");
+            nerror += TestOneFailure("WIFISETUP:ACTION:CONNECT;S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts");
+
 
             //TODO: are the opcodes case sensitive?
 
