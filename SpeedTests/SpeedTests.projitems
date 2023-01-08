@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)FccSpeedTest2022.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SpeedTestControl.xaml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Statistics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)StatisticsControl.xaml.cs" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="$(MSBuildThisFileDirectory)BoxWhiskerControl.xaml">
@@ -20,6 +21,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="$(MSBuildThisFileDirectory)SpeedTestControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="$(MSBuildThisFileDirectory)StatisticsControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

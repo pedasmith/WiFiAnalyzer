@@ -67,7 +67,7 @@ namespace WiFiRadarControl
             switch (selectedTag)
             {
                 case "RADAR": await DoScanAsync(); break;
-                case "SpeedTest": await uiSpeedTestControl.DoTest(); break;
+                case "SpeedTest": await uiSpeedTestControl.DoLatencyTest(); break;
             }
         }
 

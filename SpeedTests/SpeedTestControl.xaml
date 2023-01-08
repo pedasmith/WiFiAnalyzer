@@ -13,6 +13,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
         <StackPanel Grid.Column="0">
             <ScrollViewer Height="500">
@@ -22,6 +23,21 @@
                 <Button Content="Test!" Click="OnTest" />
             </StackPanel>
         </StackPanel>
-        <local:BoxWhiskerControl x:Name="uiLatencyStats" Grid.Column="1"  VerticalAlignment="Top" />
+        <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <StackPanel x:Name="ZZZuiLatencyGraphPanel" Orientation="Horizontal" VerticalAlignment="Top">
+            </StackPanel>
+        </StackPanel>
+        <ListBox Grid.Column="1" x:Name="uiLatencyGraphPanel"
+                 HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Top"
+                 ScrollViewer.HorizontalScrollBarVisibility="Visible" 
+                 SelectionChanged="OnSelectChange" Height="220"
+                 >
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel Orientation="Horizontal"  VerticalAlignment="Top" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>
+        <local:StatisticsControl Grid.Column="2" x:Name="uiLatencyStats" VerticalAlignment="Top" />
     </Grid>
 </UserControl>

@@ -40,9 +40,14 @@ namespace SpeedTests
         {
             this.InitializeComponent();
         }
-
+        private Statistics CurrStatistics = null;
+        public Statistics GetStatistics()
+        {
+            return CurrStatistics;
+        }
         public void SetStatistics(Statistics stats)
         {
+            CurrStatistics = stats;
             string format = "N3";
             uistatMin.Text = stats.Min.ToString(format);
             uistatIqrLow.Text = stats.IqrLow.ToString(format);
@@ -53,7 +58,8 @@ namespace SpeedTests
             uistatRange.Text = stats.Range.ToString(format);
             uistatStdDev.Text = stats.StdDev.ToString(format);
 
-            double canvasMin = uiCanvas.ActualHeight;
+            double canvasHeight = uiCanvas.Height; // Not ActualHeight because it might not have been layed out yet.
+            double canvasMin = canvasHeight;
             double canvasMax = 0.0;
             double domainMax = GetYMax(stats.Max, YMaxDefault, stats.Max * 1.1);// A bit bigger than the max value
             statRangeMax.Y1 = Map(stats.Max, 0.0, domainMax, canvasMin, canvasMax);
@@ -66,8 +72,8 @@ namespace SpeedTests
             statMin.Y2 = Map(stats.Min, 0.0, domainMax, canvasMin, canvasMax);
             statMedian.Y1 = Map(stats.Median, 0.0, domainMax, canvasMin, canvasMax);
             statMedian.Y2 = Map(stats.Median, 0.0, domainMax, canvasMin, canvasMax);
-            statIqr.Height = Map(stats.IqrHigh - stats.IqrLow, 0.0, domainMax, 0, uiCanvas.ActualHeight); // Height is relative to height of the canvas, not the flipped-around Y values
-            var iqh = Map(stats.IqrHigh, 0.0, domainMax, 0, uiCanvas.ActualHeight);
+            statIqr.Height = Map(stats.IqrHigh - stats.IqrLow, 0.0, domainMax, 0, canvasHeight); // Height is relative to height of the canvas, not the flipped-around Y values
+            var iqh = Map(stats.IqrHigh, 0.0, domainMax, 0, canvasHeight);
             Canvas.SetTop(statIqr, Map(stats.IqrHigh, 0.0, domainMax, canvasMin, canvasMax));
 
             uistatYAxisMin.Text = "0.00";

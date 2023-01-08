@@ -27,18 +27,32 @@ namespace SpeedTests
         /// <summary>
         /// Run the test automatically.
         /// </summary>
-        public async Task DoTest()
+        public async Task DoLatencyTest()
         {
             var result = await SpeedTest.LatencyTestAsync(null); // null=use default server.
+            //uiLatencyGraph.SetStatistics(result.SpeedStatistics);
+            var graph = new BoxWhiskerControl();
+            uiLatencyGraphPanel.Items.Insert(0, graph);
+            graph.SetStatistics(result.SpeedStatistics);
             uiLatencyStats.SetStatistics(result.SpeedStatistics);
-            uiLog.Text += $"Server={result.Server} Port={result.Port}\nNSent={result.NSent} NRecv={result.NRecv} Error={result.Error ?? "(no error)"}";
+            uiLog.Text += $"Server={result.Server}:{result.Port}\nNSent={result.NSent} NRecv={result.NRecv} Error={result.Error ?? "(no error)"}\n\n";
         }
 
         FccSpeedTest2022 SpeedTest = new FccSpeedTest2022();
 
         private async void OnTest(object sender, RoutedEventArgs e)
         {
-            await DoTest();
+            await DoLatencyTest();
+        }
+
+        private void OnSelectChange(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count != 1) return;
+            var graph = e.AddedItems[0] as BoxWhiskerControl;
+            if (graph == null) return;
+            var stats = graph.GetStatistics();
+            uiLatencyStats.SetStatistics(stats);
+            //MessageBox.Show("Parent");
         }
     }
 }

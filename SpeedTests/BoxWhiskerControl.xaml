@@ -9,10 +9,10 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
+    <Grid VerticalAlignment="Top" Height="200">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="0" />
         </Grid.ColumnDefinitions>
 
         <Canvas Grid.Column="0" Height="200" Width="100" x:Name="uiCanvas">

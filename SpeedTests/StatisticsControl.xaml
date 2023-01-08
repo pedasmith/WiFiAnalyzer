@@ -1,0 +1,27 @@
+﻿<UserControl
+    x:Class="SpeedTests.StatisticsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SpeedTests"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <StackPanel VerticalAlignment="Center">
+        <TextBlock FontSize="20">Statistics</TextBlock>
+        <TextBlock IsTextSelectionEnabled="True" TextWrapping="Wrap"
+                       FontFamily="Consolas">
+                <Run Text="" /><LineBreak />
+                <Run Text="Range&#0009;&#0009;" /><Run x:Name="uistatRange" Text="0.00" /><LineBreak/>
+                <Run Text="StdDev&#0009;&#0009;" /><Run x:Name="uistatStdDev" Text="0.00" /><LineBreak/>
+                <Run Text="Maximum&#0009;&#0009;" /><Run x:Name="uistatMax" Text="0.00" /><LineBreak/>
+                <Run Text="IQR&#0009;&#0009;" /><Run x:Name="uistatIqrHigh" Text="0.00" /><LineBreak/>
+                <Run Text="Median&#0009;&#0009;" /><Run x:Name="uistatMedian" Text="0.00" /><LineBreak/>
+                <Run Text="Mean&#0009;&#0009;" /><Run x:Name="uistatMean" Text="0.00" /><LineBreak/>
+                <Run Text="IQR&#0009;&#0009;" /><Run x:Name="uistatIqrLow" Text="0.00" /><LineBreak/>
+                <Run Text="Minimum&#0009;&#0009;" /><Run x:Name="uistatMin" Text="0.00" /><LineBreak/>
+        </TextBlock>
+    </StackPanel>
+</UserControl>
