@@ -48,11 +48,6 @@ namespace SpeedTests
 
         FccSpeedTest2022 SpeedTest = new FccSpeedTest2022();
 
-        private async void OnTest(object sender, RoutedEventArgs e)
-        {
-            await DoLatencyTest();
-        }
-
         private void OnSelectChange(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count != 1) return;

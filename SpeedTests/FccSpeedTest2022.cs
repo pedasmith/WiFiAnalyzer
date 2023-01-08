@@ -64,6 +64,11 @@ namespace SpeedTests
                     TimesInMillisecondsSorted = rawTimesInMilliseconds.ToArray();
                 }
                 SpeedStatistics = new Statistics(TimesInMillisecondsSorted);
+                SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Sent", NSent.ToString()));
+                SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Recv", NRecv.ToString()));
+                SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Server", Server.DisplayName));
+                SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Port", Port));
+                SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("At", StartTime.ToLongTimeString()));
             }
         }
 
@@ -128,7 +133,7 @@ namespace SpeedTests
         /// <returns></returns>
         public async Task<LatencyTestResults> LatencyTestAsync(List<ISetStatistics> uxlist, HostName server, string port = "6000", double interPacketTimeInMilliseconds = 500, double delayTimoutInSeconds = 2.0, int nDatagrams = 200, double maxTimeInSeconds = 5.0)
         {
-            nDatagrams = 100; // TODO: don't send too many yet!
+            nDatagrams = 20; // TODO: don't send too many yet!
             if (server == null)
             {
                 server = new HostName(Servers[0]);

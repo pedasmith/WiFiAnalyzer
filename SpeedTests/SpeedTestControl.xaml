@@ -11,45 +11,38 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="0" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="auto" />
         </Grid.ColumnDefinitions>
-        <StackPanel Grid.Column="0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="1" Grid.Column="0">
             <ScrollViewer Height="500">
                 <TextBlock x:Name="uiLog" IsTextSelectionEnabled="true" TextWrapping="Wrap" />
             </ScrollViewer>
-            <StackPanel Orientation="Horizontal">
-                <Button Content="Test!" Click="OnTest" />
-            </StackPanel>
         </StackPanel>
-        <StackPanel Grid.Column="1" Orientation="Horizontal">
+
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
             <StackPanel x:Name="ZZZuiLatencyGraphPanel" Orientation="Horizontal" VerticalAlignment="Top">
             </StackPanel>
         </StackPanel>
-        <GridView Grid.Column="1" SelectionMode="Single" x:Name="uiLatencyGraphPanel" 
-                  MaxHeight="220" SelectionChanged="OnSelectChange"
-                  VerticalAlignment="Top" Height="240"
-                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
+        <ListView Grid.Row="1" Grid.Column="1" SelectionMode="Single" x:Name="uiLatencyGraphPanel" 
+                  SelectionChanged="OnSelectChange"
+                  Height="240" VerticalAlignment="Top"
                   ScrollViewer.HorizontalScrollMode="Enabled"
-                  ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                  ScrollViewer.VerticalScrollMode="Disabled"
+                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
                   >
-            
-        </GridView>
-        <!--
-        <ListBox Grid.Column="1" x:Name="uiLatencyGraphPanel"
-                 HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Top"
-                 ScrollViewer.HorizontalScrollBarVisibility="Visible" 
-                 SelectionChanged="OnSelectChange" Height="220"
-                 >
-            <ListBox.ItemsPanel>
+            <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <VirtualizingStackPanel Orientation="Horizontal"  VerticalAlignment="Top" />
+                    <ItemsStackPanel Orientation="Horizontal" 
+                                     ItemsUpdatingScrollMode="KeepItemsInView" />
                 </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-        </ListBox>
-        -->
-        <local:StatisticsControl Grid.Column="2" x:Name="uiLatencyStats" VerticalAlignment="Top" />
+            </ListView.ItemsPanel>
+        </ListView>
+        <local:StatisticsControl Grid.Row="1" Grid.Column="2" x:Name="uiLatencyStats" VerticalAlignment="Top" />
     </Grid>
 </UserControl>

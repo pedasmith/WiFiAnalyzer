@@ -9,13 +9,12 @@
     d:DesignHeight="210"
     d:DesignWidth="50">
 
-    <Grid VerticalAlignment="Top" Height="210" Width="50">
+    <Grid VerticalAlignment="Top" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="0" />
         </Grid.ColumnDefinitions>
 
-        <Canvas Grid.Column="0" Height="200" Width="50" x:Name="uiCanvas">
+        <Canvas  Height="200" Width="50" x:Name="uiCanvas">
             <Canvas.Resources>
                 <Style TargetType="Line">
                     <Setter Property="Stroke" Value="Black" />
@@ -39,22 +38,6 @@
             <Line x:Name="statYAxisMax" X1="0" X2="50" Y1="200" Y2="200" />
             <TextBlock x:Name="uistatYAxisMin" Text="0.00" Canvas.Top="185" />
             <TextBlock x:Name="uistatYAxisMax" Text="20.00" Canvas.Top="0" />
-
         </Canvas>
-        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-            <TextBlock FontSize="20">Statistics</TextBlock>
-            <TextBlock IsTextSelectionEnabled="True" TextWrapping="Wrap"
-                       FontFamily="Consolas">
-                <Run Text="" /><LineBreak />
-                <Run Text="Range&#0009;&#0009;" /><Run x:Name="uistatRange" Text="0.00" /><LineBreak/>
-                <Run Text="StdDev&#0009;&#0009;" /><Run x:Name="uistatStdDev" Text="0.00" /><LineBreak/>
-                <Run Text="Maximum&#0009;&#0009;" /><Run x:Name="uistatMax" Text="0.00" /><LineBreak/>
-                <Run Text="IQR&#0009;&#0009;" /><Run x:Name="uistatIqrHigh" Text="0.00" /><LineBreak/>
-                <Run Text="Median&#0009;&#0009;" /><Run x:Name="uistatMedian" Text="0.00" /><LineBreak/>
-                <Run Text="Mean&#0009;&#0009;" /><Run x:Name="uistatMean" Text="0.00" /><LineBreak/>
-                <Run Text="IQR&#0009;&#0009;" /><Run x:Name="uistatIqrLow" Text="0.00" /><LineBreak/>
-                <Run Text="Minimum&#0009;&#0009;" /><Run x:Name="uistatMin" Text="0.00" /><LineBreak/>
-            </TextBlock>
-        </StackPanel>
     </Grid>
 </UserControl>

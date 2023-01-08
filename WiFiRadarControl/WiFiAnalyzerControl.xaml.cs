@@ -62,13 +62,7 @@ namespace WiFiRadarControl
             uiGrid.ItemsSource = CurrentNetworkInformationList;
             uiRadar.DisplayWifiNetworkInformation = this;
 
-            var selectedPivot = uiPivot.Items[uiPivot.SelectedIndex] as PivotItem; 
-            var selectedTag = (selectedPivot?.Tag as string) ?? "";
-            switch (selectedTag)
-            {
-                case "RADAR": await DoScanAsync(); break;
-                case "SpeedTest": await uiSpeedTestControl.DoLatencyTest(); break;
-            }
+            await DoCorrectScanTypeAsync();
         }
 
         private void Log(string text)
@@ -138,7 +132,18 @@ namespace WiFiRadarControl
         #region SCAN
         private async void OnScanNow(object sender, RoutedEventArgs e)
         {
-            await DoScanAsync();
+            await DoCorrectScanTypeAsync();
+        }
+
+        private async Task DoCorrectScanTypeAsync()
+        {
+            var selectedPivot = uiPivot.Items[uiPivot.SelectedIndex] as PivotItem;
+            var selectedTag = (selectedPivot?.Tag as string) ?? "";
+            switch (selectedTag)
+            {
+                case "RADAR": await DoRadarScanAsync(); break;
+                case "SpeedTest": await uiSpeedTestControl.DoLatencyTest(); break;
+            }
         }
 
 
@@ -147,7 +152,7 @@ namespace WiFiRadarControl
         String CurrentHtml = "";
         List<Reflector> CurrentReflectorList = new List<Reflector>();
 
-        private async Task DoScanAsync()
+        private async Task DoRadarScanAsync()
         {
             Utilities.UIThreadHelper.CallOnUIThread(() => uiReport.Text = $"Scan started at {DateTime.Now}\n\n");
             uiScanProgressRing.IsIndeterminate = true;

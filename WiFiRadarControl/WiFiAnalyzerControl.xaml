@@ -192,7 +192,7 @@
             <TextBlock Grid.Column="1" x:Name="uiNetworkInfo" 
                        Margin="8,0,0,0"
                        IsTextSelectionEnabled="True" TextWrapping="Wrap" VerticalAlignment="Center" />
-            <ProgressBar Grid.Column="2" IsIndeterminate="True" x:Name="uiScanProgressRing" Width="120" VerticalAlignment="Center"/>
+            <ProgressBar Grid.Column="2" IsIndeterminate="False" Visibility="Collapsed" x:Name="uiScanProgressRing" Width="120" VerticalAlignment="Center"/>
         </Grid>
         
         

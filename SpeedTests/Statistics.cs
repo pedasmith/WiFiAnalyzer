@@ -22,6 +22,21 @@ namespace SpeedTests
         public double Total { get; internal set; }  
         public double TotalSquared { get; internal set; }
 
+        public class AdditionalInfo
+        {
+            public AdditionalInfo(string name, string value)
+            {
+                Name = name;
+                Value = value;
+            }
+
+            public string Name { get; set; }
+            public string Value { get; set; }
+        }
+        public List<AdditionalInfo> PreAdditionalInfo { get; } = new List<AdditionalInfo>();
+        public List<AdditionalInfo> PostAdditionalInfo { get; } = new List<AdditionalInfo>();
+
+
         public Statistics(double[] values)
         {
             Total = 0.0;

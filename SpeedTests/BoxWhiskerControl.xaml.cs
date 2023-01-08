@@ -47,16 +47,8 @@ namespace SpeedTests
         }
         public void SetStatistics(Statistics stats)
         {
+            var format = "N3";
             CurrStatistics = stats;
-            string format = "N3";
-            uistatMin.Text = stats.Min.ToString(format);
-            uistatIqrLow.Text = stats.IqrLow.ToString(format);
-            uistatMedian.Text = stats.Median.ToString(format);
-            uistatMean.Text = stats.Average.ToString(format);
-            uistatIqrHigh.Text = stats.IqrHigh.ToString(format);
-            uistatMax.Text = stats.Max.ToString(format);
-            uistatRange.Text = stats.Range.ToString(format);
-            uistatStdDev.Text = stats.StdDev.ToString(format);
 
             double canvasHeight = uiCanvas.Height; // Not ActualHeight because it might not have been layed out yet.
             double canvasMin = canvasHeight;

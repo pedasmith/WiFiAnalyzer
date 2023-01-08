@@ -34,6 +34,22 @@ namespace SpeedTests
             uistatMax.Text = stats.Max.ToString(format);
             uistatRange.Text = stats.Range.ToString(format);
             uistatStdDev.Text = stats.StdDev.ToString(format);
+
+            var txt = "";
+            foreach (var item in stats.PreAdditionalInfo)
+            {
+                var tab = item.Name.Length <= 7 ? "\t\t" : "\t";
+                txt += $"{item.Name}{tab}{item.Value}\n";
+            }
+            uiPreInfo.Text = txt;
+
+            txt = "";
+            foreach (var item in stats.PostAdditionalInfo)
+            {
+                var tab = item.Name.Length < 8 ? "\t\t" : "\t";
+                txt += $"{item.Name}{tab}{item.Value}\n";
+            }
+            uiPostInfo.Text = txt;
         }
     }
 }
