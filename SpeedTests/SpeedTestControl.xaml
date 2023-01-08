@@ -27,6 +27,17 @@
             <StackPanel x:Name="ZZZuiLatencyGraphPanel" Orientation="Horizontal" VerticalAlignment="Top">
             </StackPanel>
         </StackPanel>
+        <GridView Grid.Column="1" SelectionMode="Single" x:Name="uiLatencyGraphPanel" 
+                  MaxHeight="220" SelectionChanged="OnSelectChange"
+                  VerticalAlignment="Top" Height="240"
+                  ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                  ScrollViewer.HorizontalScrollMode="Enabled"
+                  ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                  ScrollViewer.VerticalScrollMode="Disabled"
+                  >
+            
+        </GridView>
+        <!--
         <ListBox Grid.Column="1" x:Name="uiLatencyGraphPanel"
                  HorizontalAlignment="Left" VerticalAlignment="Top" VerticalContentAlignment="Top"
                  ScrollViewer.HorizontalScrollBarVisibility="Visible" 
@@ -38,6 +49,7 @@
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
         </ListBox>
+        -->
         <local:StatisticsControl Grid.Column="2" x:Name="uiLatencyStats" VerticalAlignment="Top" />
     </Grid>
 </UserControl>

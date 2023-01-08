@@ -13,7 +13,7 @@ using Windows.Storage.Streams;
 
 namespace SpeedTests
 {
-    internal class FccSpeedTest2022
+    public class FccSpeedTest2022
     {
         public List<string> Servers { get; } = new List<string>
         {
@@ -27,6 +27,7 @@ namespace SpeedTests
                 Server = server;
                 Port = port;
             }
+
             public DateTime StartTime { get; } = DateTime.Now;
             public HostName Server { get; set; } = null;
             public string Port { get; set; } = null;
@@ -38,13 +39,15 @@ namespace SpeedTests
 
             internal void Calculate(LatencyTestSingle[] singles)
             {
-                NSent = singles.Length;
+                NSent = 0;
                 NRecv = 0;
                 List<double> rawTimesInMilliseconds = new List<double>();
                 for (int i=0; i<singles.Length; i++)
                 {
                     var s = singles[i];
-                    if (s.EndTime != null)
+                    if (s == null) continue; // 
+                    NSent++;
+                    if (s.EndTime != null && s.TimeInSeconds >= 0 && s.TimeInSeconds <= 1_000_000)
                     {
                         NRecv++;
                         rawTimesInMilliseconds.Add(s.TimeInSeconds * 1000.0);
@@ -117,21 +120,22 @@ namespace SpeedTests
             }
         }
         LatencyTestSingle[] IndividualTests = null;
-        LatencyTestResults LTR { get; set; } = null;
+        private LatencyTestResults LTR { get; set; } = null;
         /// <summary>
         /// UDP Latency tests; thanks to https://github.com/SamKnows/skandroid-core/blob/b65cc014a8d64da86bd4471d0d33f5c45e55aead/desktop/skConsoleSpeedTest/src/com/samknows/tests/LatencyTest.java
         /// </summary>
 
         /// <returns></returns>
-        public async Task<LatencyTestResults> LatencyTestAsync(HostName server, string port = "6000", double interPacketTimeInMilliseconds = 500, double delayTimoutInSeconds = 2.0, int nDatagrams = 200, double maxTimeInSeconds = 5.0)
+        public async Task<LatencyTestResults> LatencyTestAsync(List<ISetStatistics> uxlist, HostName server, string port = "6000", double interPacketTimeInMilliseconds = 500, double delayTimoutInSeconds = 2.0, int nDatagrams = 200, double maxTimeInSeconds = 5.0)
         {
-            nDatagrams = 30; // TODO: don't send too many yet!
+            nDatagrams = 100; // TODO: don't send too many yet!
             if (server == null)
             {
                 server = new HostName(Servers[0]);
             }
             IndividualTests = new LatencyTestSingle[nDatagrams];
-            LatencyTestResults retval = new LatencyTestResults(server, port);
+
+            var retval = new LatencyTestResults(server, port);
             LTR = retval;
 
             using (var socket = new DatagramSocket())
@@ -158,10 +162,43 @@ namespace SpeedTests
                     writer.WriteBytes(packet);
                     var result = await writer.StoreAsync();
                     nbytes += result;
+
+                    if ((i %5) == 4) // every fifth one
+                    {
+                        retval.Calculate(IndividualTests);
+                        foreach (var ux in uxlist)
+                        {
+                            ux.SetStatistics(retval.SpeedStatistics);
+                        }
+                        await Task.Delay(250);
+                    }
+                }
+                int loopTimeInMillieconds = 199; // ms
+                int timeLeftInMilliseconds = (int)(delayTimoutInSeconds * 1000.0);
+                int nloop = 0;
+                while (timeLeftInMilliseconds > 0 && LTR.NRecv < LTR.NSent)
+                {
+                    await Task.Delay(loopTimeInMillieconds);
+                    timeLeftInMilliseconds -= loopTimeInMillieconds; // this won't be exact, but that's OK.
+                    nloop++;
+
+                    retval.Calculate(IndividualTests);
+                    foreach (var ux in uxlist)
+                    {
+                        ux.SetStatistics(retval.SpeedStatistics);
+                    }
+
                 }
 
-                await Task.Delay((int)(delayTimoutInSeconds * 1000.0));
-                retval.Calculate(IndividualTests);
+                // Final Calculation.
+                if (nloop == 0)
+                {
+                    retval.Calculate(IndividualTests);
+                    foreach (var ux in uxlist)
+                    {
+                        ux.SetStatistics(retval.SpeedStatistics);
+                    }
+                }
             }
             return retval;
         }

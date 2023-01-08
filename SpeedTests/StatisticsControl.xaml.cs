@@ -17,7 +17,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace SpeedTests
 {
-    public sealed partial class StatisticsControl : UserControl
+    public sealed partial class StatisticsControl : UserControl, ISetStatistics
     {
         public StatisticsControl()
         {

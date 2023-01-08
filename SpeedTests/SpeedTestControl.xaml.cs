@@ -18,6 +18,10 @@ using Windows.UI.Xaml.Navigation;
 
 namespace SpeedTests
 {
+    public interface ISetStatistics
+    {
+        void SetStatistics(Statistics value);
+    }
     public sealed partial class SpeedTestControl : UserControl
     {
         public SpeedTestControl()
@@ -29,10 +33,14 @@ namespace SpeedTests
         /// </summary>
         public async Task DoLatencyTest()
         {
-            var result = await SpeedTest.LatencyTestAsync(null); // null=use default server.
-            //uiLatencyGraph.SetStatistics(result.SpeedStatistics);
             var graph = new BoxWhiskerControl();
             uiLatencyGraphPanel.Items.Insert(0, graph);
+            await Task.Delay(0);
+            var uxlist = new List<ISetStatistics>() { graph, uiLatencyStats };
+
+            var result = await SpeedTest.LatencyTestAsync(uxlist, null); // null=use default server.
+
+            graph.SetStatistics(result.SpeedStatistics);
             graph.SetStatistics(result.SpeedStatistics);
             uiLatencyStats.SetStatistics(result.SpeedStatistics);
             uiLog.Text += $"Server={result.Server}:{result.Port}\nNSent={result.NSent} NRecv={result.NRecv} Error={result.Error ?? "(no error)"}\n\n";

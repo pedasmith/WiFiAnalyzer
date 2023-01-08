@@ -32,25 +32,50 @@ namespace SpeedTests
                 TotalSquared += (values[i] * values[i]);
             }
             N = values.Length;
-            Min = values[0];
-            Max = values[N - 1];
-            Average = Total / values.Length;
-            var midpoint = (int)Math.Floor(N / 2.0);
-            if (N % 2 == 0)
+            if (N == 0)
             {
+                Min = 0.0;
+                Max = 0.0;
+                Average = 0.0;
+            }
+            else
+            {
+                Min = values[0];
+                Max = values[N - 1];
+                Average = Total / N;
+            }
+            if (N == 0)
+            {
+                Median = 0.0;
+            }
+            else if (N % 2 == 0)
+            {
+                var midpoint = (int)Math.Floor((N-1) / 2.0); // example: N==4, indexes are 0,1,2,3 and I want midpoint to be 1
                 var before = values[midpoint];
                 var after = values[midpoint + 1];
                 Median = (before + after)/2.0;
             }
             else
             {
+                var midpoint = (int)Math.Floor(N / 2.0);
                 Median = values[midpoint];
             }
-            Range = values[N - 1] - values[0];
-            IqrLow = AtRatio(values, 0.25);
-            IqrHigh = AtRatio(values, 0.75);
-            var variance = (TotalSquared - ((Total*Total) / N)) / (N-1);
-            StdDev = Math.Sqrt(variance);
+
+            if (N < 2)
+            {
+                Range = 0.0;
+                IqrLow = 0.0;
+                IqrHigh = 0.0;
+                StdDev = 0.0;
+            }
+            else
+            {
+                Range = values[N - 1] - values[0];
+                IqrLow = AtRatio(values, 0.25);
+                IqrHigh = AtRatio(values, 0.75);
+                var variance = (TotalSquared - ((Total * Total) / N)) / (N - 1);
+                StdDev = Math.Sqrt(variance);
+            }
         }
         private static double At(double[] values, double index)
         {

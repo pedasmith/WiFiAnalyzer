@@ -6,16 +6,16 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignHeight="210"
+    d:DesignWidth="50">
 
-    <Grid VerticalAlignment="Top" Height="200">
+    <Grid VerticalAlignment="Top" Height="210" Width="50">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="0" />
         </Grid.ColumnDefinitions>
 
-        <Canvas Grid.Column="0" Height="200" Width="100" x:Name="uiCanvas">
+        <Canvas Grid.Column="0" Height="200" Width="50" x:Name="uiCanvas">
             <Canvas.Resources>
                 <Style TargetType="Line">
                     <Setter Property="Stroke" Value="Black" />
@@ -24,17 +24,20 @@
                     <Setter Property="Stroke" Value="Black" />
                     <Setter Property="Fill" Value="LightYellow" />
                 </Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FontSize" Value="10" />
+                </Style>
             </Canvas.Resources>
-            <Rectangle x:Name="statIqr" Width="40" Height="100" Canvas.Left="30" Canvas.Top="40" />
-            <Line x:Name="statRangeMax" X1="50" X2="50" Y1="20" Y2="40" />
-            <Line x:Name="statRangeMin" X1="50" X2="50" Y1="140" Y2="180" />
-            <Line x:Name="statMin" X1="40" X2="60" Y1="180" Y2="180" />
-            <Line x:Name="statMax" X1="40" X2="60" Y1="20" Y2="20" />
-            <Line x:Name="statMedian" X1="40" X2="60" Y1="100" Y2="100" />
+            <Rectangle x:Name="statIqr" Width="20" Height="100" Canvas.Left="15" Canvas.Top="40" />
+            <Line x:Name="statRangeMax" X1="25" X2="25" Y1="20" Y2="40" />
+            <Line x:Name="statRangeMin" X1="25" X2="25" Y1="140" Y2="180" />
+            <Line x:Name="statMin" X1="20" X2="30" Y1="180" Y2="180" />
+            <Line x:Name="statMax" X1="20" X2="30" Y1="20" Y2="20" />
+            <Line x:Name="statMedian" X1="20" X2="30" Y1="100" Y2="100" />
 
-            <Line x:Name="statYAxisMin" X1="0" X2="100" Y1="0" Y2="0" />
-            <Line x:Name="statYAxisMax" X1="0" X2="100" Y1="200" Y2="200" />
-            <TextBlock x:Name="uistatYAxisMin" Text="0.00" Canvas.Top="180" />
+            <Line x:Name="statYAxisMin" X1="0" X2="50" Y1="0" Y2="0" />
+            <Line x:Name="statYAxisMax" X1="0" X2="50" Y1="200" Y2="200" />
+            <TextBlock x:Name="uistatYAxisMin" Text="0.00" Canvas.Top="185" />
             <TextBlock x:Name="uistatYAxisMax" Text="20.00" Canvas.Top="0" />
 
         </Canvas>

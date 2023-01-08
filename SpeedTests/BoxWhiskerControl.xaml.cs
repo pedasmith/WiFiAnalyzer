@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace SpeedTests
 {
-    public sealed partial class BoxWhiskerControl : UserControl
+    public sealed partial class BoxWhiskerControl : UserControl, ISetStatistics
     {
         private static double Map(double value, double domainMin, double domainMax, double rangeMin, double rangeMax)
         {
