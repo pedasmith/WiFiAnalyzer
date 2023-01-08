@@ -65,6 +65,7 @@ Global
 		MeCardParser\MeCardParser.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 		SmartWiFiControls\SmartWiFiControls.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 		SmartWiFiHelpers\SmartWiFiHelpers.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
+		SpeedTests\SpeedTests.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 		Utilities\Utilities.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 		WiFiRadarControl\WiFiRadarControl.projitems*{38bbbcfc-bdfd-4867-b77f-22127f40eb6e}*SharedItemsImports = 4
 		MeCardParser\MeCardParser.projitems*{4201f1c2-7f72-423e-a564-1ea7c0d6c0e7}*SharedItemsImports = 13

@@ -62,7 +62,13 @@ namespace WiFiRadarControl
             uiGrid.ItemsSource = CurrentNetworkInformationList;
             uiRadar.DisplayWifiNetworkInformation = this;
 
-            await DoScanAsync();
+            var selectedPivot = uiPivot.Items[uiPivot.SelectedIndex] as PivotItem; 
+            var selectedTag = (selectedPivot?.Tag as string) ?? "";
+            switch (selectedTag)
+            {
+                case "RADAR": await DoScanAsync(); break;
+                case "SpeedTest": await uiSpeedTestControl.DoTest(); break;
+            }
         }
 
         private void Log(string text)

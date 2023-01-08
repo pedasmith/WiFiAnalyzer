@@ -1,6 +1,7 @@
 ﻿using MeCardParser;
 using Microsoft.Toolkit.Uwp.UI.Controls;
 using SmartWiFiHelpers;
+using SpeedTests;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -31,6 +32,8 @@ namespace SimpleWiFiAnalyzer
             nerror += WiFiBandChannel.TestFindOverlapping();
             nerror += WiFiUrl.Test();
             nerror += MeCardTest.TestMeCard();
+            nerror += SpeedTests.Statistics.Test();
+            nerror += BoxWhiskerControl.Test();
             if (nerror != 0)
             {
                 System.Diagnostics.Debug.WriteLine($"ERROR: NError is {nerror}; should be 0.");
