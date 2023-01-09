@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)BoxWhiskerControl.xaml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)FccSpeedTest2022.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Rfc3393Calculations.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)SpeedTestControl.xaml.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Statistics.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)StatisticsControl.xaml.cs" />

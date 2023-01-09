@@ -10,8 +10,12 @@ From the FCC Technical Description, page 5:
 
 _Latency_: Measures the average round-trip time in milliseconds of up to 200UDP(User Datagram Protocol)data packets that are acknowledged as received individually within 2 seconds or are recorded as lost.  The packets are sent over a fixed 5-second time interval.No warm-up period is applied to latency.
 
+_Packet Loss_:  The ratio of the number of UDP packets either not acknowledged by the measurement server, or acknowledged as received after 2 seconds, to the number of total packets sent from the client. 
+
+_Jitter):The amountof variation in latency measured in milliseconds.  Jitter is calculated across all packets (up to 200 packets, assuming no loss) using the Packet Delay Variation (PDV) approach.
+
 Packets are sent for 5 seconds with a 2 second wait for packets, sending a maximum of 200 packets.
-Algorithn is to send a packet and wait up to 2 seconds for the reply, sleeping 
+Algorithm is to send a packet and wait up to 2 seconds for the reply, sleeping 500 msecs between sends (per the sample code on page 9 of the FCC Technical Description)
 
 
 ## UWP Network hints
