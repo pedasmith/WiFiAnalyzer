@@ -32,9 +32,7 @@
         <TextBlock Grid.ColumnSpan="2" FontWeight="Bold" HorizontalAlignment="Center" FontSize="40">Simple Wi-Fi Analyzer</TextBlock>
         <Pivot Style="{StaticResource PivotStyleNoStupidBorder}" x:Name="uiPivot" Grid.Row="1" Grid.Column="0" SelectionChanged="OnPivotSelectionChanged"
                >
-            <PivotItem Header="SpeedTest" Tag="SpeedTest" x:Name="uiSpeedTest" >
-                <speedtests:SpeedTestControl x:Name="uiSpeedTestControl" />
-            </PivotItem>
+
             <PivotItem Header="RADAR" Tag="RADAR">
                 <Grid AllowFocusOnInteraction="False">
                     <Grid.ColumnDefinitions>
@@ -151,13 +149,20 @@
                     </StackPanel>
                 </Grid>
             </PivotItem>
-            <PivotItem Header="Log">
+            <PivotItem Header="Log" Tag="Log">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                     <StackPanel>
+                        <speedtests:SpeedTestControl x:Name="uiSpeedTestControl" Visibility="Collapsed" />
+
                         <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
                     </StackPanel>
                 </ScrollViewer>
             </PivotItem>
+            <!-- Is the OptionalSpeedTestControl now
+            <PivotItem Header="SpeedTest" Tag="SpeedTest" x:Name="uiSpeedTest" IsEnabled="False" Visibility="Collapsed" >
+                <speedtests:SpeedTestControl x:Name="uiSpeedTestControl" />
+            </PivotItem>
+            -->
             <PivotItem Header="Help">
                 <Grid>
                     <Grid.RowDefinitions>

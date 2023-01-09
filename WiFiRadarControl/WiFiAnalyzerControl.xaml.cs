@@ -6,6 +6,7 @@ using QRCoder;
 using SimpleWiFiAnalyzer;
 using SmartWiFiControls;
 using SmartWiFiHelpers;
+using SpeedTests;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -142,7 +143,18 @@ namespace WiFiRadarControl
             switch (selectedTag)
             {
                 case "RADAR": await DoRadarScanAsync(); break;
-                case "SpeedTest": await uiSpeedTestControl.DoLatencyTest(); break;
+                case "Log": // Hiding it in the log because I can't make pivot items invisible (and I can't add them, either)
+                case "SpeedTest":
+                    if (uiSpeedTestControl.Visibility == Visibility.Visible) // OptionalSpeedTestControl != null)
+                    {
+                        await uiSpeedTestControl.DoLatencyTest();
+                        //await OptionalSpeedTestControl.DoLatencyTest();
+                    }
+                    else
+                    {
+                        await DoRadarScanAsync(); // fall back to a RADAR scan.
+                    }
+                    break;
             }
         }
 
@@ -706,6 +718,7 @@ namespace WiFiRadarControl
                 {
                     await uiMobileHotspot.TabToAsync();
                 }
+                MaybeUnlock(tag ?? "");
             }
             if (e.RemovedItems.Count == 1)
             {
@@ -715,6 +728,48 @@ namespace WiFiRadarControl
                 {
                     uiMobileHotspot.TabAway();
                 }
+            }
+        }
+#if NEVER_EVER_DEFINED
+        PivotItem OptionalSpeedTest = null;
+        SpeedTestControl OptionalSpeedTestControl = null;
+        private void EnsureSpeedTest()
+        {
+            if (OptionalSpeedTest != null) return;
+            OptionalSpeedTest = new PivotItem()
+            {
+                Header= "Speed Test",
+                Tag = "SpeedTest",
+                IsEnabled = true,
+                Visibility = Visibility.Visible,
+            };
+            //OptionalSpeedTestControl = new SpeedTestControl();
+            //OptionalSpeedTest.Content = OptionalSpeedTestControl;
+            uiPivot.Items.Add (OptionalSpeedTest);
+        }
+#endif
+        static int NextUnlockIndex = 0;
+        static string[] UnlockTags = new string[]
+        {
+            "RADAR", "Log", "RADAR", "Log",
+        };
+        private void MaybeUnlock(string newTag)
+        {
+            if (newTag == UnlockTags[NextUnlockIndex])
+            {
+                NextUnlockIndex++;
+                if (NextUnlockIndex >= UnlockTags.Length)
+                {
+                    Log("Unlock");
+                    NextUnlockIndex = 0;
+                    //EnsureSpeedTest();
+                    uiSpeedTestControl.Visibility = Visibility.Visible;
+                    //uiSpeedTest.IsEnabled = true;
+                }
+            }
+            else
+            {
+                NextUnlockIndex = 0; // rest back to zero
             }
         }
     }
