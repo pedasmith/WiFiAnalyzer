@@ -94,53 +94,89 @@ namespace WiFiRadarControl
 
         private void RemoveReflectionsElements()
         {
-            foreach (var reflection in Reflections)
+            try
             {
-                uiCanvas.Children.Remove(reflection.Arc);
+                foreach (var reflection in Reflections)
+                {
+                    uiCanvas.Children.Remove(reflection.Arc);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Exception: Error in RemoveReflections; ex={ex.Message}");
             }
         }
 
         private void RemoveReflectorsElements()
         {
-            foreach (var reflector in Reflectors)
+            try
             {
-                foreach (var fe in reflector.ToBeRemoved)
+                foreach (var reflector in Reflectors)
                 {
-                    uiCanvas.Children.Remove(fe);
+                    foreach (var fe in reflector.ToBeRemoved)
+                    {
+                        uiCanvas.Children.Remove(fe);
+                    }
+                    reflector.ToBeRemoved.Clear();
                 }
-                reflector.ToBeRemoved.Clear();
+            }
+            catch (Exception ex)
+            {
+                Log($"Exception: Error in RemoveReflectorElements; ex={ex.Message}");
             }
         }
 
         private void RemoveReticuleElements()
         {
-            foreach (var fe in ReticuleElements)
+            try
             {
-                uiCanvas.Children.Remove(fe);
+                foreach (var fe in ReticuleElements)
+                {
+                    uiCanvas.Children.Remove(fe);
+                }
+                ReticuleElements.Clear();
             }
-            ReticuleElements.Clear();
+            catch (Exception ex)
+            {
+                Log($"Exception: Error in RemoveReticuleElements; ex={ex.Message}");
+            }
+
         }
 
         private void RemoveRingsElements()
         {
-            foreach (var ring in Rings)
+            try
             {
-                uiCanvas.Children.Remove(ring.Circle);
-                ring.Circle = null;
+                foreach (var ring in Rings)
+                {
+                    uiCanvas.Children.Remove(ring.Circle);
+                    ring.Circle = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Exception: Error in RemoveRingElements; ex={ex.Message}");
             }
         }
 
         public void SetReflectors(List<Reflector> reflectors)
         {
-            RemoveReflectorsElements();
-            Reflectors.Clear();
-
-            // Add the new
-            foreach (var reflector in reflectors)
+            try
             {
-                Reflectors.Add(reflector);
+                RemoveReflectorsElements();
+                Reflectors.Clear();
+
+                // Add the new
+                foreach (var reflector in reflectors)
+                {
+                    Reflectors.Add(reflector);
+                }
+                reflectorsInit = false; // next animation will get the UX set up
             }
-            reflectorsInit = false; // next animation will get the UX set up
+            catch (Exception ex)
+            {
+                Log($"Exception: Error in SetReflectors; ex={ex.Message}");
+            }
         }
 
         /// <summary>
@@ -149,24 +185,31 @@ namespace WiFiRadarControl
         /// <returns></returns>
         public async Task StopAsync()
         {
-            var start = DateTime.UtcNow;
-            amStopping = true;
-            bool allStopped = false;
-            bool goneTooLong = false;
-            while (!allStopped && !goneTooLong)
+            try
             {
-                allStopped = RingsAllStoped();
-                if (!allStopped)
+                var start = DateTime.UtcNow;
+                amStopping = true;
+                bool allStopped = false;
+                bool goneTooLong = false;
+                while (!allStopped && !goneTooLong)
                 {
-                    await Task.Delay(100); // stopping in a tenth of a second should be good enough.
+                    allStopped = RingsAllStoped();
+                    if (!allStopped)
+                    {
+                        await Task.Delay(100); // stopping in a tenth of a second should be good enough.
+                    }
+                    var delta = DateTime.UtcNow.Subtract(start).TotalSeconds;
+                    if (delta >= 10.0)
+                    {
+                        goneTooLong = true;
+                    }
                 }
-                var delta = DateTime.UtcNow.Subtract(start).TotalSeconds;
-                if (delta >= 10.0)
-                {
-                    goneTooLong = true;
-                }
+                shouldAnimate = false;
             }
-            shouldAnimate = false;
+            catch (Exception ex)
+            {
+                Log($"Exception: Error in StopAsync; ex={ex.Message}");
+            }
         }
         public void StopInstantly()
         {
@@ -370,7 +413,15 @@ namespace WiFiRadarControl
 
         public void Log(string text)
         {
-            System.Diagnostics.Debug.WriteLine(text); //NOTE: remove when this gets overwhelming.
+            try
+            {
+                Console.WriteLine(text);
+                System.Diagnostics.Debug.WriteLine(text); //NOTE: remove when this gets overwhelming.
+            }
+            catch(Exception)
+            {
+                ; // do nothing?
+            }
         }
 
         public void AddDummyReflectors()
@@ -406,17 +457,24 @@ namespace WiFiRadarControl
 
         private void DrawReflectorsIfNeeded(bool forceRedraw = false)
         {
-            if (!reflectorsInit || forceRedraw)
+            try
             {
-                reflectorsInit = true;
-                RemoveReflectorsElements();
-                RadarHelpers.InitializeReflectorLocations(uiCanvas, RingLayout, Reflectors);
-                foreach (var reflector in Reflectors)
+                if (!reflectorsInit || forceRedraw)
                 {
-                    DrawReflectorText(reflector);
+                    reflectorsInit = true;
+                    RemoveReflectorsElements();
+                    RadarHelpers.InitializeReflectorLocations(uiCanvas, RingLayout, Reflectors);
+                    foreach (var reflector in Reflectors)
+                    {
+                        DrawReflectorText(reflector);
+                    }
+                    RemoveReticuleElements();
+                    DrawReticule(uiCanvas, RingLayout);
                 }
-                RemoveReticuleElements();
-                DrawReticule(uiCanvas, RingLayout);
+            }
+            catch (Exception ex)
+            {
+                Log($"Exception: Error in DrawReflectorsIfNeeded; ex={ex.Message}");
             }
         }
 
@@ -441,36 +499,43 @@ namespace WiFiRadarControl
 
         private void UpdateRadar()
         {
-            DrawReflectorsIfNeeded(); // Always do this.
-            if (!shouldAnimate) return;
-            if (uiFreeze.IsChecked.Value) return; // handy for debugging
-
-            var now = DateTime.UtcNow;
-            var delta = now.Subtract(LastUpdateTime).TotalSeconds;
-            LastUpdateTime = now;
-
-
-            // Time to add a new ring?
-            AddRingsIfNeeded(RingLayout);
-            foreach (var ring in Rings)
+            try
             {
-                ring.Update(delta, amStopping);
-            }
+                DrawReflectorsIfNeeded(); // Always do this.
+                if (!shouldAnimate) return;
+                if (uiFreeze.IsChecked.Value) return; // handy for debugging
 
-            AddReflectionsAsNeeded();
-            foreach (var reflection in Reflections)
-            {
-                reflection.Update(delta);
-            }
+                var now = DateTime.UtcNow;
+                var delta = now.Subtract(LastUpdateTime).TotalSeconds;
+                LastUpdateTime = now;
 
-            // Get rid of old reflections when they are done.
-            for (int i=Reflections.Count-1; i>=0; i--)
-            {
-                if (Reflections[i].CycleComplete)
+
+                // Time to add a new ring?
+                AddRingsIfNeeded(RingLayout);
+                foreach (var ring in Rings)
                 {
-                    uiCanvas.Children.Remove(Reflections[i].Arc);
-                    Reflections.RemoveAt(i);
+                    ring.Update(delta, amStopping);
                 }
+
+                AddReflectionsAsNeeded();
+                foreach (var reflection in Reflections)
+                {
+                    reflection.Update(delta);
+                }
+
+                // Get rid of old reflections when they are done.
+                for (int i = Reflections.Count - 1; i >= 0; i--)
+                {
+                    if (Reflections[i].CycleComplete)
+                    {
+                        uiCanvas.Children.Remove(Reflections[i].Arc);
+                        Reflections.RemoveAt(i);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Exception: Error in UpdateRadar; ex={ex.Message}");
             }
         }
 
@@ -490,53 +555,67 @@ namespace WiFiRadarControl
         }
         private async Task DoRedraw(int nwifi)
         {
-            var list = new List<Reflector>();
-            for (int i=1; i<=nwifi; i++)
+            try
             {
-                var name = $"MyWifi_{i:D3}";
-                var wifi = new WiFiNetworkInformation()
+                var list = new List<Reflector>();
+                for (int i = 1; i <= nwifi; i++)
                 {
-                    SSID = name,
-                    Bssid = i.ToString(),
-                };
-                
-                var reflector = new Reflector()
-                {
-                    Icon = Reflector.Icon_AP,
-                    NetworkInformation = wifi,
-                };
-                list.Add(reflector);
+                    var name = $"MyWifi_{i:D3}";
+                    var wifi = new WiFiNetworkInformation()
+                    {
+                        SSID = name,
+                        Bssid = i.ToString(),
+                    };
+
+                    var reflector = new Reflector()
+                    {
+                        Icon = Reflector.Icon_AP,
+                        NetworkInformation = wifi,
+                    };
+                    list.Add(reflector);
+                }
+                StopInstantly();
+                Initialize();
+                SetReflectors(list);
+                await StopAsync();
             }
-            StopInstantly();
-            Initialize();
-            SetReflectors(list);
-            await StopAsync();
+            catch (Exception ex)
+            {
+                Log($"Exception: Error in DoRedraw; ex={ex.Message}");
+            }
         }
 
         private void OnRedrawRadar(object sender, RoutedEventArgs e)
         {
-            var layoutData = RingLayout;
-            double CX = (uiCanvas.ActualWidth / 2.0);
-            double CY = (uiCanvas.ActualHeight / 2.0) - layoutData.CenterYOffset;
-            var center = new Point(CX, CY); // Canvas doesn't have a size until it's displayed once.
-            //DumpAllPositions($"Start: center  x={Math.Round(center.X)} y={Math.Round(center.Y)}");
-
-
-            // Correct order: reflectors then reflections. Rings can be in any order.
-            DrawReflectorsIfNeeded(true); // force a redraw
-            // Must do rings before relections(because the reflections point to the rings)
-            foreach (var ring in Rings)
+            try
             {
-                ring.Reposition(center);
-            }
+                var layoutData = RingLayout;
+                double CX = (uiCanvas.ActualWidth / 2.0);
+                double CY = (uiCanvas.ActualHeight / 2.0) - layoutData.CenterYOffset;
+                var center = new Point(CX, CY); // Canvas doesn't have a size until it's displayed once.
+                                                //DumpAllPositions($"Start: center  x={Math.Round(center.X)} y={Math.Round(center.Y)}");
 
-            foreach (var reflection in Reflections)
-            {
-                reflection.ResetPointTo();
-                reflection.SetPosition();
-                reflection.Update(0.0);
+
+                // Correct order: reflectors then reflections. Rings can be in any order.
+                DrawReflectorsIfNeeded(true); // force a redraw
+                                              // Must do rings before relections(because the reflections point to the rings)
+                foreach (var ring in Rings)
+                {
+                    ring.Reposition(center);
+                }
+
+                foreach (var reflection in Reflections)
+                {
+                    reflection.ResetPointTo();
+                    reflection.SetPosition();
+                    reflection.Update(0.0);
+                }
+                //DumpAllPositions($"End:");
             }
-            //DumpAllPositions($"End:");
+            catch (Exception ex)
+            {
+                Log($"Exception: Error in OnRedrawRadar; ex={ex.Message}");
+            }
         }
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e)

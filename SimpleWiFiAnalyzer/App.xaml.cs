@@ -40,12 +40,13 @@ namespace SimpleWiFiAnalyzer
         {
             if (args.Kind == ActivationKind.Protocol)
             {
+                string uristr = "(not set)";
                 try
                 {
                     ProtocolActivatedEventArgs eventArgs = args as ProtocolActivatedEventArgs;
                     // Example: wifi:S:starpainter;P:deeznuts
                     // Parsed with WiFiUrl.cs
-                    var uristr = eventArgs.Uri.AbsoluteUri;
+                    uristr = eventArgs.Uri.AbsoluteUri;
                     var url = new WiFiUrl(uristr);
                     if (url.IsValid != Validity.Valid)
                     {
@@ -75,8 +76,9 @@ namespace SimpleWiFiAnalyzer
                     // Ensure the current window is active
                     Window.Current.Activate();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    Log($"Exception: NavigateToUrl: url={uristr} ex={ex.Message}")
                     ; // Something happened, but we don't know what.
                 }
             }
@@ -95,31 +97,45 @@ namespace SimpleWiFiAnalyzer
             // just ensure that the window is active
             if (rootFrame == null)
             {
-                // Create a Frame to act as the navigation context and navigate to the first page
-                rootFrame = new Frame();
-
-                rootFrame.NavigationFailed += OnNavigationFailed;
-
-                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
+                try
                 {
-                    //TODO: Load state from previously suspended application
-                }
+                    // Create a Frame to act as the navigation context and navigate to the first page
+                    rootFrame = new Frame();
 
-                // Place the frame in the current Window
-                Window.Current.Content = rootFrame;
+                    rootFrame.NavigationFailed += OnNavigationFailed;
+
+                    if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
+                    {
+                        //TODO: Load state from previously suspended application
+                    }
+
+                    // Place the frame in the current Window
+                    Window.Current.Content = rootFrame;
+                }
+                catch (Exception ex)
+                {
+                    Log($"Exception: OnLaunched: rootframe==null ex={ex.Message}");
+                }
             }
 
             if (e.PrelaunchActivated == false)
             {
-                if (rootFrame.Content == null)
+                try
                 {
-                    // When the navigation stack isn't restored navigate to the first page,
-                    // configuring the new page by passing required information as a navigation
-                    // parameter
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    if (rootFrame.Content == null)
+                    {
+                        // When the navigation stack isn't restored navigate to the first page,
+                        // configuring the new page by passing required information as a navigation
+                        // parameter
+                        rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    }
+                    // Ensure the current window is active
+                    Window.Current.Activate();
                 }
-                // Ensure the current window is active
-                Window.Current.Activate();
+                catch (Exception ex)
+                {
+                    Log($"Exception: OnLaunched: preactivated==false  ex={ex.Message}");
+                }
             }
         }
 
@@ -130,7 +146,13 @@ namespace SimpleWiFiAnalyzer
         /// <param name="e">Details about the navigation failure</param>
         void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
         {
-            throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
+            Log($"Exception: OnNavigationFailed: loading page {e.SourcePageType.FullName}");
+        }
+
+        public static void Log(string txt)
+        {
+            Console.WriteLine(txt);
+            System.Diagnostics.Debug.WriteLine(txt);
         }
 
         /// <summary>
@@ -142,9 +164,16 @@ namespace SimpleWiFiAnalyzer
         /// <param name="e">Details about the suspend request.</param>
         private void OnSuspending(object sender, SuspendingEventArgs e)
         {
-            var deferral = e.SuspendingOperation.GetDeferral();
-            //TODO: Save application state and stop any background activity
-            deferral.Complete();
+            try
+            {
+                var deferral = e.SuspendingOperation.GetDeferral();
+                //TODO: Save application state and stop any background activity
+                deferral.Complete();
+            }
+            catch (Exception ex)
+            {
+                Log($"Exception: Suspending: operation={e.SuspendingOperation} ex={ex.Message}");
+            }
         }
 
         // From https://learn.microsoft.com/en-us/windows/uwp/launch-resume/reduce-memory-usage
@@ -156,25 +185,39 @@ namespace SimpleWiFiAnalyzer
             // just ensure that the window is active
             if (rootFrame == null)
             {
-                // Create a Frame to act as the navigation context and navigate to the first page
-                rootFrame = new Frame();
+                try
+                {
+                    // Create a Frame to act as the navigation context and navigate to the first page
+                    rootFrame = new Frame();
 
-                // Set the default language
-                rootFrame.Language = Windows.Globalization.ApplicationLanguages.Languages[0];
+                    // Set the default language
+                    rootFrame.Language = Windows.Globalization.ApplicationLanguages.Languages[0];
 
-                rootFrame.NavigationFailed += OnNavigationFailed;
+                    rootFrame.NavigationFailed += OnNavigationFailed;
 
 
-                // Place the frame in the current Window
-                Window.Current.Content = rootFrame;
+                    // Place the frame in the current Window
+                    Window.Current.Content = rootFrame;
+                }
+                catch (Exception ex)
+                {
+                    Log($"Exception: CreateRootFrame: 10: ex={ex.Message}");
+                }
             }
 
             if (rootFrame.Content == null)
             {
-                // When the navigation stack isn't restored navigate to the first page,
-                // configuring the new page by passing required information as a navigation
-                // parameter
-                rootFrame.Navigate(typeof(MainPage), arguments);
+                try
+                {
+                    // When the navigation stack isn't restored navigate to the first page,
+                    // configuring the new page by passing required information as a navigation
+                    // parameter
+                    rootFrame.Navigate(typeof(MainPage), arguments);
+                }
+                catch (Exception ex)
+                {
+                    Log($"Exception: CreateRootFrame: 20 ex={ex.Message}");
+                }
             }
         }
     }

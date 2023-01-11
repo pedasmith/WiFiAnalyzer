@@ -279,21 +279,32 @@ namespace SmartWiFiControls
                 uiConnectedClientsTitle.Visibility = Visibility.Visible;
                 uiConnectedClients.Visibility = Visibility.Visible;
                 uiConnectedClients.Children.Clear();
-                foreach (var client in clients)
+                try
                 {
-                    var clientstr ="    ";
-                    foreach (var host in client.HostNames)
+                    foreach (var client in clients)
                     {
-                        clientstr += host.DisplayName + " ";
+                        var clientstr = "    ";
+                        foreach (var host in client.HostNames)
+                        {
+                            clientstr += host.DisplayName + " ";
+                        }
+                        clientstr += $"MAC={client.MacAddress}";
+                        var tb = new TextBlock()
+                        {
+                            Text = clientstr
+                        };
+                        uiConnectedClients.Children.Add(tb);
                     }
-                    clientstr += $"MAC={client.MacAddress}";
-                    var tb = new TextBlock()
-                    {
-                        Text = clientstr
-                    };
-                    uiConnectedClients.Children.Add(tb);
+                }
+                catch (Exception ex)
+                {
+                    Log($"Error: Exception: Show Clients: exception={ex.Message}");
                 }
             }
+        }
+        private static void Log(string str)
+        {
+            ;
         }
 
         public async Task SetupFromWiFiSetupUrl(WiFiUrl url)

@@ -1,5 +1,9 @@
 ﻿//#define TESTHOOK_PACKET_LATE
 
+// See the TESTHOOK: spots for testing!
+// See ERRATA: for issues with the FCC docs
+// See the Asset "4AddingTheLatencyTest.md" for some background information
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -10,7 +14,12 @@ using Windows.Storage.Streams;
 
 namespace SpeedTests
 {
-    // See the TESTHOOK: spots for testing!
+    // http://sp2-bdc-seattle-us.samknows.com/
+    // https://github.com/SamKnows/skandroid-core
+    // https://github.com/SamKnows/skandroid-core/blob/b65cc014a8d64da86bd4471d0d33f5c45e55aead/libcore/src/com/samknows/tests/LatencyTest.java
+    // https://github.com/SamKnows/skandroid-core/blob/b65cc014a8d64da86bd4471d0d33f5c45e55aead/desktop/skConsoleSpeedTest/src/com/samknows/tests/LatencyTest.java
+    // https://github.com/SamKnows/skandroid-core/search?q=UdpDatagram
+    // https://speedtest-api.samknows.com/targets?target_set=stackpath-us
 
 
     public class FccSpeedTest2022
@@ -108,8 +117,8 @@ namespace SpeedTests
                 var stunix = DateTimeOffset.FromUnixTimeMilliseconds(s * 1000 + ms);
                 ServerTime = stunix.ToOffset(EndTime.Offset);
 
-                // TESTHOOK: Emulate a bad connection for the stats
 #if TESTHOOK_PACKET_LATE
+                // TESTHOOK: Emulate a bad connection for the stats
                 if (NEndTime % 2 == 0)
                 {
                     EndTime = EndTime.AddSeconds(3.0);

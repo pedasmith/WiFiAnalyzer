@@ -1,8 +1,6 @@
 ﻿using MeCardParser;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Microsoft.Toolkit.Uwp.UI.Controls;
-using Microsoft.Toolkit.Uwp.UI.Converters;
-using QRCoder;
 using SimpleWiFiAnalyzer;
 using SmartWiFiControls;
 using SmartWiFiHelpers;
@@ -12,20 +10,16 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Devices.WiFi;
 using Windows.Networking.Connectivity;
-using Windows.Networking.NetworkOperators;
 using Windows.Security.Credentials;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media.Imaging;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -56,6 +50,7 @@ namespace WiFiRadarControl
                 pagename = StartPage;
             }
             await HelpGotoAsync(pagename);
+            // NOTE: the geolocator stuff never worked
             //GeoAccessStatus = await Geolocator.RequestAccessAsync();
             //Locator = new Geolocator() { DesiredAccuracyInMeters = 4,  };
             //Locator.AllowFallbackToConsentlessPositions();
@@ -145,11 +140,14 @@ namespace WiFiRadarControl
                 case "RADAR": await DoRadarScanAsync(); break;
                 case "Log": // Hiding it in the log because I can't make pivot items invisible (and I can't add them, either)
                 case "SpeedTest":
-                    if (uiSpeedTestControl.Visibility == Visibility.Visible) // OptionalSpeedTestControl != null)
+                    if (OptionalSpeedTestControl != null)
                     {
-                        await uiSpeedTestControl.DoLatencyTest();
-                        //await OptionalSpeedTestControl.DoLatencyTest();
+                        await OptionalSpeedTestControl.DoLatencyTest();
                     }
+                    //else if (uiSpeedTestControl.Visibility == Visibility.Visible) // OptionalSpeedTestControl != null)
+                    //{
+                    //    await uiSpeedTestControl.DoLatencyTest();
+                    //}
                     else
                     {
                         await DoRadarScanAsync(); // fall back to a RADAR scan.
@@ -200,6 +198,7 @@ namespace WiFiRadarControl
                         LogNetworkInfo($"Scan error: {e.Message}");
                     }
                     Log(NetworkToString.ToString("    ", wifiAdapter.NetworkReport));
+                    //NOTE: location stuff never worked.
                     //if (locatorTask.Status != AsyncStatus.Error) smd.Position = locatorTask.GetResults();
                     //Log($"DBG: location status={locatorTask.Status} position={smd.Position}");
 
@@ -667,28 +666,37 @@ namespace WiFiRadarControl
                     LogConnectInfo($"Scan error: {e.Message}");
                     LogNetworkInfo($"Scan error: {e.Message}");
                 }
-                foreach (var network in wifiAdapter.NetworkReport.AvailableNetworks)
+                try
                 {
-                    if (network.Ssid == url.Ssid)
+                    foreach (var network in wifiAdapter.NetworkReport.AvailableNetworks)
                     {
-                        nFoundAdapter++;
-                        var pwd = new PasswordCredential() { Password = url.Password };
-                        LogConnectInfo($"Found adapter on {url.Ssid}; connecting");
-                        var result = await wifiAdapter.ConnectAsync(network, WiFiReconnectionKind.Automatic, pwd);
-                        lastConnectionStatus = result.ConnectionStatus;
-                        if (result.ConnectionStatus == WiFiConnectionStatus.Success)
+                        if (network.Ssid == url.Ssid)
                         {
-                            nConnectedSuccess++;
-                            LogConnectInfo($"Found adapter on {url.Ssid}; connect success");
-                            break;// all done.
-                        }
-                        else
-                        {
-                            LogConnectInfo($"Found adapter on {url.Ssid}; connect fail reason={result.ConnectionStatus}");
-                            nConnectedFail++;
+                            nFoundAdapter++;
+                            var pwd = new PasswordCredential() { Password = url.Password };
+                            LogConnectInfo($"Found adapter on {url.Ssid}; connecting");
+                            var result = await wifiAdapter.ConnectAsync(network, WiFiReconnectionKind.Automatic, pwd);
+                            lastConnectionStatus = result.ConnectionStatus;
+                            if (result.ConnectionStatus == WiFiConnectionStatus.Success)
+                            {
+                                nConnectedSuccess++;
+                                LogConnectInfo($"Found adapter on {url.Ssid}; connect success");
+                                break;// all done.
+                            }
+                            else
+                            {
+                                LogConnectInfo($"Found adapter on {url.Ssid}; connect fail reason={result.ConnectionStatus}");
+                                nConnectedFail++;
+                            }
                         }
                     }
                 }
+                catch (Exception e)
+                {
+                    LogConnectInfo($"Scan networks error: {e.Message}");
+                    LogNetworkInfo($"Scan networks error: {e.Message}");
+                }
+
             }
             if (nConnectedSuccess > 0)
             {
@@ -730,7 +738,6 @@ namespace WiFiRadarControl
                 }
             }
         }
-#if NEVER_EVER_DEFINED
         PivotItem OptionalSpeedTest = null;
         SpeedTestControl OptionalSpeedTestControl = null;
         private void EnsureSpeedTest()
@@ -743,16 +750,21 @@ namespace WiFiRadarControl
                 IsEnabled = true,
                 Visibility = Visibility.Visible,
             };
-            //OptionalSpeedTestControl = new SpeedTestControl();
-            //OptionalSpeedTest.Content = OptionalSpeedTestControl;
-            uiPivot.Items.Add (OptionalSpeedTest);
+            OptionalSpeedTestControl = new SpeedTestControl();
+            OptionalSpeedTest.Content = OptionalSpeedTestControl;
+            uiPivot.Items.Insert (5, OptionalSpeedTest);
         }
-#endif
+
         static int NextUnlockIndex = 0;
         static string[] UnlockTags = new string[]
         {
             "RADAR", "Log", "RADAR", "Log",
         };
+        /// <summary>
+        /// Special unlocking code uses the NextUnlockIndex and UnlockTags. This method knows
+        /// the special secret set of UX steps to unlock the speed test based on selecting pivot
+        /// items. If you enter a different sequence, will reset.
+        /// </summary>
         private void MaybeUnlock(string newTag)
         {
             if (newTag == UnlockTags[NextUnlockIndex])
@@ -762,8 +774,18 @@ namespace WiFiRadarControl
                 {
                     Log("Unlock");
                     NextUnlockIndex = 0;
-                    //EnsureSpeedTest();
-                    uiSpeedTestControl.Visibility = Visibility.Visible;
+
+                    var task2 = this.Dispatcher.RunIdleAsync((arg) =>
+                    {
+                        EnsureSpeedTest();
+                    });
+                    // NOTE: Lots of old code with making the speet test. The key points are:
+                    // 1. You can't make a hidden pivot
+                    // 2. You can add a new pivot, but not from a OnPivotSelectionChanged
+                    //    Indeed, the failure from adding a pivot there is pretty spectacular:
+                    //    it's not just an exception, it's an exception that pops up a super
+                    //    old school exception and tries to open a differnt debugger.
+                    //uiSpeedTestControl.Visibility = Visibility.Visible;
                     //uiSpeedTest.IsEnabled = true;
                 }
             }

@@ -152,8 +152,9 @@
             <PivotItem Header="Log" Tag="Log">
                 <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Visible">
                     <StackPanel>
+                        <!--
                         <speedtests:SpeedTestControl x:Name="uiSpeedTestControl" Visibility="Collapsed" />
-
+                        -->
                         <TextBlock x:Name="uiReport" IsTextSelectionEnabled="True" />
                     </StackPanel>
                 </ScrollViewer>
