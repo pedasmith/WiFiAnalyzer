@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Foundation.Diagnostics;
 using Windows.Networking;
@@ -28,6 +29,8 @@ namespace SpeedTests
         {
             "sp2-bdc-seattle-us.samknows.com"
         };
+
+
 
         public class LatencyTestResults
         {
@@ -97,25 +100,23 @@ namespace SpeedTests
             public LatencyTestSingle(int id)
             {
                 Id = id;
-                SetStartTime();
+                StartTime = DateTimeOffset.Now;
+                Timer.Start();
+               Packet = CreateUdpPacket(Id, StartTime);
             }
             public override string ToString()
             {
                 return $"{Id}: time={TimeInSeconds}";
             }
-            private void SetStartTime()
-            {
-                StartTime = DateTimeOffset.Now;
-                Packet = CreateUdpPacket(Id, StartTime);
-            }
 
             public static int NEndTime = 0;
-            public void SetEndTime(DateTimeOffset now, long s, long ms)
+            public void SetEndTime(long s, long ms)
             {
                 HaveEndTime = true;
-                EndTime = now;
+                //EndTime = now;
+                Timer.Stop();
                 var stunix = DateTimeOffset.FromUnixTimeMilliseconds(s * 1000 + ms);
-                ServerTime = stunix.ToOffset(EndTime.Offset);
+                ServerTime = stunix.ToOffset(StartTime.Offset);
 
 #if TESTHOOK_PACKET_LATE
                 // TESTHOOK: Emulate a bad connection for the stats
@@ -129,14 +130,23 @@ namespace SpeedTests
 
             }
             public int Id { get; set; }
-            public DateTimeOffset StartTime { get; internal set; }
-            public DateTimeOffset EndTime { get; internal set; }
+            private Stopwatch Timer = new Stopwatch();
+            private DateTimeOffset StartTime { get; set; }
+            //public DateTimeOffset EndTime { get; internal set; }
             public bool EndTimeIsTooLate { get; set; } = false;
             public bool HaveEndTime { get; internal set; } = false;
             public DateTimeOffset ServerTime { get; internal set; }
-            public double TimeInSeconds { get { if (EndTime == null) return -1; return EndTime.Subtract(StartTime).TotalSeconds; } }
+            public double TimeInSeconds { get { return Timer.ElapsedMilliseconds / 1000.0; } }
             public double ToServerInSeconds { get { if (ServerTime == null) return -1; return ServerTime.Subtract(StartTime).TotalSeconds; } }
-            public double FromServerInSeconds { get { if (ServerTime == null || EndTime== null) return -1; return EndTime.Subtract(ServerTime).TotalSeconds; } }
+            public double FromServerInSeconds 
+            { 
+                get 
+                { 
+                    if (ServerTime == null) return -1; 
+                    var retval = TimeInSeconds - ToServerInSeconds;
+                    return retval; 
+                } 
+            }
             public byte[] Packet;
             private static byte[] CreateUdpPacket(int sequence, DateTimeOffset timestamp)
             {
@@ -172,14 +182,13 @@ namespace SpeedTests
 
         private void Socket_MessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
         {
-            var now = DateTimeOffset.UtcNow;
             LTR.NRecv++;
             var dr = args.GetDataReader();
             int id = dr.ReadInt32();
             int s = dr.ReadInt32();
             int ms = dr.ReadInt32();
             int serverMagic = dr.ReadInt32();
-            IndividualTests[id].SetEndTime(now, s, ms);
+            IndividualTests[id].SetEndTime(s, ms);
         }
 
         public async Task<LatencyTestResults> LatencyTestAsync(List<ISetStatistics> uxlist, HostName server, string port = "6000", 
@@ -253,16 +262,12 @@ namespace SpeedTests
                     {
                         currTest.EndTimeIsTooLate = true;
                     }
-                    if (currTest.HaveEndTime)
-                    {
-                        Log($"DBG: Packet: ToServer={currTest.ToServerInSeconds} FromServer={currTest.FromServerInSeconds}");
-                    }
 
                     var pauseTimeInMilliseconds = interPacketTimeInMilliseconds;
                     if (currTest.HaveEndTime)
                     {
-                        var packetTime = currTest.EndTime.Subtract(currTest.StartTime);
-                        pauseTimeInMilliseconds -= packetTime.TotalMilliseconds;
+                        var packetTime = currTest.TimeInSeconds * 1000.0;
+                        pauseTimeInMilliseconds -= packetTime;
                     }
                     else
                     {
