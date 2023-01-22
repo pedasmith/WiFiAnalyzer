@@ -13,6 +13,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Windows.Web.Http;
+using Windows.Web.Http.Filters;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -32,7 +34,13 @@ namespace SpeedTests
         /// <summary>
         /// Run the test automatically.
         /// </summary>
-        public async Task DoLatencyTest()
+        /// 
+        public async Task DoSpeedTests()
+        {
+            //await DoLatencyTest();
+            await DoThroughputTest();
+        }
+        private async Task DoLatencyTest()
         {
             var graph = new BoxWhiskerControl();
             uiLatencyGraphPanel.Items.Insert(0, graph);
@@ -45,6 +53,19 @@ namespace SpeedTests
             graph.SetStatistics(result.SpeedStatistics);
             uiLatencyStats.SetStatistics(result.SpeedStatistics);
             uiLog.Text += $"Server={result.Server}:{result.Port}\nNSent={result.NSent} NRecv={result.NRecv} Error={result.Error ?? "(no error)"}\n\n";
+        }
+
+        private async Task DoThroughputTest()
+        {
+            uiThroughput.Text = "Starting\n";
+            var result = new FccSpeedTest2022.ThroughputTestResult();
+            var task = SpeedTest.DownloadTest(result);
+            while (!task.IsCompleted)
+            {
+                await Task.Delay(500);
+                uiThroughput.Text += $"{result}\n";
+            }
+            uiThroughput.Text += "Done\n\n";
         }
 
         FccSpeedTest2022 SpeedTest = new FccSpeedTest2022();

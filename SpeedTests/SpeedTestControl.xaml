@@ -30,19 +30,28 @@
             <StackPanel x:Name="ZZZuiLatencyGraphPanel" Orientation="Horizontal" VerticalAlignment="Top">
             </StackPanel>
         </StackPanel>
-        <ListView Grid.Row="1" Grid.Column="1" SelectionMode="Single" x:Name="uiLatencyGraphPanel" 
+        <Grid Grid.Row="1" Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ListView SelectionMode="Single" x:Name="uiLatencyGraphPanel" 
                   SelectionChanged="OnSelectChange"
                   Height="240" VerticalAlignment="Top"
                   ScrollViewer.HorizontalScrollMode="Enabled"
                   ScrollViewer.HorizontalScrollBarVisibility="Visible"
                   >
-            <ListView.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <ItemsStackPanel Orientation="Horizontal" 
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsStackPanel Orientation="Horizontal" 
                                      ItemsUpdatingScrollMode="KeepItemsInView" />
-                </ItemsPanelTemplate>
-            </ListView.ItemsPanel>
-        </ListView>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+            </ListView>
+            <ScrollViewer Grid.Row="1" >
+                <TextBlock x:Name="uiThroughput" IsTextSelectionEnabled="True" />
+            </ScrollViewer>
+        </Grid>
         <local:StatisticsControl Grid.Row="1" Grid.Column="2" x:Name="uiLatencyStats" VerticalAlignment="Top" />
     </Grid>
 </UserControl>

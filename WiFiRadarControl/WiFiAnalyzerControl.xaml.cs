@@ -142,7 +142,7 @@ namespace WiFiRadarControl
                 case "SpeedTest":
                     if (OptionalSpeedTestControl != null)
                     {
-                        await OptionalSpeedTestControl.DoLatencyTest();
+                        await OptionalSpeedTestControl.DoSpeedTests();
                     }
                     //else if (uiSpeedTestControl.Visibility == Visibility.Visible) // OptionalSpeedTestControl != null)
                     //{

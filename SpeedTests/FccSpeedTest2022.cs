@@ -1,17 +1,23 @@
-﻿//#define TESTHOOK_PACKET_LATE
+﻿//#define TESTHOOK_PACKET_LATE  //TODO: this is no longer functional
 
 // See the TESTHOOK: spots for testing!
 // See ERRATA: for issues with the FCC docs
 // See the Asset "4AddingTheLatencyTest.md" for some background information
 
+using Microsoft.UI.Xaml.CustomAttributes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Foundation.Diagnostics;
 using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
+using Windows.Web.Http;
+using Windows.Web.Http.Filters;
+using static QRCoder.PayloadGenerator;
 
 namespace SpeedTests
 {
@@ -23,75 +29,191 @@ namespace SpeedTests
     // https://speedtest-api.samknows.com/targets?target_set=stackpath-us
 
 
-    public class FccSpeedTest2022
+    public partial class FccSpeedTest2022
     {
         public List<string> Servers { get; } = new List<string>
         {
             "sp2-bdc-seattle-us.samknows.com"
         };
 
+        public String BinPath { get; } = "/1000MB.bin"; 
+        // e.g., http://sp2-bdc-seattle-us.samknows.com/1000MB.bin
 
 
-        public class LatencyTestResults
+
+
+        public Task DownloadTest(ThroughputTestResult retval, Uri uri = null)
         {
-            public LatencyTestResults(HostName server, String port)
+            // FCC says to use 3 threads. We use 3 tasks instead.
+            retval.SingleResults.Add(new ThroughputTestResultSingle());
+            retval.SingleResults.Add(new ThroughputTestResultSingle());
+            retval.SingleResults.Add(new ThroughputTestResultSingle());
+
+            // Set up the HttpClient so that it doesn't cache
+            var bpf = new HttpBaseProtocolFilter();
+            bpf.CacheControl.ReadBehavior = HttpCacheReadBehavior.NoCache;
+            bpf.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+            var hc = new HttpClient(bpf);
+
+            // URI
+            if (uri == null)
             {
-                Server = server;
-                Port = port;
+                uri = new Uri("http://" + Servers[0] + BinPath); // TODO: pick this correctly
             }
+            var failUri = new Uri("http://" + Servers[0] + "/FAIL" + BinPath);
 
-            public DateTime StartTime { get; } = DateTime.Now;
-            public HostName Server { get; set; } = null;
-            public string Port { get; set; } = null;
-            public int NSent { get; set; } = 0;
-            public int NRecv { get; set; } = 0;
-            public string Error { get; set; } = null;
-            public double[] TimesInMillisecondsSorted { get; internal set; }
-            public Statistics SpeedStatistics { get; internal set; }
+            Task[] tasks = new Task[] {
+                DownloadTestSingle(hc, uri, retval.SingleResults[0]),
+                //TODO: add this back: DownloadTestSingle(hc, uri, retval.SingleResults[1]),
+                //TODO: add this back: DownloadTestSingle(hc, uri, retval.SingleResults[2]),
+            };
+            return Task.WhenAll(tasks);
+        }
 
-            internal void Calculate(LatencyTestSingle[] singles)
+
+        public async Task DownloadTestSingle(HttpClient hc, Uri uri, ThroughputTestResultSingle results)
+        {
+            const double WarmupTimeInSeconds = 3.0; // "Each test cycle begins with a fixed 3-second warmup, ..."
+            const int MaxDownloadInBytes = 1_000 * 1_024 * 1_024; // "Each speed test concludes either after 1,000 MB of payload"
+            const double MaxDownloadTimeInSeconds = 5.0; // "... or after a maximum elapsed time period of 5 seconds"
+
+            try
             {
-                NSent = 0;
-                NRecv = 0;
-                List<double> rawTimesInMilliseconds = new List<double>();
-                for (int i=0; i<singles.Length; i++)
+                var request = new HttpRequestMessage(HttpMethod.Get, uri);
+                var task = hc.TrySendRequestAsync(request, HttpCompletionOption.ResponseHeadersRead);
+
+                var response = await task;
+                if (response.ResponseMessage == null)
                 {
-                    var s = singles[i];
-                    if (s == null) continue; 
-                    NSent++;
-                    if (s.HaveEndTime && !s.EndTimeIsTooLate)
+                    // Can happen if we're offline
+                    results.Error = $"Unable to connect; reason={response.ExtendedError?.Message ?? "(unable to connect)"}"; // TODO: better error message?
+                    return;
+                }
+                if (response.ResponseMessage.StatusCode != HttpStatusCode.Ok)
+                {
+                    results.Error = $"Incorrect HTTP response. Expected 200; got {response.ResponseMessage.StatusCode}={response.ResponseMessage.ReasonPhrase}";
+                    return;
+                }
+
+                var stream = await response.ResponseMessage.Content.ReadAsInputStreamAsync();
+
+                const int BufferCapacity = 1024 * 1024; // 1 meg
+                IBuffer buffer = new Windows.Storage.Streams.Buffer(BufferCapacity);
+
+                bool keepGoing = true;
+                int pauseTimeInMilliseconds = 5;
+
+
+                results.CurrPhase = ThroughputTestResultSingle.Phase.PhaseWarmup;
+                results.TransferUri = uri.ToString();
+
+                var startTime = DateTimeOffset.UtcNow;
+                DateTimeOffset downloadStartTime;
+                DateTimeOffset downloadEndTime;
+                var totalTimeInSeconds = WarmupTimeInSeconds + MaxDownloadTimeInSeconds;
+                DateTimeOffset lastLog = DateTimeOffset.UtcNow;
+                results.Data.NBytes = 0;
+                results.WarmupData.NBytes = 0;
+                while (keepGoing)
+                {
+                    await Task.Delay(pauseTimeInMilliseconds);
+                    Log("DBG: About to read");
+                    // Here's the problem: the stream.ReadAsync doesn't fail just because the 
+                    // underlying network goes away (e.g., you can shut off your Wi-Fi and the 
+                    // stream just pauses. Presumably it will fail when the TCP/IP connection
+                    // finally dies, but that might not be for a half hour -- timeouts for 
+                    // networking code are a little insane.
+                    // Hence the crafted timeout.
+                    var timeSoFar = DateTimeOffset.UtcNow.Subtract(startTime).TotalSeconds;
+                    var remainingTimeInMilliseconds = 1000.0 * Math.Max(1.0, totalTimeInSeconds - timeSoFar); // Wait at least one second
+                    var timeoutTask = Task.Delay((int)remainingTimeInMilliseconds);
+                    var readTask = stream.ReadAsync(buffer, buffer.Capacity, InputStreamOptions.Partial);
+                    Task[] readTaskList = new Task[] { readTask.AsTask(), timeoutTask };
+                    var taskResult = await Task.WhenAny(readTaskList);
+                    Log("DBG: Read complete");
+                    if (taskResult == timeoutTask)
                     {
-                        NRecv++;
-                        rawTimesInMilliseconds.Add(s.TimeInSeconds * 1000.0);
+                        // Ideally there would be some kind of cancel on the read,
+                        // but there isn't.
+                        Log($"DBG: Download: read timeout");
+                        results.Error = $"Read timeout while testing";
+                        keepGoing = false;
+                    }
+                    else
+                    {
+                        buffer = readTask.GetResults();
+                    }
+                    if (buffer.Length == 0)
+                    {
+                        results.Error = $"Read failed while testing";
+                        keepGoing = false;
+                    }
+                    else if (buffer.Length < (buffer.Capacity - 1000))
+                    {
+                        if (pauseTimeInMilliseconds < 500 && buffer.Length < 250_000)
+                        {
+                            pauseTimeInMilliseconds += 5;
+                        }
+                    }
+                    else if (buffer.Length >= buffer.Capacity)
+                    {
+                        if (pauseTimeInMilliseconds >= 5)
+                        {
+                            pauseTimeInMilliseconds -= 5;
+                        }
+                    }
+
+                    var now = DateTimeOffset.UtcNow;
+                    // This is just for logging
+                    if (now.Subtract(lastLog).TotalSeconds > 1.0)
+                    {
+                        lastLog = now;
+                        Log($"DBG: Download: pause={pauseTimeInMilliseconds} length={buffer.Length}");
+                    }
+
+                    switch (results.CurrPhase)
+                    {
+                        case ThroughputTestResultSingle.Phase.PhaseWarmup:
+                            // Are we done with the warmup?
+                            results.WarmupData.TimeInSeconds = now.Subtract(startTime).TotalSeconds;
+                            results.WarmupData.NBytes += (int)buffer.Length;
+
+                            if (results.WarmupData.TimeInSeconds >= WarmupTimeInSeconds)
+                            {
+                                // Ready to start the real testing CurrPhase
+                                downloadStartTime = now;
+                                results.CurrPhase = ThroughputTestResultSingle.Phase.PhaseTesting;
+                            }
+                            break;
+                        case ThroughputTestResultSingle.Phase.PhaseTesting:
+                            results.Data.TimeInSeconds = now.Subtract(downloadStartTime).TotalSeconds;
+                            results.Data.NBytes += (int)buffer.Length;
+
+                            if (results.Data.TimeInSeconds >= MaxDownloadTimeInSeconds)
+                            {
+                                results.CurrPhase = ThroughputTestResultSingle.Phase.PhaseComplete;
+                                downloadEndTime = now;
+                                Log($"DBG: Timeout after {results.Data.TimeInSeconds} seconds");
+                            }
+                            if (results.Data.NBytes > MaxDownloadInBytes)
+                            {
+                                results.CurrPhase = ThroughputTestResultSingle.Phase.PhaseComplete;
+                                downloadEndTime = now;
+                                Log($"DBG: Maxbytes after {results.Data.NBytes} bytes");
+                            }
+                            break;
+                    }
+                    if (results.CurrPhase == ThroughputTestResultSingle.Phase.PhaseComplete)
+                    {
+                        keepGoing = false;
                     }
                 }
-                double PacketLossPercent = 0.00; // will be 0 to 100
-                if (NRecv == 0)
-                {
-                    TimesInMillisecondsSorted = new double[1];
-                    TimesInMillisecondsSorted[0] = 100_000.0; // very large
-                    PacketLossPercent = 100.00;
-                }
-                else
-                {
-                    rawTimesInMilliseconds.Sort();
-                    TimesInMillisecondsSorted = rawTimesInMilliseconds.ToArray();
-                    PacketLossPercent = 100.00 * ((double)(NSent - NRecv) / (double)NSent);
-                }
 
-                var pdv = Rfc3393Calculations.Calculate_IPDV_Section_2_6_InMilliseconds(singles);
-
-                SpeedStatistics = new Statistics(TimesInMillisecondsSorted);
-                SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Pkt Loss%", PacketLossPercent.ToString("N0") + "%"));
-                SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("PDV To", pdv.PdvAverageToServer.ToString("N3")));
-                SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("PDV From", pdv.PdvAverageFromServer.ToString("N3")));
-                SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Sent", NSent.ToString()));
-                SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Recv", NRecv.ToString()));
-                SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Server", Server.DisplayName));
-                SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Port", Port));
-                SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("At", StartTime.ToLongTimeString()));
-
-
+                Log($"DBG: S={results.S} Mbps={results.Mbps}");
+            }
+            catch (Exception e)
+            {
+                Log($"ERROR: Exception {e.Message} for {uri}");
             }
         }
 
