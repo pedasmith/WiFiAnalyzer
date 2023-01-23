@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -24,7 +25,7 @@ namespace SpeedTests
 {
     public interface ISetStatistics
     {
-        void SetStatistics(Statistics value);
+        void SetStatistics(Statistics value, bool displayA);
     }
     public sealed partial class SpeedTestControl : UserControl
     {
@@ -80,26 +81,54 @@ namespace SpeedTests
 
             var result = await SpeedTest.LatencyTestAsync(uxlist, null); // null=use default server.
 
-            graph.SetStatistics(result.SpeedStatistics);
-            uiLatencyStats.SetStatistics(result.SpeedStatistics);
+            graph.SetStatistics(result.SpeedStatistics, true);
+            uiLatencyStats.SetStatistics(result.SpeedStatistics, true);
             uiLog.Text += $"Server={result.Server}:{result.Port}\nNSent={result.NSent} NRecv={result.NRecv} Error={result.Error ?? "(no error)"}\n\n";
         }
 
         YGraph CurrThroughputGraph;
         private async Task DoThroughputTest()
         {
+            var serverName = SpeedTest.Servers[0]; // TODO: correct value here!
+
             CurrThroughputGraph = new YGraph();
             uiLatencyGraphPanel.Items.Insert(0, CurrThroughputGraph);
 
+            var stats = new Statistics(new double[] { 0.0});
+            CurrThroughputGraph.CurrStatistics = stats;
+            var speed = new Statistics.AdditionalInfo("Throughput", "0.0");
+            stats.PreAdditionalInfo.Add(speed);
+            var nbytes = new Statistics.AdditionalInfo("N Bytes", "0.0");
+            stats.PreAdditionalInfo.Add(nbytes);
+            var time = new Statistics.AdditionalInfo("Time (s)", "0.0");
+            stats.PreAdditionalInfo.Add(time);
+
+            var server = new Statistics.AdditionalInfo("Server", serverName);
+            stats.PostAdditionalInfo.Add(server);
+            var at = new Statistics.AdditionalInfo("At", DateTime.Now.ToLongTimeString());
+            stats.PostAdditionalInfo.Add(at);
+
             uiThroughput.Text = "Starting\n";
             var result = new FccSpeedTest2022.ThroughputTestResult();
-            var task = SpeedTest.DownloadTest(result);
+            var task = SpeedTest.DownloadTest(result, serverName);
             while (!task.IsCompleted)
             {
-                await Task.Delay(200);
-                uiThroughput.Text += $"{result}\n";
-                CurrThroughputGraph.AddValue(result.CurrSpeedInMbpsRounded);
+                await Task.Delay(250);
+                //uiThroughput.Text += $"{result}\n";
+                CurrThroughputGraph.AddValue(result.SnapshotSpeedInMbpsRounded);
+                speed.Value = result.SnapshotSpeedInMbpsRounded.ToString() + " Mbps";
+                nbytes.Value = result.SnapshotDownloadInBytes.ToString();
+                time.Value = result.SnapshotTimeAverageInSeconds.ToString("N1");
+
+                uiLatencyStats.SetStatistics(stats, false); // not full stats
             }
+            CurrThroughputGraph.SetValue(result.SpeedInMbpsRounded);
+
+            speed.Value = result.SpeedInMbpsRounded.ToString() + " Mbps";
+            nbytes.Value = result.NBytes.ToString();
+            time.Value = result.TimeAverageInSeconds.ToString("N1");
+            uiLatencyStats.SetStatistics(stats, false); // not full stats
+
             uiThroughput.Text += "Done\n\n";
         }
 
@@ -108,10 +137,19 @@ namespace SpeedTests
         private void OnSelectChange(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count != 1) return;
-            var graph = e.AddedItems[0] as BoxWhiskerControl;
-            if (graph == null) return;
-            var stats = graph.GetStatistics();
-            uiLatencyStats.SetStatistics(stats);
+            Statistics stats = null;
+            bool fullStats = true;
+            if (e.AddedItems[0] is BoxWhiskerControl bwc)
+            {
+                stats = bwc.GetStatistics();
+            }
+            else if (e.AddedItems[0] is YGraph yg)
+            {
+                fullStats = false; // I just know this -- the YGraph is the download data which doesn't incldue all of the stddev etc values.
+                stats = yg.GetStatistics();
+            }
+            if (stats == null) return;
+            uiLatencyStats.SetStatistics(stats, fullStats);
             //MessageBox.Show("Parent");
         }
 

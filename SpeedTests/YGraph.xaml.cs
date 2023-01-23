@@ -28,7 +28,11 @@ namespace SpeedTests
             this.InitializeComponent();
             this.Loaded += YGraph_Loaded;
         }
-
+        public Statistics CurrStatistics = null;
+        public Statistics GetStatistics()
+        {
+            return CurrStatistics;
+        }
         private void YGraph_Loaded(object sender, RoutedEventArgs e)
         {
             //var task = DemoUsage();
@@ -72,6 +76,11 @@ namespace SpeedTests
             var ymax = VerticalLines(Values.ToArray()); //TODO: inefficiently swapping from list to double :-(
             uistatYAxisMax.Text = ymax.ToString() + ValueSuffix;
             uistatYCurrValue.Text = Values[Values.Count-1].ToString();
+        }
+
+        public void SetValue(double value)
+        {
+            uistatYCurrValue.Text = value.ToString();
         }
 
 

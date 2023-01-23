@@ -23,7 +23,7 @@ namespace SpeedTests
         {
             this.InitializeComponent();
         }
-        public void SetStatistics(Statistics stats)
+        public void SetStatistics(Statistics stats, bool displayA)
         {
             string format = "N3";
             uistatMin.Text = stats.Min.ToString(format);
@@ -42,6 +42,7 @@ namespace SpeedTests
                 txt += $"{item.Name}{tab}{item.Value}\n";
             }
             uiPreInfo.Text = txt;
+            uiPreInfoB.Text = txt;
 
             txt = "";
             foreach (var item in stats.PostAdditionalInfo)
@@ -50,6 +51,10 @@ namespace SpeedTests
                 txt += $"{item.Name}{tab}{item.Value}\n";
             }
             uiPostInfo.Text = txt;
+            uiPostInfoB.Text = txt;
+
+            uiStatsA.Visibility = displayA ? Visibility.Visible : Visibility.Collapsed;
+            uiStatsB.Visibility = !displayA ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

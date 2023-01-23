@@ -45,7 +45,7 @@ namespace SpeedTests
         {
             return CurrStatistics;
         }
-        public void SetStatistics(Statistics stats)
+        public void SetStatistics(Statistics stats, bool isFull) //isFull is ignored for this
         {
             var format = "N3";
             CurrStatistics = stats;

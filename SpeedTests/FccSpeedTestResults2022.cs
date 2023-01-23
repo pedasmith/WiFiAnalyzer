@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
 using Windows.Networking;
 
 namespace SpeedTests
@@ -69,20 +67,35 @@ namespace SpeedTests
             }
         }
 
+        /// <summary>
+        /// Convert Bytes/Second into Megabits / second (mega=1024*1024)
+        /// </summary>
+        /// <param name="speedBytesPerSecond"></param>
+        /// <returns></returns>
+        private static double CalculateMbps(double speedBytesPerSecond)
+        {
+            var retval = 8.0 * speedBytesPerSecond / (1024.0 * 1024.0);
+            return retval;
+        }
+
+        private static double CalculateMbpsNice(double speedBytesPerSecond)
+        {
+            var retval = CalculateMbps(speedBytesPerSecond);
+            retval = Math.Round(retval * 10.0) / 10.0;
+            return retval;
+        }
         public class ThroughputTestResultSingleData
         {
-            public double TimeInSeconds = 0.0;
+            public double TimeInSeconds { get; set; } = 0.0;
             public long NBytes = 0;
             /// <summary>
-            /// Basic calculation of Mbps (which what e.g., speedtest.net returns)
+            /// Basic calculation of CalculateMbps (which what e.g., speedtest.net returns)
             /// </summary>
             public double Mbps
             {
                 get
                 {
-                    if (TimeInSeconds == 0) return 0.0;
-                    var retval = NBytes / TimeInSeconds; // bytes per second
-                    retval = 8.0 * retval / (1024.0 * 1024.0);
+                    var retval = CalculateMbps(S);
                     return retval;
                 }
             }
@@ -131,6 +144,7 @@ namespace SpeedTests
 
             public ThroughputTestResultSingleData Data = new ThroughputTestResultSingleData();
             public ThroughputTestResultSingleData WarmupData = new ThroughputTestResultSingleData();
+            public ThroughputTestResultSingleData Snapshot = new ThroughputTestResultSingleData();
 
             // Variables set while the test is running
             public enum Phase { PhaseWarmup, PhaseTesting, PhaseComplete };
@@ -138,7 +152,7 @@ namespace SpeedTests
             public string Error = null;
 
             /// <summary>
-            /// Basic calculation of Mbps (which what e.g., speedtest.net returns)
+            /// Basic calculation of CalculateMbps (which what e.g., speedtest.net returns)
             /// </summary>
             public double Mbps {  get {  return Data.Mbps; } }
 
@@ -189,15 +203,80 @@ namespace SpeedTests
                     var retval = 0.0;
                     foreach (var item in SingleResults)
                     {
-                        retval += item.S;
+                        retval += item.Data.S;
                     }
                     return retval;
                 }
             }
 
-            public int SpeedInMbps
+            public double TimeAverageInSeconds
             {
-                get { return (int)Math.Floor(8.0 * SpeedInBytesPerSecond / (1024 * 1024)); }
+                get
+                {
+                    double retval = 0;
+                    double n = 0.0;
+                    foreach (var item in SingleResults)
+                    {
+                        retval += item.T;
+                        n += 1.0;
+                    }
+                    return (retval / n);
+                }
+            }
+            public double NBytes
+            {
+                get
+                {
+                    var retval = 0.0;
+                    foreach (var item in SingleResults)
+                    {
+                        retval += item.Data.NBytes;
+                    }
+                    return retval;
+                }
+            }
+            public double SnapshotTimeAverageInSeconds
+            {
+                get
+                {
+                    double retval = 0;
+                    double n = 0.0;
+                    foreach (var item in SingleResults)
+                    {
+                        retval += item.Snapshot.T;
+                        n += 1.0;
+                    }
+                    return (retval / n);
+                }
+            }
+
+            /// <summary>
+            /// FCC: SpeedInBytesPerSecond = S1 + S2 + S3 where S1, S2, S3 are the S results from SingleResults
+            /// </summary>
+            public double SnapshotSpeedInBytesPerSecond
+            {
+                get
+                {
+                    var retval = 0.0;
+                    foreach (var item in SingleResults)
+                    {
+                        retval += item.Snapshot.S;
+                    }
+                    return retval;
+                }
+            }
+
+            public long SnapshotDownloadInBytes
+            {
+                get
+                {
+                    long retval = 0;
+                    foreach (var item in SingleResults)
+                    {
+                        retval += item.Snapshot.NBytes;
+                    }
+                    return retval;
+                }
             }
 
 
@@ -218,41 +297,27 @@ namespace SpeedTests
                 }
             }
 
-            public int WarmupSpeedInMbps
-            {
-                get { return (int)Math.Floor(8.0 * WarmupSpeedInBytesPerSecond / (1024 * 1024)); }
-            }
 
-            public double CurrSpeedInBytesPerSecond
-            {
-                get
-                {
-                    if (SpeedInBytesPerSecond != 0.0) return SpeedInBytesPerSecond;
-                    return WarmupSpeedInBytesPerSecond;
-                }
-            }
+
 
             /// <summary>
-            /// A "nice" version
+            /// A "nice" version used only for the graph
             /// </summary>
-            public double CurrSpeedInMbpsRounded
+            public double SpeedInMbpsRounded
             {
-                get 
-                { 
-                    var mbps = 8.0 * CurrSpeedInBytesPerSecond / (1024 * 1024);
-                    mbps = RoundOff(mbps);
-                    return mbps;
-                }
+                get { return CalculateMbpsNice(SpeedInBytesPerSecond); }
+            }
+            /// <summary>
+            /// A "nice" version used only for the graph
+            /// </summary>
+            public double SnapshotSpeedInMbpsRounded
+            {
+                get { return CalculateMbpsNice(SnapshotSpeedInBytesPerSecond); }
             }
 
-            public static double RoundOff(double value)
-            {
-                var retval = (Math.Round(value * 10.0) / 10.0);
-                return retval;
-            }
             public override string ToString()
             {
-                return $"Speed Mbps={SpeedInMbps} Bytes/Second={Math.Floor(SpeedInBytesPerSecond)} (Warmup {WarmupSpeedInMbps} and {Math.Floor(WarmupSpeedInBytesPerSecond)}) Error={Error}";
+                return $"Speed CalculateMbps={CalculateMbpsNice(SpeedInBytesPerSecond)} (Warmup {CalculateMbpsNice(WarmupSpeedInBytesPerSecond)}) Error={Error}";
             }
         }
     }

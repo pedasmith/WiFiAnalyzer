@@ -11,7 +11,7 @@
 
     <StackPanel VerticalAlignment="Center">
         <TextBlock FontSize="20">Statistics</TextBlock>
-        <TextBlock IsTextSelectionEnabled="True" TextWrapping="Wrap"
+        <TextBlock x:Name="uiStatsA" IsTextSelectionEnabled="True" TextWrapping="Wrap"
                        FontFamily="Consolas">
                 <Run Text="" x:Name="uiPreInfo"/><LineBreak />
                 <Run Text="Maximum&#0009;&#0009;" /><Run x:Name="uistatMax" Text="0.00" /><LineBreak/>
@@ -23,6 +23,11 @@
                 <Run Text="Range&#0009;&#0009;" /><Run x:Name="uistatRange" Text="0.00" /><LineBreak/>
                 <Run Text="StdDev&#0009;&#0009;" /><Run x:Name="uistatStdDev" Text="0.00" /><LineBreak/>
                 <Run Text="" x:Name="uiPostInfo"/><LineBreak />
+        </TextBlock>
+        <TextBlock x:Name="uiStatsB" Visibility="Collapsed" IsTextSelectionEnabled="True" TextWrapping="Wrap"
+                       FontFamily="Consolas">
+                <Run Text="" x:Name="uiPreInfoB"/><LineBreak />
+                <Run Text="" x:Name="uiPostInfoB"/><LineBreak />
         </TextBlock>
     </StackPanel>
 </UserControl>

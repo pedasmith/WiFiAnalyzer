@@ -42,7 +42,7 @@ namespace SpeedTests
 
 
 
-        public Task DownloadTest(ThroughputTestResult retval, Uri uri = null)
+        public Task DownloadTest(ThroughputTestResult retval, string server)
         {
             // FCC says to use 3 threads. We use 3 tasks instead.
             retval.SingleResults.Add(new ThroughputTestResultSingle());
@@ -56,16 +56,14 @@ namespace SpeedTests
             var hc = new HttpClient(bpf);
 
             // URI
-            if (uri == null)
-            {
-                uri = new Uri("http://" + Servers[0] + BinPath); // TODO: pick this correctly
-            }
-            var failUri = new Uri("http://" + Servers[0] + "/FAIL" + BinPath);
+            if (server == null) server = Servers[0]; 
+            var uri = new Uri("http://" + server + BinPath);
+            var failUri = new Uri("http://" + server + "/FAIL" + BinPath);
 
             Task[] tasks = new Task[] {
                 DownloadTestSingle(hc, uri, retval.SingleResults[0]),
-                //TODO: add this back: DownloadTestSingle(hc, uri, retval.SingleResults[1]),
-                //TODO: add this back: DownloadTestSingle(hc, uri, retval.SingleResults[2]),
+                DownloadTestSingle(hc, uri, retval.SingleResults[1]),
+                DownloadTestSingle(hc, uri, retval.SingleResults[2]),
             };
             return Task.WhenAll(tasks);
         }
@@ -112,6 +110,9 @@ namespace SpeedTests
                 DateTimeOffset downloadEndTime;
                 var totalTimeInSeconds = WarmupTimeInSeconds + MaxDownloadTimeInSeconds;
                 DateTimeOffset lastLog = DateTimeOffset.UtcNow;
+                long lastLogNBytesSnapshot = 0;
+
+                long totalNBytes = 0;
                 results.Data.NBytes = 0;
                 results.WarmupData.NBytes = 0;
                 while (keepGoing)
@@ -162,13 +163,19 @@ namespace SpeedTests
                             pauseTimeInMilliseconds -= 5;
                         }
                     }
+                    totalNBytes += (int)buffer.Length; // needed for the snapshot
 
                     var now = DateTimeOffset.UtcNow;
-                    // This is just for logging
-                    if (now.Subtract(lastLog).TotalSeconds > 1.0)
+                    // This is for the graph snapshot + logging
+                    var logDeltaTime = now.Subtract(lastLog).TotalSeconds;
+                    if (logDeltaTime > 0.25) // update every quarter second
                     {
-                        lastLog = now;
                         Log($"DBG: Download: pause={pauseTimeInMilliseconds} length={buffer.Length}");
+
+                        results.Snapshot.TimeInSeconds = logDeltaTime;
+                        results.Snapshot.NBytes = totalNBytes - lastLogNBytesSnapshot;
+                        lastLog = now;
+                        lastLogNBytesSnapshot = totalNBytes;
                     }
 
                     switch (results.CurrPhase)
@@ -209,7 +216,7 @@ namespace SpeedTests
                     }
                 }
 
-                Log($"DBG: S={results.S} Mbps={results.Mbps}");
+                Log($"DBG: S={results.S} CalculateMbps={results.Mbps}");
             }
             catch (Exception e)
             {
@@ -375,7 +382,7 @@ namespace SpeedTests
                             retval.Calculate(IndividualTests);
                             foreach (var ux in uxlist)
                             {
-                                ux.SetStatistics(retval.SpeedStatistics);
+                                ux.SetStatistics(retval.SpeedStatistics, true);
                             }
                             uiUpdateTime = DateTimeOffset.UtcNow.AddMilliseconds(250);
                         }
@@ -427,7 +434,7 @@ namespace SpeedTests
             retval.Calculate(IndividualTests);
             foreach (var ux in uxlist)
             {
-                ux.SetStatistics(retval.SpeedStatistics);
+                ux.SetStatistics(retval.SpeedStatistics, true);
             }
 
             return retval;
