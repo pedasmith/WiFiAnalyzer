@@ -1,0 +1,36 @@
+﻿<UserControl
+    x:Class="SpeedTests.YGraph"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SpeedTests"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Grid VerticalAlignment="Top" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+
+        <Canvas  Height="200" Width="150" x:Name="uiCanvas">
+            <Canvas.Resources>
+                <Style TargetType="Line">
+                    <Setter Property="Stroke" Value="Black" />
+                </Style>
+                <Style TargetType="Rectangle">
+                    <Setter Property="Stroke" Value="Black" />
+                    <Setter Property="Fill" Value="LightYellow" />
+                </Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FontSize" Value="10" />
+                </Style>
+            </Canvas.Resources>
+
+            <Line x:Name="statYAxisMax" X1="0" X2="10" Y1="5" Y2="5" />
+            <TextBlock x:Name="uistatYAxisMax" Text="20.00" Canvas.Top="0" Canvas.Left="15" />
+            <TextBlock x:Name="uistatYCurrValue" Text="?" Canvas.Top="80" Canvas.Left="55" FontSize="26" />
+        </Canvas>
+    </Grid>
+</UserControl>

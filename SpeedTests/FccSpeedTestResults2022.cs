@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using Windows.Networking;
 
@@ -199,6 +200,8 @@ namespace SpeedTests
                 get { return (int)Math.Floor(8.0 * SpeedInBytesPerSecond / (1024 * 1024)); }
             }
 
+
+
             /// <summary>
             /// FCC: SpeedInBytesPerSecond = S1 + S2 + S3 where S1, S2, S3 are the S results from SingleResults
             /// </summary>
@@ -220,7 +223,33 @@ namespace SpeedTests
                 get { return (int)Math.Floor(8.0 * WarmupSpeedInBytesPerSecond / (1024 * 1024)); }
             }
 
+            public double CurrSpeedInBytesPerSecond
+            {
+                get
+                {
+                    if (SpeedInBytesPerSecond != 0.0) return SpeedInBytesPerSecond;
+                    return WarmupSpeedInBytesPerSecond;
+                }
+            }
 
+            /// <summary>
+            /// A "nice" version
+            /// </summary>
+            public double CurrSpeedInMbpsRounded
+            {
+                get 
+                { 
+                    var mbps = 8.0 * CurrSpeedInBytesPerSecond / (1024 * 1024);
+                    mbps = RoundOff(mbps);
+                    return mbps;
+                }
+            }
+
+            public static double RoundOff(double value)
+            {
+                var retval = (Math.Round(value * 10.0) / 10.0);
+                return retval;
+            }
             public override string ToString()
             {
                 return $"Speed Mbps={SpeedInMbps} Bytes/Second={Math.Floor(SpeedInBytesPerSecond)} (Warmup {WarmupSpeedInMbps} and {Math.Floor(WarmupSpeedInBytesPerSecond)}) Error={Error}";

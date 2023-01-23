@@ -20,16 +20,15 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
+        
+        <!-- Col 0 width is zero, so this is hidden. -->
         <StackPanel Grid.Row="1" Grid.Column="0">
             <ScrollViewer Height="500">
                 <TextBlock x:Name="uiLog" IsTextSelectionEnabled="true" TextWrapping="Wrap" />
             </ScrollViewer>
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
-            <StackPanel x:Name="ZZZuiLatencyGraphPanel" Orientation="Horizontal" VerticalAlignment="Top">
-            </StackPanel>
-        </StackPanel>
+
         <Grid Grid.Row="1" Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
@@ -52,6 +51,16 @@
                 <TextBlock x:Name="uiThroughput" IsTextSelectionEnabled="True" />
             </ScrollViewer>
         </Grid>
-        <local:StatisticsControl Grid.Row="1" Grid.Column="2" x:Name="uiLatencyStats" VerticalAlignment="Top" />
+        <Grid Grid.Row="1" Grid.Column="2">
+            <local:StatisticsControl x:Name="uiLatencyStats" VerticalAlignment="Top" />
+        </Grid>
+        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+            <ComboBox x:Name="uiStatsType" MinWidth="200" SelectedIndex="1" >
+                <!-- TODO: default should be 0, not 1 (latency, not download) -->
+                <ComboBoxItem Content="Latency" Tag="Latency" />
+                <ComboBoxItem Content="Download" Tag="Download" />
+                <ComboBoxItem Content="Both" Tag="Latency Download" />
+            </ComboBox>
+        </StackPanel>
     </Grid>
 </UserControl>
