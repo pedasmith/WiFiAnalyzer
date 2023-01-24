@@ -5,6 +5,7 @@
 * All the app [Versions](Versions.md).
 * Full Wi-Fi [Lexicon](Lexicon.md).
 * Wi-Fi on [Wikipedia](https://en.wikipedia.org/wiki/Wi-Fi)
+* Microsoft [NCSI](http://www.msftncsi.com/ncsi.txt) and [RS version](http://www.msftconnecttest.com/connecttest.txt)
 
 # Quick help
 
