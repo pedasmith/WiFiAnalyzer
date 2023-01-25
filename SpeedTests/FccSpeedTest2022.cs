@@ -331,10 +331,6 @@ namespace SpeedTests
             // should be 5000.
             // 2023-01-08: Port 6000 (Android code) works perfectly. Port 5000 does not work.
 
-            if (server == null) // TODO: pick server correctly.
-            {
-                server = new HostName(Servers[0]);
-            }
             IndividualTests = new LatencyTestSingle[maxDatagrams];
 
             var retval = new LatencyTestResults(server, port);

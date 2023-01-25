@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Networking;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -29,10 +30,18 @@ namespace SpeedTests
     }
     public sealed partial class SpeedTestControl : UserControl
     {
+        public IGetSpeedTestOptions SpeedTestOptions = null;
         public SpeedTestControl()
         {
             this.InitializeComponent();
+            this.Loaded += SpeedTestControl_Loaded;
         }
+
+        private void SpeedTestControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            //No longer here; it's on the WiFiAnalyzerControl and will be set on creation. SpeedTestOptions = uiSpeedTestOptionControl;
+        }
+
         /// <summary>
         /// Run the test automatically.
         /// </summary>
@@ -55,7 +64,7 @@ namespace SpeedTests
         private List<SpeedTestType> GetSpeedTestList()
         {
             var retval = new List<SpeedTestType>();
-            var str = (uiStatsType.SelectedItem as ComboBoxItem)?.Tag as String;
+            var str = SpeedTestOptions.GetTestType();
             var list = str.Split(new char[] { ' ' });
             foreach (var stattype in list)
             {
@@ -79,7 +88,10 @@ namespace SpeedTests
             await Task.Delay(0);
             var uxlist = new List<ISetStatistics>() { graph, uiLatencyStats };
 
-            var result = await SpeedTest.LatencyTestAsync(uxlist, null); // null=use default server.
+            var server = SpeedTestOptions.GetServer();
+            var result = await SpeedTest.LatencyTestAsync(uxlist, new HostName(server));
+            // TODO: this keeps on updating the latency display while other
+            // items are selected.
 
             graph.SetStatistics(result.SpeedStatistics, true);
             uiLatencyStats.SetStatistics(result.SpeedStatistics, true);
@@ -89,7 +101,7 @@ namespace SpeedTests
         YGraph CurrThroughputGraph;
         private async Task DoThroughputTest()
         {
-            var serverName = SpeedTest.Servers[0]; // TODO: correct value here!
+            var serverName = SpeedTestOptions.GetServer();
 
             CurrThroughputGraph = new YGraph();
             uiLatencyGraphPanel.Items.Insert(0, CurrThroughputGraph);
@@ -111,7 +123,9 @@ namespace SpeedTests
             uiThroughput.Text = "Starting\n";
             var result = new FccSpeedTest2022.ThroughputTestResult();
             var task = SpeedTest.DownloadTest(result, serverName);
-            while (!task.IsCompleted)
+            var startTime = DateTimeOffset.UtcNow;
+            bool overTime = false;
+            while (!task.IsCompleted && !overTime)
             {
                 await Task.Delay(250);
                 //uiThroughput.Text += $"{result}\n";
@@ -120,7 +134,16 @@ namespace SpeedTests
                 nbytes.Value = result.SnapshotDownloadInBytes.ToString();
                 time.Value = result.SnapshotTimeAverageInSeconds.ToString("N1");
 
-                uiLatencyStats.SetStatistics(stats, false); // not full stats
+                if (uiLatencyGraphPanel.SelectedIndex < 1)
+                {
+                    uiLatencyStats.SetStatistics(stats, false); // not full stats
+                }
+
+                var timeInSeconds = DateTimeOffset.UtcNow.Subtract(startTime).TotalSeconds;
+                if (timeInSeconds > 10.0) // the FCC download test only runs for 8 seconds
+                {
+                    overTime = true;
+                }
             }
             CurrThroughputGraph.SetValue(result.SpeedInMbpsRounded);
 

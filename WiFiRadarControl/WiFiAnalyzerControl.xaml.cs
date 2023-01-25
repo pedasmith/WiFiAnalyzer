@@ -726,6 +726,7 @@ namespace WiFiRadarControl
                 {
                     await uiMobileHotspot.TabToAsync();
                 }
+                uiSpeedTestOptions.Visibility = (tag == "SpeedTest") ? Visibility.Visible : Visibility.Collapsed;
                 MaybeUnlock(tag ?? "");
             }
             if (e.RemovedItems.Count == 1)
@@ -751,6 +752,7 @@ namespace WiFiRadarControl
                 Visibility = Visibility.Visible,
             };
             OptionalSpeedTestControl = new SpeedTestControl();
+            OptionalSpeedTestControl.SpeedTestOptions = uiSpeedTestOptions;
             OptionalSpeedTest.Content = OptionalSpeedTestControl;
             uiPivot.Items.Insert (5, OptionalSpeedTest);
         }

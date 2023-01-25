@@ -54,13 +54,5 @@
         <Grid Grid.Row="1" Grid.Column="2">
             <local:StatisticsControl x:Name="uiLatencyStats" VerticalAlignment="Top" />
         </Grid>
-        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
-            <ComboBox x:Name="uiStatsType" MinWidth="200" SelectedIndex="1" >
-                <!-- TODO: default should be 0, not 1 (latency, not download) -->
-                <ComboBoxItem Content="Latency" Tag="Latency" />
-                <ComboBoxItem Content="Download" Tag="Download" />
-                <ComboBoxItem Content="Both" Tag="Latency Download" />
-            </ComboBox>
-        </StackPanel>
     </Grid>
 </UserControl>
