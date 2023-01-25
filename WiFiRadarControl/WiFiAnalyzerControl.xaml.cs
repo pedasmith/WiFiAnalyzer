@@ -25,8 +25,13 @@ using Windows.UI.Xaml.Input;
 
 namespace WiFiRadarControl
 {
+    public interface IShowProgressRing
+    {
+        void StartProgressIndeterminate();
+        void StopProgressIndeterminate();
+    }
 
-    public sealed partial class WiFiAnalyzerControl : UserControl, IDisplayWifiNetworkInformation
+    public sealed partial class WiFiAnalyzerControl : UserControl, IDisplayWifiNetworkInformation, IShowProgressRing
     {
         public WiFiAnalyzerControl()
         {
@@ -162,11 +167,21 @@ namespace WiFiRadarControl
         String CurrentHtml = "";
         List<Reflector> CurrentReflectorList = new List<Reflector>();
 
+        public void StartProgressIndeterminate()
+        {
+            uiScanProgressRing.IsIndeterminate = true;
+            uiScanProgressRing.Visibility = Visibility.Visible;
+        }
+        public void StopProgressIndeterminate()
+        {
+            uiScanProgressRing.IsIndeterminate = false;
+            uiScanProgressRing.Visibility = Visibility.Collapsed;
+        }
+
         private async Task DoRadarScanAsync()
         {
             Utilities.UIThreadHelper.CallOnUIThread(() => uiReport.Text = $"Scan started at {DateTime.Now}\n\n");
-            uiScanProgressRing.IsIndeterminate = true;
-            uiScanProgressRing.Visibility = Visibility.Visible;
+            StartProgressIndeterminate();
             try
             {
                 //var locatorTask = Locator.GetGeopositionAsync(new TimeSpan(0, 1, 0), new TimeSpan(0, 0, 5)); // allow 1-minue old data; timeout within 5 seconds
@@ -231,10 +246,10 @@ namespace WiFiRadarControl
             {
                 LogNetworkInfo($"Scan report error: {e.Message}");
             }
-            uiScanProgressRing.IsIndeterminate = false;
-            uiScanProgressRing.Visibility = Visibility.Collapsed;
+            StopProgressIndeterminate();
             await uiRadar.StopAsync();
         }
+
 
         private void GetNetworkInfo()
         {
@@ -753,6 +768,7 @@ namespace WiFiRadarControl
             };
             OptionalSpeedTestControl = new SpeedTestControl();
             OptionalSpeedTestControl.SpeedTestOptions = uiSpeedTestOptions;
+            OptionalSpeedTestControl.ShowProgressRing = this;
             OptionalSpeedTest.Content = OptionalSpeedTestControl;
             uiPivot.Items.Insert (5, OptionalSpeedTest);
         }

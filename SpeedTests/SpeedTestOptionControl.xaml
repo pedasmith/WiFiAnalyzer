@@ -12,8 +12,7 @@
     <StackPanel Orientation="Horizontal">
         <ComboBox Header="Server" x:Name="uiServerList" IsEditable="True" Width="300">
         </ComboBox>
-        <ComboBox Header="Tests to run" x:Name="uiStatsType" MinWidth="200" SelectedIndex="1" >
-            <!-- TODO: default should be 0, not 1 (latency, not download) -->
+        <ComboBox Header="Tests to run" x:Name="uiStatsType" MinWidth="200" SelectedIndex="2" >
             <ComboBoxItem Content="Latency" Tag="Latency" />
             <ComboBoxItem Content="Download" Tag="Download" />
             <ComboBoxItem Content="Both" Tag="Latency Download" />

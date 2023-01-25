@@ -118,8 +118,7 @@ namespace SpeedTests
                 while (keepGoing)
                 {
                     await Task.Delay(pauseTimeInMilliseconds);
-                    Log("DBG: About to read");
-                    // Here's the problem: the stream.ReadAsync doesn't fail just because the 
+                    // Here's the problem: the stream.ReadAsync should fail but doesn'when the 
                     // underlying network goes away (e.g., you can shut off your Wi-Fi and the 
                     // stream just pauses. Presumably it will fail when the TCP/IP connection
                     // finally dies, but that might not be for a half hour -- timeouts for 
@@ -131,12 +130,11 @@ namespace SpeedTests
                     var readTask = stream.ReadAsync(buffer, buffer.Capacity, InputStreamOptions.Partial);
                     Task[] readTaskList = new Task[] { readTask.AsTask(), timeoutTask };
                     var taskResult = await Task.WhenAny(readTaskList);
-                    Log("DBG: Read complete");
                     if (taskResult == timeoutTask)
                     {
                         // Ideally there would be some kind of cancel on the read,
                         // but there isn't.
-                        Log($"DBG: Download: read timeout");
+                        //Log($"TRACE: Download: read timeout");
                         results.Error = $"Read timeout while testing";
                         keepGoing = false;
                     }
@@ -170,7 +168,7 @@ namespace SpeedTests
                     var logDeltaTime = now.Subtract(lastLog).TotalSeconds;
                     if (logDeltaTime > 0.25) // update every quarter second
                     {
-                        Log($"DBG: Download: pause={pauseTimeInMilliseconds} length={buffer.Length}");
+                        //Log($"TRACE: Download: pause={pauseTimeInMilliseconds} length={buffer.Length}");
 
                         results.Snapshot.TimeInSeconds = logDeltaTime;
                         results.Snapshot.NBytes = totalNBytes - lastLogNBytesSnapshot;
@@ -200,13 +198,13 @@ namespace SpeedTests
                             {
                                 results.CurrPhase = ThroughputTestResultSingle.Phase.PhaseComplete;
                                 downloadEndTime = now;
-                                Log($"DBG: Timeout after {results.Data.TimeInSeconds} seconds");
+                                //Log($"TRACE: Timeout after {results.Data.TimeInSeconds} seconds");
                             }
                             if (results.Data.NBytes > MaxDownloadInBytes)
                             {
                                 results.CurrPhase = ThroughputTestResultSingle.Phase.PhaseComplete;
                                 downloadEndTime = now;
-                                Log($"DBG: Maxbytes after {results.Data.NBytes} bytes");
+                                //Log($"TRACE: Maxbytes after {results.Data.NBytes} bytes");
                             }
                             break;
                     }
@@ -216,7 +214,7 @@ namespace SpeedTests
                     }
                 }
 
-                Log($"DBG: S={results.S} CalculateMbps={results.Mbps}");
+                //Log($"TRACE: S={results.S} CalculateMbps={results.Mbps}");
             }
             catch (Exception e)
             {

@@ -31,6 +31,7 @@ namespace SpeedTests
     public sealed partial class SpeedTestControl : UserControl
     {
         public IGetSpeedTestOptions SpeedTestOptions = null;
+        public WiFiRadarControl.IShowProgressRing ShowProgressRing = null;
         public SpeedTestControl()
         {
             this.InitializeComponent();
@@ -89,7 +90,9 @@ namespace SpeedTests
             var uxlist = new List<ISetStatistics>() { graph, uiLatencyStats };
 
             var server = SpeedTestOptions.GetServer();
+            ShowProgressRing?.StartProgressIndeterminate();
             var result = await SpeedTest.LatencyTestAsync(uxlist, new HostName(server));
+            ShowProgressRing?.StopProgressIndeterminate();
             // TODO: this keeps on updating the latency display while other
             // items are selected.
 
@@ -120,7 +123,7 @@ namespace SpeedTests
             var at = new Statistics.AdditionalInfo("At", DateTime.Now.ToLongTimeString());
             stats.PostAdditionalInfo.Add(at);
 
-            uiThroughput.Text = "Starting\n";
+            ShowProgressRing?.StartProgressIndeterminate();
             var result = new FccSpeedTest2022.ThroughputTestResult();
             var task = SpeedTest.DownloadTest(result, serverName);
             var startTime = DateTimeOffset.UtcNow;
@@ -151,8 +154,8 @@ namespace SpeedTests
             nbytes.Value = result.NBytes.ToString();
             time.Value = result.TimeAverageInSeconds.ToString("N1");
             uiLatencyStats.SetStatistics(stats, false); // not full stats
+            ShowProgressRing?.StopProgressIndeterminate();
 
-            uiThroughput.Text += "Done\n\n";
         }
 
         FccSpeedTest2022 SpeedTest = new FccSpeedTest2022();
