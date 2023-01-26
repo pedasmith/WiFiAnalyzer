@@ -233,7 +233,17 @@ namespace SmartWiFiControls
             uiTetherStartButton.Visibility = manager.TetheringOperationalState == TetheringOperationalState.Off ? Visibility.Visible : Visibility.Collapsed;
             uiTetherStopButton.Visibility = manager.TetheringOperationalState == TetheringOperationalState.On ? Visibility.Visible : Visibility.Collapsed;
 
-            var apconfiguration = manager.GetCurrentAccessPointConfiguration();
+            NetworkOperatorTetheringAccessPointConfiguration apconfiguration = null;
+            try
+            {
+                apconfiguration = manager.GetCurrentAccessPointConfiguration();
+            }
+            catch (Exception ex)
+            {
+                // NOTE: Gotcha! the GetCurrentAccessPointConfiguration can throw!
+                apconfiguration = null;
+                Log($"Error: unable to set up access point configuration");
+            }
             if (apconfiguration != null)
             {
                 uiSsid.Text = apconfiguration.Ssid;
