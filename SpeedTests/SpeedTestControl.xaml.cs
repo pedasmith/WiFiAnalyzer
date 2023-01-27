@@ -95,10 +95,17 @@ namespace SpeedTests
             ShowProgressRing?.StopProgressIndeterminate();
             // TODO: this keeps on updating the latency display while other
             // items are selected.
-
-            graph.SetStatistics(result.SpeedStatistics, true);
-            uiLatencyStats.SetStatistics(result.SpeedStatistics, true);
-            uiLog.Text += $"Server={result.Server}:{result.Port}\nNSent={result.NSent} NRecv={result.NRecv} Error={result.Error ?? "(no error)"}\n\n";
+            //TODO: SPEED STAT can be null
+            if (result.SpeedStatistics != null)
+            {
+                graph.SetStatistics(result.SpeedStatistics, true);
+                uiLatencyStats.SetStatistics(result.SpeedStatistics, true);
+                uiLog.Text += $"Server={result.Server}:{result.Port}\nNSent={result.NSent} NRecv={result.NRecv} Error={result.Error ?? "(no error)"}\n\n";
+            }
+            else
+            {
+                uiLog.Text += "TODO: no results";
+            }
         }
 
         YGraph CurrThroughputGraph;

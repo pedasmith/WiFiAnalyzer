@@ -89,8 +89,11 @@ namespace SmartWiFiControls
                 var profile = NetworkInformation.GetInternetConnectionProfile();
                 //var profileStr = NetworkToString.ToString("", profile);
                 //TetheringLog(profileStr);
-                TetheringManager = NetworkOperatorTetheringManager.CreateFromConnectionProfile(profile);
-                //TetheringLog(NetworkToString.ToString("", TetheringManager));
+                if (profile != null) // NOTE: Not connected means null here
+                {
+                    TetheringManager = NetworkOperatorTetheringManager.CreateFromConnectionProfile(profile);
+                    //TetheringLog(NetworkToString.ToString("", TetheringManager));
+                }
             }
             catch (Exception ex)
             {
@@ -273,7 +276,7 @@ namespace SmartWiFiControls
             if (profile != null)
             {
                 var tcap = NetworkOperatorTetheringManager.GetTetheringCapabilityFromConnectionProfile(profile);
-                uiTetheringEnabled.Text = tcap.ToString();
+                uiTetheringEnabled.Text = tcap.ToString(); // NOTE: weirdly, some connection profiles say that tething is enabled, but it's not actually allowed.
                 uiConnectedToProfileName.Text = profile.ProfileName;
             }
 
@@ -314,7 +317,7 @@ namespace SmartWiFiControls
         }
         private static void Log(string str)
         {
-            ;
+            ; // TODO: actually have a log output :-)
         }
 
         public async Task SetupFromWiFiSetupUrl(WiFiUrl url)

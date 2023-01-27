@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.ApplicationModel;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage.Provider;
@@ -47,6 +48,11 @@ namespace SpeedTests
         }
         public void SetStatistics(Statistics stats, bool isFull) //isFull is ignored for this
         {
+            // NEW: TODO: when not connected, stats is null
+            if (stats == null)
+            {
+                return;
+            }
             var format = "N3";
             CurrStatistics = stats;
 
