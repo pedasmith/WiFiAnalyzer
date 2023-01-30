@@ -245,7 +245,7 @@ namespace SmartWiFiControls
             {
                 // NOTE: Gotcha! the GetCurrentAccessPointConfiguration can throw!
                 apconfiguration = null;
-                Log($"Error: unable to set up access point configuration");
+                Log($"Error: unable to set up access point configuration; exception {ex.Message}");
             }
             if (apconfiguration != null)
             {

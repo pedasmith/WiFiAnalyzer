@@ -776,7 +776,11 @@ namespace WiFiRadarControl
         static int NextUnlockIndex = 0;
         static string[] UnlockTags = new string[]
         {
-            "RADAR", // TODO: reset this for shipping! "Log", "RADAR", "Log",
+#if DEBUG
+        "RADAR", // TODO: reset this for shipping! "Log", "RADAR", "Log",
+#else
+            "RADAR", "Log", "RADAR", "Log",
+#endif
         };
         /// <summary>
         /// Special unlocking code uses the NextUnlockIndex and UnlockTags. This method knows

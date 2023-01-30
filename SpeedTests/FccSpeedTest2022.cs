@@ -7,13 +7,17 @@
 using Microsoft.UI.Xaml.CustomAttributes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Diagnostics;
 using Windows.Networking;
 using Windows.Networking.Sockets;
+using Windows.Security.Cryptography;
 using Windows.Storage.Streams;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
@@ -45,6 +49,7 @@ namespace SpeedTests
         public Task DownloadTest(ThroughputTestResult retval, string server)
         {
             // FCC says to use 3 threads. We use 3 tasks instead.
+            // These are just the results; the download tasks are below.
             retval.SingleResults.Add(new ThroughputTestResultSingle());
             retval.SingleResults.Add(new ThroughputTestResultSingle());
             retval.SingleResults.Add(new ThroughputTestResultSingle());
@@ -220,6 +225,191 @@ namespace SpeedTests
             {
                 Log($"ERROR: Exception {e.Message} for {uri}");
             }
+        }
+        public Task UploadTest(ThroughputTestResult retval, string server)
+        {
+            // FCC says to use 3 threads. We use 3 tasks instead.
+            // These are just the results; the uploadload tasks are below.
+            retval.SingleResults.Add(new ThroughputTestResultSingle());
+            //TODO: add this back retval.SingleResults.Add(new ThroughputTestResultSingle());
+            //retval.SingleResults.Add(new ThroughputTestResultSingle());
+
+            // Set up the HttpClient so that it doesn't cache
+            var bpf = new HttpBaseProtocolFilter();
+            bpf.CacheControl.ReadBehavior = HttpCacheReadBehavior.NoCache;
+            bpf.CacheControl.WriteBehavior = HttpCacheWriteBehavior.NoCache;
+            var hc = new HttpClient(bpf);
+
+            // URI
+            if (server == null) server = Servers[0];
+            var uri = new Uri("http://" + server + BinPath);
+            var failUri = new Uri("http://" + server + "/FAIL" + BinPath);
+
+            Task[] tasks = new Task[] {
+                UploadTestSingle(hc, uri, retval.SingleResults[0]),
+                //TODO: just one for debugging UploadTestSingle(hc, uri, retval.SingleResults[1]),
+                //TODO: just one for debugging: UploadTestSingle(hc, uri, retval.SingleResults[2]),
+            };
+            return Task.WhenAll(tasks);
+        }
+
+
+
+        public async Task UploadTestSingle(HttpClient hc, Uri uri, ThroughputTestResultSingle results)
+        {
+            const double WarmupTimeInSeconds = 3.0; // "Each test cycle begins with a fixed 3-second warmup, ..."
+            const int MaxTransferInBytes = 1_000 * 1_024 * 1_024; // "Each speed test concludes either after 1,000 MB of payload"
+            const double MaxTransferTimeInSeconds = 5.0; // "... or after a maximum elapsed time period of 5 seconds"
+
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, uri);
+                //const int BufferCapacity = 100 * 1024 * 1024; // 1 meg
+                var content = CreateUploadBuffer(100 * 1024 * 1024);
+                request.Content = content;
+
+                var startTime = DateTimeOffset.UtcNow;
+                DateTimeOffset transferStartTime;
+                DateTimeOffset transferEndTime;
+                long totalNBytes = 0;
+                uint retries = 0;
+
+                var task = hc.TrySendRequestAsync(request, HttpCompletionOption.ResponseHeadersRead);
+                task.Progress += (s, progress) =>
+                {
+                    var bytesSent = (int)progress.BytesSent;
+                    totalNBytes = bytesSent;
+                    var now = DateTimeOffset.UtcNow;
+                    if (progress.Retries != retries)
+                    {
+                        Log($"DBG: Progress: RETRY: phase={results.CurrPhase} stage={progress.Stage} sent={progress.BytesSent} tot={progress.TotalBytesToSend}");
+                        retries = progress.Retries;
+                    }
+
+                    //Log($"DBG: Progress: phase={results.CurrPhase} stage={progress.Stage} sent={progress.BytesSent} tot={progress.TotalBytesToSend}");
+                    switch (results.CurrPhase)
+                    {
+                        case ThroughputTestResultSingle.Phase.PhaseWarmup:
+                            // Are we done with the warmup?
+                            results.WarmupData.TimeInSeconds = now.Subtract(startTime).TotalSeconds;
+                            results.WarmupData.NBytes = bytesSent;
+
+                            if (results.WarmupData.TimeInSeconds >= WarmupTimeInSeconds)
+                            {
+                                // Ready to start the real testing CurrPhase
+                                transferStartTime = now;
+                                results.CurrPhase = ThroughputTestResultSingle.Phase.PhaseTesting;
+                                Log($"TRACE: NEW PHASE! phase={results.CurrPhase} stage={progress.Stage} sent={progress.BytesSent} tot={progress.TotalBytesToSend}");
+                            }
+                            break;
+                        case ThroughputTestResultSingle.Phase.PhaseTesting:
+                            results.Data.TimeInSeconds = now.Subtract(transferStartTime).TotalSeconds;
+                            results.Data.NBytes = bytesSent - results.WarmupData.NBytes;
+
+                            if (results.Data.TimeInSeconds >= MaxTransferTimeInSeconds)
+                            {
+                                results.CurrPhase = ThroughputTestResultSingle.Phase.PhaseComplete;
+                                transferEndTime = now;
+                                Log($"TRACE: Timeout after {results.Data.TimeInSeconds} seconds");
+                            }
+                            if (results.Data.NBytes > MaxTransferInBytes)
+                            {
+                                results.CurrPhase = ThroughputTestResultSingle.Phase.PhaseComplete;
+                                transferEndTime = now;
+                                Log($"TRACE: Maxbytes after {results.Data.NBytes} bytes");
+                            }
+                            break;
+                    }
+                };
+
+
+
+
+                bool keepGoing = true;
+                int pauseTimeInMilliseconds = 500;
+
+
+                results.CurrPhase = ThroughputTestResultSingle.Phase.PhaseWarmup;
+                results.TransferUri = uri.ToString();
+
+                var totalTimeInSeconds = WarmupTimeInSeconds + MaxTransferTimeInSeconds;
+                DateTimeOffset lastLog = DateTimeOffset.UtcNow;
+                long lastLogNBytesSnapshot = 0;
+
+                results.Data.NBytes = 0;
+                results.WarmupData.NBytes = 0;
+
+                var remainingTimeInMilliseconds = 1000.0 * totalTimeInSeconds;
+                var timeoutTask = Task.Delay((int)remainingTimeInMilliseconds);
+
+                while (keepGoing)
+                {
+                    await Task.Delay(pauseTimeInMilliseconds);
+
+                    var timeSoFar = DateTimeOffset.UtcNow.Subtract(startTime).TotalSeconds;
+
+                    if (timeoutTask.IsCompleted)
+                    {
+                        // Ideally there would be some kind of cancel on the read,
+                        // but there isn't.
+                        Log($"TRACE: Upload: write timeout");
+                        results.Error = $"Write timeout while testing";
+                        keepGoing = false;
+                    }
+
+                    var now = DateTimeOffset.UtcNow;
+                    // This is for the graph snapshot + logging
+                    var logDeltaTime = now.Subtract(lastLog).TotalSeconds;
+                    results.Snapshot.TimeInSeconds = logDeltaTime;
+                    results.Snapshot.NBytes = totalNBytes - lastLogNBytesSnapshot;
+                    lastLog = now;
+                    lastLogNBytesSnapshot = totalNBytes;
+
+                    Log($"TRACE: Upload: length={results.Snapshot.NBytes}");
+
+                    if (results.CurrPhase == ThroughputTestResultSingle.Phase.PhaseComplete)
+                    {
+                        keepGoing = false;
+                    }
+                }
+
+                Log($"TRACE: S={results.S} CalculateMbps={results.Mbps}");
+
+                // TODO: do I care about these? Note that I don't get the response headers for
+                // quite some time
+                var response = await task;
+                if (response.ResponseMessage == null)
+                {
+                    // Can happen if we're offline
+                    Log($"TRACE: no response message");
+                    results.Error = $"Unable to connect; reason={response.ExtendedError?.Message ?? "(unable to connect)"}"; // TODO: better error message?
+                    return;
+                }
+                if (response.ResponseMessage.StatusCode != HttpStatusCode.Ok)
+                {
+                    Log($"TRACE: Upload: unexpected status code={response.ResponseMessage.StatusCode}");
+                    results.Error = $"Incorrect HTTP response. Expected 200; got {response.ResponseMessage.StatusCode}={response.ResponseMessage.ReasonPhrase}";
+                    return;
+                }
+
+                task.Cancel();
+            }
+            catch (Exception e)
+            {
+                Log($"ERROR: Exception {e.Message} for {uri}");
+            }
+        }
+
+        private static IHttpContent CreateUploadBuffer(int len)
+        {
+            var buffer = new byte[len];
+            for (int i=0; i<len; i++)
+            {
+                buffer[i] = (byte)(i&0xFF);
+            }
+            var ms = new MemoryStream(buffer);
+            var retval = new HttpStreamContent(ms.AsInputStream());
+            return retval;
         }
 
         public class LatencyTestSingle
