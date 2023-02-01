@@ -97,7 +97,6 @@ namespace SpeedTests
             ShowProgressRing?.StopProgressIndeterminate();
             // TODO: this keeps on updating the latency display while other
             // items are selected.
-            //TODO: SPEED STAT can be null
             if (result.SpeedStatistics != null)
             {
                 graph.SetStatistics(result.SpeedStatistics, true);
@@ -106,7 +105,7 @@ namespace SpeedTests
             }
             else
             {
-                uiLog.Text += "TODO: no results";
+                uiLog.Text += "Error: no results";
             }
         }
 
@@ -116,13 +115,14 @@ namespace SpeedTests
             var serverName = SpeedTestOptions.GetServer();
 
             CurrThroughputGraph = new YGraph();
+            CurrThroughputGraph.UpdateTitle("Download");
             uiLatencyGraphPanel.Items.Insert(0, CurrThroughputGraph);
 
             var stats = new Statistics(new double[] { 0.0});
             CurrThroughputGraph.CurrStatistics = stats;
             var speed = new Statistics.AdditionalInfo("Throughput", "0.0");
             stats.PreAdditionalInfo.Add(speed);
-            var nbytes = new Statistics.AdditionalInfo("N Bytes", "0.0");
+            var nbytes = new Statistics.AdditionalInfo("Bytes", "0.0");
             stats.PreAdditionalInfo.Add(nbytes);
             var time = new Statistics.AdditionalInfo("Time (s)", "0.0");
             stats.PreAdditionalInfo.Add(time);
@@ -143,7 +143,7 @@ namespace SpeedTests
                 //uiThroughput.Text += $"{result}\n";
                 CurrThroughputGraph.AddValue(result.SnapshotSpeedInMbpsRounded);
                 speed.Value = result.SnapshotSpeedInMbpsRounded.ToString() + " Mbps";
-                nbytes.Value = ((result.SnapshotTransferInBytes)/(1024*1024)).ToString();
+                nbytes.Value = AsMBytes((double)result.SnapshotTransferInBytes);
                 time.Value = result.SnapshotTimeAverageInSeconds.ToString("N1");
 
                 if (uiLatencyGraphPanel.SelectedIndex < 1)
@@ -160,7 +160,7 @@ namespace SpeedTests
             CurrThroughputGraph.SetValue(result.SpeedInMbpsRounded);
 
             speed.Value = result.SpeedInMbpsRounded.ToString() + " Mbps";
-            nbytes.Value = (result.NBytes / (1024 * 1024)).ToString();
+            nbytes.Value = AsMBytes(result.NBytes);
             time.Value = result.TimeAverageInSeconds.ToString("N1");
             uiLatencyStats.SetStatistics(stats, false); // not full stats
             ShowProgressRing?.StopProgressIndeterminate();
@@ -172,12 +172,13 @@ namespace SpeedTests
 
             CurrThroughputGraph = new YGraph();
             uiLatencyGraphPanel.Items.Insert(0, CurrThroughputGraph);
+            CurrThroughputGraph.UpdateTitle("Upload");
 
             var stats = new Statistics(new double[] { 0.0 });
             CurrThroughputGraph.CurrStatistics = stats;
             var speed = new Statistics.AdditionalInfo("Throughput", "0.0");
             stats.PreAdditionalInfo.Add(speed);
-            var nbytes = new Statistics.AdditionalInfo("N Bytes", "0.0");
+            var nbytes = new Statistics.AdditionalInfo("Bytes", "0.0");
             stats.PreAdditionalInfo.Add(nbytes);
             var time = new Statistics.AdditionalInfo("Time (s)", "0.0");
             stats.PreAdditionalInfo.Add(time);
@@ -198,7 +199,7 @@ namespace SpeedTests
                 //uiThroughput.Text += $"{result}\n";
                 CurrThroughputGraph.AddValue(result.SnapshotSpeedInMbpsRounded);
                 speed.Value = result.SnapshotSpeedInMbpsRounded.ToString() + " Mbps";
-                nbytes.Value = (result.SnapshotTransferInBytes / (1024 * 1024)).ToString();
+                nbytes.Value = AsMBytes(result.SnapshotTransferInBytes);
                 time.Value = result.SnapshotTimeAverageInSeconds.ToString("N1");
 
                 if (uiLatencyGraphPanel.SelectedIndex < 1)
@@ -215,11 +216,17 @@ namespace SpeedTests
             CurrThroughputGraph.SetValue(result.SpeedInMbpsRounded);
 
             speed.Value = result.SpeedInMbpsRounded.ToString() + " Mbps";
-            nbytes.Value = (result.NBytes / (1024 * 1024)).ToString();
+            nbytes.Value = AsMBytes(result.NBytes);
             time.Value = result.TimeAverageInSeconds.ToString("N1");
             uiLatencyStats.SetStatistics(stats, false); // not full stats
             ShowProgressRing?.StopProgressIndeterminate();
 
+        }
+
+        private static string AsMBytes(double nbytes)
+        {
+            var retval = (nbytes / (1024 * 1024)).ToString("N2") + " MBytes";
+            return retval;
         }
 
         FccSpeedTest2022 SpeedTest = new FccSpeedTest2022();

@@ -311,7 +311,7 @@ namespace WiFiRadarControl
                         // There will be too many orphans. The current ring is the last ring.
                         if (retval.Count == 1)
                         {
-                            //Log($"DBG: Disribute: OneRing={remainder}");
+                            //Log($"DBG: Distribute: OneRing={remainder}");
                             retval[retval.Count - 1] += remainder;
                             remainder = 0;
                         }

@@ -36,7 +36,7 @@ namespace SpeedTests
         private void YGraph_Loaded(object sender, RoutedEventArgs e)
         {
             //var task = DemoUsage();
-        }
+        }  public void UpdateTitle(string value) { uistatTitle.Text = value; }
 
         private async Task DemoUsage()
         {
@@ -53,6 +53,15 @@ namespace SpeedTests
 
         List<double> Values = new List<double>();
         List<Line> Lines = new List<Line>();
+
+        const int NTextSlots = 7;
+        /// <summary>
+        /// Count of the number of points in a particular text slot (band)
+        /// </summary>
+        int[] TextSlotPoints = new int[7];
+        int CurrTextSlotLabel = 0; // At bottom
+        int CurrTextSlotValue = 3; // In middle.
+
         public void Update(List<double> values)
         {
             Values.Clear();
@@ -73,9 +82,41 @@ namespace SpeedTests
         {
             EnsureEnoughLines(Values.Count);
             SpaceLines();
-            var ymax = VerticalLines(Values.ToArray()); //TODO: inefficiently swapping from list to double :-(
+            var ymax = SetLineVerticalPosition(Values);
             uistatYAxisMax.Text = ymax.ToString() + ValueSuffix;
             uistatYCurrValue.Text = Values[Values.Count-1].ToString();
+
+            // Move the labels (as needed)
+            CurrTextSlotValue = GetGoodSlot(TextSlotPoints, CurrTextSlotValue, CurrTextSlotLabel);
+            CurrTextSlotLabel = GetGoodSlot(TextSlotPoints, CurrTextSlotLabel, CurrTextSlotValue);
+            Canvas.SetTop(uistatYCurrValue, SlotToTop(CurrTextSlotValue));
+            Canvas.SetTop(uistatTitle, SlotToTop(CurrTextSlotLabel));
+        }
+
+        private double SlotToTop(int slot) // slot 0 is at the bottom
+        {
+            double border = 5.0;
+            double delta = (uiCanvas.Height - (border * 2.0)) / (double)NTextSlots;
+            double h = delta * (NTextSlots - slot - 1) + border;
+            // Example: slot 6 is top slot when NTExtSlots is 7
+            return h;
+        }
+
+        private static int GetGoodSlot(int[] values, int curr, int disallowed)
+        {
+            const int MinDelta = 4;
+            var currValue = values[curr];
+            for (int i=0; i<values.Length; i++)
+            {
+                int value = values[i];
+                var valueDelta = currValue - value;
+                if (valueDelta > MinDelta && i != disallowed && i != curr) // don't shift for a trivia difference.
+                {
+                    curr = i;
+                    currValue = value;
+                }
+            }
+            return curr;
         }
 
         public void SetValue(double value)
@@ -123,10 +164,12 @@ namespace SpeedTests
         }
 
         /// <summary>
-        /// Set the Y1 and Y2 values of the lines; return new nice max value
+        /// Set the Y1 and Y2 values of the lines; return new nice max value. Also updates TextSlotPoints.
         /// </summary>
-        private double VerticalLines(double[] values)
+        private double SetLineVerticalPosition(List<double> values)
         {
+            for (int i=0; i<NTextSlots; i++) TextSlotPoints[i] = 0;
+
             double graphMin = uiCanvas.Height - 5;
             double graphMax = 5; // not quite at the top
             double graphH = Math.Abs(graphMin - graphMax);
@@ -135,11 +178,14 @@ namespace SpeedTests
             valueMin = 0.0; // I know this is always the best value
             valueMax = MathMinMax.NiceValue(valueMax, 
                 new double[] { 1.0, 2.0, 5.0, 7.5, 10.0, 15.0, 20.0, 25.0, 30.0, 40.0, 50.0, 60.0, 75.0, 100.0, 200.0, 500.0, 1000.0  });
-            for (int i=0; i<values.Length; i++)
+            for (int i=0; i<values.Count; i++)
             {
                 double y = MathMinMax.Rescale(values[i], valueMin, valueMax, graphMin, graphMax);
                 Lines[i].Y2 = y;
                 Lines[i + 1].Y1 = y;
+
+                int slot = (int)MathMinMax.Rescale(values[i], valueMin, valueMax, 0, NTextSlots);
+                TextSlotPoints[slot] += 1;
             }
             return valueMax;
         }

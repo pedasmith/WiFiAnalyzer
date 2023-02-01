@@ -48,7 +48,7 @@ namespace SpeedTests
         }
         public void SetStatistics(Statistics stats, bool isFull) //isFull is ignored for this
         {
-            // NEW: TODO: when not connected, stats is null
+            // When not connected, stats is null
             if (stats == null)
             {
                 return;

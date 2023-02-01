@@ -777,7 +777,7 @@ namespace WiFiRadarControl
         static string[] UnlockTags = new string[]
         {
 #if DEBUG
-        "RADAR", // TODO: reset this for shipping! "Log", "RADAR", "Log",
+        "RADAR", // NOTE: reset this for shipping! "Log", "RADAR", "Log",
 #else
             "RADAR", "Log", "RADAR", "Log",
 #endif
@@ -806,7 +806,7 @@ namespace WiFiRadarControl
                     // 2. You can add a new pivot, but not from a OnPivotSelectionChanged
                     //    Indeed, the failure from adding a pivot there is pretty spectacular:
                     //    it's not just an exception, it's an exception that pops up a super
-                    //    old school exception and tries to open a differnt debugger.
+                    //    old school exception and tries to open a different debugger.
                     //uiSpeedTestControl.Visibility = Visibility.Visible;
                     //uiSpeedTest.IsEnabled = true;
                 }

@@ -89,7 +89,7 @@ namespace SpeedTests
                 if (response.ResponseMessage == null)
                 {
                     // Can happen if we're offline
-                    results.Error = $"Unable to connect; reason={response.ExtendedError?.Message ?? "(unable to connect)"}"; // TODO: better error message?
+                    results.Error = $"Unable to connect; reason={response.ExtendedError?.Message ?? "(unable to connect)"}"; 
                     return;
                 }
                 if (response.ResponseMessage.StatusCode != HttpStatusCode.Ok)
@@ -231,8 +231,8 @@ namespace SpeedTests
             // FCC says to use 3 threads. We use 3 tasks instead.
             // These are just the results; the uploadload tasks are below.
             retval.SingleResults.Add(new ThroughputTestResultSingle());
-            //TODO: add this back retval.SingleResults.Add(new ThroughputTestResultSingle());
-            //retval.SingleResults.Add(new ThroughputTestResultSingle());
+            retval.SingleResults.Add(new ThroughputTestResultSingle());
+            retval.SingleResults.Add(new ThroughputTestResultSingle());
 
             // Set up the HttpClient so that it doesn't cache
             var bpf = new HttpBaseProtocolFilter();
@@ -247,8 +247,8 @@ namespace SpeedTests
 
             Task[] tasks = new Task[] {
                 UploadTestSingle(hc, uri, retval.SingleResults[0]),
-                //TODO: just one for debugging UploadTestSingle(hc, uri, retval.SingleResults[1]),
-                //TODO: just one for debugging: UploadTestSingle(hc, uri, retval.SingleResults[2]),
+                UploadTestSingle(hc, uri, retval.SingleResults[1]),
+                UploadTestSingle(hc, uri, retval.SingleResults[2]),
             };
             return Task.WhenAll(tasks);
         }
@@ -265,7 +265,7 @@ namespace SpeedTests
             {
                 var request = new HttpRequestMessage(HttpMethod.Post, uri);
                 //const int BufferCapacity = 100 * 1024 * 1024; // 1 meg
-                var content = CreateUploadBuffer(100 * 1024 * 1024);
+                var content = CreateUploadBuffer(20 * 1024 * 1024);
                 request.Content = content;
 
                 var startTime = DateTimeOffset.UtcNow;
@@ -282,11 +282,12 @@ namespace SpeedTests
                     var now = DateTimeOffset.UtcNow;
                     if (progress.Retries != retries)
                     {
-                        Log($"DBG: Progress: RETRY: phase={results.CurrPhase} stage={progress.Stage} sent={progress.BytesSent} tot={progress.TotalBytesToSend}");
+                        // NOTE: perhaps invalid on retry?
+                        Log($"Progress: RETRY: phase={results.CurrPhase} stage={progress.Stage} sent={progress.BytesSent} tot={progress.TotalBytesToSend}");
                         retries = progress.Retries;
                     }
 
-                    //Log($"DBG: Progress: phase={results.CurrPhase} stage={progress.Stage} sent={progress.BytesSent} tot={progress.TotalBytesToSend}");
+                    //Log($"Progress: phase={results.CurrPhase} stage={progress.Stage} sent={progress.BytesSent} tot={progress.TotalBytesToSend}");
                     switch (results.CurrPhase)
                     {
                         case ThroughputTestResultSingle.Phase.PhaseWarmup:
@@ -375,14 +376,13 @@ namespace SpeedTests
 
                 Log($"TRACE: S={results.S} CalculateMbps={results.Mbps}");
 
-                // TODO: do I care about these? Note that I don't get the response headers for
-                // quite some time
+                // Won't get the response headers for quite some time
                 var response = await task;
                 if (response.ResponseMessage == null)
                 {
                     // Can happen if we're offline
                     Log($"TRACE: no response message");
-                    results.Error = $"Unable to connect; reason={response.ExtendedError?.Message ?? "(unable to connect)"}"; // TODO: better error message?
+                    results.Error = $"Unable to connect; reason={response.ExtendedError?.Message ?? "(unable to connect)"}";
                     return;
                 }
                 if (response.ResponseMessage.StatusCode != HttpStatusCode.Ok)

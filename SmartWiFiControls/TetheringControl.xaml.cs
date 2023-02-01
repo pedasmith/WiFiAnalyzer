@@ -317,7 +317,8 @@ namespace SmartWiFiControls
         }
         private static void Log(string str)
         {
-            ; // TODO: actually have a log output :-)
+            Console.WriteLine(str);
+            System.Diagnostics.Debug.WriteLine(str);
         }
 
         public async Task SetupFromWiFiSetupUrl(WiFiUrl url)
