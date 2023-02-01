@@ -366,7 +366,7 @@ namespace SpeedTests
                     lastLog = now;
                     lastLogNBytesSnapshot = totalNBytes;
 
-                    Log($"TRACE: Upload: length={results.Snapshot.NBytes}");
+                    // Log($"TRACE: Upload: length={results.Snapshot.NBytes}");
 
                     if (results.CurrPhase == ThroughputTestResultSingle.Phase.PhaseComplete)
                     {

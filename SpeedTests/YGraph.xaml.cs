@@ -86,11 +86,14 @@ namespace SpeedTests
             uistatYAxisMax.Text = ymax.ToString() + ValueSuffix;
             uistatYCurrValue.Text = Values[Values.Count-1].ToString();
 
-            // Move the labels (as needed)
-            CurrTextSlotValue = GetGoodSlot(TextSlotPoints, CurrTextSlotValue, CurrTextSlotLabel);
-            CurrTextSlotLabel = GetGoodSlot(TextSlotPoints, CurrTextSlotLabel, CurrTextSlotValue);
-            Canvas.SetTop(uistatYCurrValue, SlotToTop(CurrTextSlotValue));
-            Canvas.SetTop(uistatTitle, SlotToTop(CurrTextSlotLabel));
+            // Move the labels (as needed) but only if there are enough points.
+            if (Values.Count > 20)
+            {
+                CurrTextSlotValue = GetGoodSlot(TextSlotPoints, CurrTextSlotValue, CurrTextSlotLabel);
+                CurrTextSlotLabel = GetGoodSlot(TextSlotPoints, CurrTextSlotLabel, CurrTextSlotValue);
+                Canvas.SetTop(uistatYCurrValue, SlotToTop(CurrTextSlotValue));
+                Canvas.SetTop(uistatTitle, SlotToTop(CurrTextSlotLabel));
+            }
         }
 
         private double SlotToTop(int slot) // slot 0 is at the bottom
