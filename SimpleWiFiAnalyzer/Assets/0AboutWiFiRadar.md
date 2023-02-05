@@ -138,7 +138,7 @@ See [Wi-Fi problems and your home layout](https://support.microsoft.com/en-us/wi
 Info on building an app at [Build a Wi-Fi Scanner in the UWP](https://docs.microsoft.com/en-us/archive/msdn-magazine/2016/july/modern-apps-build-a-wi-fi-scanner-in-the-uwp)
 
 
-Don't bother looking at  [Advanced troubleshooting wirelss network connectivity](https://docs.microsoft.com/en-us/windows/client-management/advanced-troubleshooting-wireless-network-connectivity)
+Don't bother looking at  [Advanced troubleshooting wireless network connectivity](https://docs.microsoft.com/en-us/windows/client-management/advanced-troubleshooting-wireless-network-connectivity)
 
 
 
@@ -187,4 +187,19 @@ No reviews
 ### [WiFi Scout](https://apps.microsoft.com/store/detail/wifi-scout/9NBLGGH5XCQ9?hl=en-us&gl=US)
 
 * Can't pick adapter
-* Doesn't support 5 Ghz?\
+* Doesn't support 5 Ghz?
+
+# Problems with the Microsoft Wi-Fi APIs
+
+You can get a list of available networks per wi-fi adapter, and you can get the currently-connected SSID. But there is not a way to determine which of the many networks is actually connected. (Update: )
+
+The SignalBars value in the WiFiAvailableNetwork is always the same value (AFAICT, it always matches the signal-bar value of the currently connected AP)
+
+# Concepts in the Microsoft Wi-Fi and Network APIs
+
+|Concept|Notes|URL
+|-----|-----|-----|
+|Adapter|Most laptops have a single, built-in Wi-Fi adapter. It's possible to have several.|
+|AP (Access Point)|Has an SSID which is not unique (multiple APs can have the same SSID)
+|HostName|Either human-readable host name (like "mycomputer.local" or an IPv6 or IPv4 address)
+|WLAN Connection Profile|Can get the Connected SSID. Get with the NetworkInformation.GetInternetConnectionProfile.

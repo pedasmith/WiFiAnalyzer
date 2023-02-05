@@ -28,6 +28,7 @@
       <DependentUpon>ProgressRadar.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)ProgressRadarHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)UsefulNetworkInformation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WiFiAnalyzerControl.xaml.cs">
       <DependentUpon>WiFiAnalyzerControl.xaml</DependentUpon>
     </Compile>

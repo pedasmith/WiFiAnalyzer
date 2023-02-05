@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using WiFiRadarControl;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Networking;
@@ -32,15 +33,10 @@ namespace SpeedTests
     {
         public IGetSpeedTestOptions SpeedTestOptions = null;
         public WiFiRadarControl.IShowProgressRing ShowProgressRing = null;
+        public UsefulNetworkInformation CurrentUsefulNetworkInfo = null;
         public SpeedTestControl()
         {
             this.InitializeComponent();
-            this.Loaded += SpeedTestControl_Loaded;
-        }
-
-        private void SpeedTestControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            //No longer here; it's on the WiFiAnalyzerControl and will be set on creation. SpeedTestOptions = uiSpeedTestOptionControl;
         }
 
         /// <summary>
@@ -49,6 +45,7 @@ namespace SpeedTests
         /// 
         public async Task DoSpeedTests()
         {
+            SpeedTest.CurrentUsefulNetworkInfo = CurrentUsefulNetworkInfo; // Update to match latest value
             var list = GetSpeedTestList();
             foreach (var speedtype in list)
             {
@@ -127,10 +124,16 @@ namespace SpeedTests
             var time = new Statistics.AdditionalInfo("Time (s)", "0.0");
             stats.PreAdditionalInfo.Add(time);
 
-            var server = new Statistics.AdditionalInfo("Server", serverName);
-            stats.PostAdditionalInfo.Add(server);
-            var at = new Statistics.AdditionalInfo("At", DateTime.Now.ToLongTimeString());
-            stats.PostAdditionalInfo.Add(at);
+            if (!string.IsNullOrEmpty(CurrentUsefulNetworkInfo.WlanSsid))
+            {
+                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("SSID", CurrentUsefulNetworkInfo.WlanSsidUser));
+            }
+            if (CurrentUsefulNetworkInfo.WlanFrequencyInKilohertz > 0)
+            {
+                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("GHz", CurrentUsefulNetworkInfo.WlanFrequencyUser));
+            }
+            stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Server", serverName));
+            stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("At", DateTime.Now.ToLongTimeString()));
 
             ShowProgressRing?.StartProgressIndeterminate();
             var result = new FccSpeedTest2022.ThroughputTestResult();

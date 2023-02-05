@@ -13,6 +13,7 @@ using System.IO;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
+using WiFiRadarControl;
 using Windows.Foundation;
 using Windows.Foundation.Diagnostics;
 using Windows.Networking;
@@ -35,6 +36,7 @@ namespace SpeedTests
 
     public partial class FccSpeedTest2022
     {
+        public UsefulNetworkInformation CurrentUsefulNetworkInfo { get; set; } = new UsefulNetworkInformation();
         public List<string> Servers { get; } = new List<string>
         {
             "sp2-bdc-seattle-us.samknows.com"
@@ -521,7 +523,7 @@ namespace SpeedTests
 
             IndividualTests = new LatencyTestSingle[maxDatagrams];
 
-            var retval = new LatencyTestResults(server, port);
+            var retval = new LatencyTestResults(server, port, CurrentUsefulNetworkInfo);
             LTR = retval;
 
             using (var socket = new DatagramSocket())

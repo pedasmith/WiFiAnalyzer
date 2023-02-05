@@ -138,6 +138,19 @@ namespace WiFiRadarControl
         #endregion
 
         #region SCAN
+        /// <summary>
+        /// Current SSID that user is connected to; might be null. Set in UpdateConnectionInfo
+        /// </summary>
+        string CurrentSsid = null;
+
+        /// <summary>
+        /// Current BSSID that user is connect to; might be null or wrong. Set in UpdateNetworkInfo
+        /// </summary>
+        string CurrentProbableBssid { get; set; } = "";
+        /// <summary>
+        /// Collection of useful network info that can be passed to e.g., the speed test for logging.
+        /// </summary>
+        UsefulNetworkInformation CurrentUsefulNetworkInfo { get; } = new UsefulNetworkInformation();
         private async void OnScanNow(object sender, RoutedEventArgs e)
         {
             await DoCorrectScanTypeAsync();
@@ -220,7 +233,7 @@ namespace WiFiRadarControl
                     {
                         LogNetworkInfo($"Scan error: {e.Message}");
                     }
-                    Log(NetworkToString.ToString("    ", wifiAdapter.NetworkReport));
+                    Log(NetworkToString.ToString("    ", wifiAdapter.NetworkReport, CurrentProbableBssid));
                     //NOTE: location stuff never worked.
                     //if (locatorTask.Status != AsyncStatus.Error) smd.Position = locatorTask.GetResults();
                     //Log($"DBG: location status={locatorTask.Status} position={smd.Position}");
@@ -228,6 +241,15 @@ namespace WiFiRadarControl
                     CurrentCsv += NetworkToString.ToCsvData(wifiAdapter.NetworkReport);
                     CurrentHtml += NetworkToString.ToHtmlData(wifiAdapter.NetworkReport);
                     NetworkToString.Fill(wifiAdapter, CurrentNetworkInformationList, wifiAdapter.NetworkReport, smd);
+
+                    // Pull out the useful bits if possible.
+                    foreach (var network in wifiAdapter.NetworkReport.AvailableNetworks)
+                    {
+                        if (network.Bssid == CurrentProbableBssid)
+                        {
+                            CurrentUsefulNetworkInfo.WlanFrequencyInKilohertz = network.ChannelCenterFrequencyInKilohertz;
+                        }
+                    }
                 }
                 CurrentHtml = CurrentHtml.html(); // surrounds <tr>..</tr>\n lines with html+body+table
                 Log($"\nScan ended at {DateTime.Now}");
@@ -246,7 +268,7 @@ namespace WiFiRadarControl
                 }
 
                 // Add the locations
-                CurrentReflectorList = CreateReflectorList(CurrentNetworkInformationList, CurrentSsid);
+                CurrentReflectorList = CreateReflectorList(CurrentNetworkInformationList, CurrentSsid, CurrentProbableBssid);
                 uiRadar.SetReflectors(CurrentReflectorList); // Update the reflectors to represent the new truth about WiFi
 
             }
@@ -257,19 +279,39 @@ namespace WiFiRadarControl
             StopProgressIndeterminate();
             await uiRadar.StopAsync();
         }
-
-
         private void UpdateNetworkInfo()
         {
             CurrentSsid = null;
             try
             {
                 var lanList = NetworkInformation.GetLanIdentifiers();
+                Log($"Network Information: LAN Identifiers: ");
+                CurrentProbableBssid = "";
                 foreach (var lanItem in lanList)
                 {
-                    Log(lanItem.InfrastructureId.ToString());
+                    Log(NetworkToString.ToString("    ", lanItem));
+                    if (lanItem.InfrastructureId?.Type == 4097)
+                    {
+                        // I've got a probably BSSID for the WLAN (Wi-Fi) 
+                        // that I'm connected to!
+                        var b = lanItem.InfrastructureId.Value.ToArray();
+                        if (b.Length == 6)
+                        {
+                            CurrentProbableBssid = "";
+                            for (int i=0; i<b.Length; i++)
+                            {
+                                if (i > 0) CurrentProbableBssid += ":";
+                                CurrentProbableBssid += $"{b[i]:X2}".ToLower();
+                            }
+                            ;
+                        }
+                    }
                 }
-
+                if (CurrentProbableBssid!= "") 
+                {
+                    Log($"    Current Probable BSSID={CurrentProbableBssid}");
+                }
+                Log("");
             }
             catch (Exception e)
             {
@@ -277,12 +319,15 @@ namespace WiFiRadarControl
             }
         }
 
+        /// <summary>
+        /// Logs useful information about the network AND updated some of the "Current"
+        /// information like CurrentSsid and CurrentUsefulNetworkInfo
+        /// </summary>
         private void UpdateConnectionInfo()
         {
             // https://docs.microsoft.com/en-us/uwp/api/Windows.Networking.Connectivity.ConnectionProfile?view=winrt-22621
             try
             {
-
                 var cp = NetworkInformation.GetInternetConnectionProfile();
                 if (cp != null)
                 {
@@ -293,10 +338,12 @@ namespace WiFiRadarControl
                     if (cp.WlanConnectionProfileDetails != null)
                     {
                         CurrentSsid = cp.WlanConnectionProfileDetails.GetConnectedSsid();
+                        CurrentUsefulNetworkInfo.WlanSsid = CurrentSsid;
                     }
                     else
                     {
                         CurrentSsid = null;
+                        CurrentUsefulNetworkInfo.WlanSsid = CurrentSsid;
                     }
                 }
                 else
@@ -331,7 +378,6 @@ namespace WiFiRadarControl
             }
         }
 
-        string CurrentSsid = null;
 
         /// <summary>
         /// Given a ConnectionProfile, return the best name for the user, preferably the WLAN SSID if it exists and isn't empty.
@@ -409,15 +455,18 @@ namespace WiFiRadarControl
             });
         }
 
-        private static List<Reflector> CreateReflectorList(IList<WiFiNetworkInformation> list, string matchingSsid)
+        private static List<Reflector> CreateReflectorList(IList<WiFiNetworkInformation> list, string matchingSsid, string matchingBssid)
         {
             var retval = new List<Reflector>();
             foreach (var ninfo in list)
             {
-                var reflector = new Reflector();
-                reflector.Icon = Reflector.Icon_AP;
-                reflector.NetworkInformation = ninfo;
-                reflector.SsidToMatch = matchingSsid;
+                var reflector = new Reflector()
+                {
+                    Icon = Reflector.Icon_AP,
+                    NetworkInformation = ninfo,
+                    SsidToMatch = matchingSsid,
+                    Highlight = ninfo.Bssid == matchingBssid,
+                };
                 retval.Add(reflector);
             }
             retval = retval.OrderBy(value => value.NetworkInformation.Rssi).ToList();
@@ -806,9 +855,13 @@ namespace WiFiRadarControl
                 IsEnabled = true,
                 Visibility = Visibility.Visible,
             };
-            OptionalSpeedTestControl = new SpeedTestControl();
-            OptionalSpeedTestControl.SpeedTestOptions = uiSpeedTestOptions;
-            OptionalSpeedTestControl.ShowProgressRing = this;
+            OptionalSpeedTestControl = new SpeedTestControl()
+            {
+                SpeedTestOptions = uiSpeedTestOptions,
+                ShowProgressRing = this,
+                CurrentUsefulNetworkInfo = CurrentUsefulNetworkInfo,
+            };
+
             OptionalSpeedTest.Content = OptionalSpeedTestControl;
             uiPivot.Items.Insert (5, OptionalSpeedTest);
         }

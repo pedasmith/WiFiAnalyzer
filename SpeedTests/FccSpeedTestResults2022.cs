@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using WiFiRadarControl;
 using Windows.Networking;
 
 namespace SpeedTests
@@ -8,15 +9,17 @@ namespace SpeedTests
     {
         public class LatencyTestResults
         {
-            public LatencyTestResults(HostName server, String port)
+            public LatencyTestResults(HostName server, String port, UsefulNetworkInformation info)
             {
                 Server = server;
                 Port = port;
+                Info = info;
             }
 
             public DateTime StartTime { get; } = DateTime.Now;
             public HostName Server { get; set; } = null;
             public string Port { get; set; } = null;
+            public UsefulNetworkInformation Info { get; set; } = null;
             public int NSent { get; set; } = 0;
             public int NRecv { get; set; } = 0;
             public string Error { get; set; } = null;
@@ -61,6 +64,15 @@ namespace SpeedTests
                 SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("PDV From", pdv.PdvAverageFromServer.ToString("N3")));
                 SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Sent", NSent.ToString()));
                 SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Recv", NRecv.ToString()));
+
+                if (!String.IsNullOrEmpty(Info.WlanSsid))
+                {
+                    SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("SSID", Info.WlanSsidUser));
+                }
+                if (Info.WlanFrequencyInKilohertz > 0)
+                {
+                    SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("GHz", Info.WlanFrequencyUser));
+                }
                 SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Server", Server.DisplayName));
                 SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Port", Port));
                 SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("At", StartTime.ToLongTimeString()));

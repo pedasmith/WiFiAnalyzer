@@ -136,6 +136,26 @@ namespace SmartWiFiHelpers
             var retval = $"{indent}ConnectivityInterval Start={value.StartTime} Duration={value.ConnectionDuration}\n";
             return retval;
         }
+
+        public static string ToString(string indent, LanIdentifier value)
+        {
+            if (value == null) return $"{indent}LanIdentifer does not exist\n";
+            var infra = ToString("", value.InfrastructureId);
+            var port = ToString("", value.PortId);
+            var retval = $"{indent}LAN Identifer InfrastructureId=({infra}) Port=({port})";
+            return retval;
+        }
+        public static string ToString(string indent, LanIdentifierData value)
+        {
+            if (value == null) return $"{indent}not set";
+            string bytestr = "";
+            foreach (var b in value.Value)
+            {
+                bytestr += $"{b:X2} ";
+            }
+            var retval = $"{indent}LldpType={value.Type} Value={bytestr}";
+            return retval;
+        }
         public static async Task<string> ToStringAsync(string indent, NetworkAdapter value)
         {
             if (value == null) return $"{indent}NetworkAdapter does not exist\n";
@@ -336,10 +356,15 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
-        public static string ToString(string indent, WiFiAvailableNetwork value)
+        public static string ToString(string indent, WiFiAvailableNetwork value, string probableBssid)
         {
             if (value == null) return $"{indent}WiFiAvailableNetwork does not exist\n";
-            var retval = $"{indent}WiFiAvailableNetwork Name={value.Ssid.OrUnnamed()} Bssid={value.Bssid}\n";
+            var isCurrentAP = "";
+            if (value.Bssid == probableBssid)
+            {
+                isCurrentAP = "**";
+            }
+            var retval = $"{indent}{isCurrentAP}WiFiAvailableNetwork Name={value.Ssid.OrUnnamed()} Bssid={value.Bssid}\n";
             indent += Tab;
             retval += $"{indent}BeaconInterval={value.BeaconInterval.TotalSeconds}\n";
             retval += $"{indent}ChannelCenterFrequencyInGigahertz={(double)value.ChannelCenterFrequencyInKilohertz/1000000.0}\n";
@@ -448,14 +473,14 @@ namespace SmartWiFiHelpers
             return value.ToString(); // catches anything we miss
         }
 
-        public static string ToString(string indent, WiFiNetworkReport value)
+        public static string ToString(string indent, WiFiNetworkReport value, string probableBssid)
         {
             if (value == null) return $"{indent}WiFiNetworkReport does not exist\n";
             var retval = $"{indent}WiFiNetworkReport Count={value.AvailableNetworks.Count} TimeStamp={value.Timestamp}\n";
             indent += Tab;
             foreach (var item in value.AvailableNetworks)
             {
-                retval += ToString(indent, item);
+                retval += ToString(indent, item, probableBssid);
             }
             return retval;
         }

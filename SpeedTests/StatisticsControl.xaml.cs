@@ -45,6 +45,10 @@ namespace SpeedTests
             uiPreInfoB.Text = txt;
 
             txt = "";
+            if (stats.PostAdditionalInfo.Count > 0)
+            {
+                txt += "\n";
+            }
             foreach (var item in stats.PostAdditionalInfo)
             {
                 var tab = item.Name.Length < 8 ? "\t\t" : "\t";

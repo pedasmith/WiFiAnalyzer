@@ -36,6 +36,7 @@ namespace WiFiRadarControl
 
         public string Name { get { return NetworkInformation.SSID.OrUnnamed(); } }
         public WiFiNetworkInformation NetworkInformation { get; set; }
+        public bool Highlight { get; set; } = false;
         public string SsidToMatch { get; set; }
 
         public List<FrameworkElement> ToBeRemoved = new List<FrameworkElement>();
@@ -267,6 +268,10 @@ namespace WiFiRadarControl
 
         FontFamily IconFontFamily = new FontFamily("Segoe UI,Segoe MDL2 Assets");
         const int TextZIndex = 5;
+        Brush BackgroundHighlight = new SolidColorBrush(Colors.Yellow);
+        Brush BackgroundStandard = new SolidColorBrush(Colors.White);
+        Brush ForegroundStandard = new SolidColorBrush(Colors.Black);
+
         private void DrawReflectorText(Reflector reflector)
         {
             var bdr = new Border()
@@ -288,7 +293,7 @@ namespace WiFiRadarControl
                 FontSize = 15,
                 FontFamily = IconFontFamily,
                 FontWeight = weight,
-                Foreground = new SolidColorBrush(Colors.Black),
+                Foreground = ForegroundStandard,
                 TextAlignment = TextAlignment.Center,
                 HorizontalTextAlignment = TextAlignment.Center,
                 TextWrapping = TextWrapping.Wrap,
@@ -310,16 +315,18 @@ namespace WiFiRadarControl
                     FontSize = 15,
                     FontFamily = IconFontFamily,
                     FontWeight = weight,
-                    Foreground = new SolidColorBrush(Colors.Black),
+                    Foreground = ForegroundStandard,
                     TextAlignment = TextAlignment.Center,
                     HorizontalTextAlignment = TextAlignment.Center
 
                 };
                 var bdrName = new Border()
                 {
-                    Background = new SolidColorBrush(Colors.White),
+                    Background = reflector.Highlight ? BackgroundHighlight : BackgroundStandard,
                     IsTapEnabled = true,
                     Tag = reflector,
+                    BorderBrush = reflector.Highlight ? ForegroundStandard : null,
+                    BorderThickness = new Thickness(reflector.Highlight ? 1 : 0),
                 };
                 //bdrName.Tapped += Bdr_Tapped;
                 bdrName.Child = tb;
