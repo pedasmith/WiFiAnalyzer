@@ -284,6 +284,24 @@ namespace WiFiRadarControl
                     Log("No internet connection");
                     CurrentSsid = null;
                 }
+
+                // Also log the known hostnames
+                var list = NetworkInformation.GetHostNames();
+                Log("Hostnames");
+                foreach (var name in list)
+                {
+                    var str = "    " + name.DisplayName;
+                    if (name.DisplayName != name.CanonicalName)
+                    {
+                        str += $" canonical={name.CanonicalName}";
+                    }
+                    if (name.DisplayName != name.RawName)
+                    {
+                        str += $" raw={name.RawName}";
+                    }
+                    Log(str);
+                }
+
             }
             catch (Exception e)
             {
