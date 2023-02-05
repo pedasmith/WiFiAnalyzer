@@ -6,8 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignHeight="100"
+    d:DesignWidth="700">
 
     <StackPanel Orientation="Horizontal">
         <ComboBox Header="Server" x:Name="uiServerList" IsEditable="True" Width="300">
@@ -18,6 +18,8 @@
             <ComboBoxItem Content="Download" Tag="Download" />
             <ComboBoxItem Content="Upload" Tag="Upload" />
         </ComboBox>
+        <TextBox Header="Notes" x:Name="uiNotes" MinWidth="200" 
+                 IsTextPredictionEnabled="True" IsSpellCheckEnabled="True" />
 
     </StackPanel>
 </UserControl>

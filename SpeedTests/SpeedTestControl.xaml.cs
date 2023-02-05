@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -45,7 +46,9 @@ namespace SpeedTests
         /// 
         public async Task DoSpeedTests()
         {
+            CurrentUsefulNetworkInfo.Notes = SpeedTestOptions.GetNotes();
             SpeedTest.CurrentUsefulNetworkInfo = CurrentUsefulNetworkInfo; // Update to match latest value
+
             var list = GetSpeedTestList();
             foreach (var speedtype in list)
             {
@@ -106,6 +109,7 @@ namespace SpeedTests
             }
         }
 
+
         YGraph CurrThroughputGraph;
         private async Task DoDownloadTest()
         {
@@ -124,16 +128,7 @@ namespace SpeedTests
             var time = new Statistics.AdditionalInfo("Time (s)", "0.0");
             stats.PreAdditionalInfo.Add(time);
 
-            if (!string.IsNullOrEmpty(CurrentUsefulNetworkInfo.WlanSsid))
-            {
-                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("SSID", CurrentUsefulNetworkInfo.WlanSsidUser));
-            }
-            if (CurrentUsefulNetworkInfo.WlanFrequencyInKilohertz > 0)
-            {
-                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("GHz", CurrentUsefulNetworkInfo.WlanFrequencyUser));
-            }
-            stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Server", serverName));
-            stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("At", DateTime.Now.ToLongTimeString()));
+            FccSpeedTest2022.AddThroughputAdditionalPosts(stats, CurrentUsefulNetworkInfo, serverName, null);
 
             ShowProgressRing?.StartProgressIndeterminate();
             var result = new FccSpeedTest2022.ThroughputTestResult();
@@ -186,10 +181,7 @@ namespace SpeedTests
             var time = new Statistics.AdditionalInfo("Time (s)", "0.0");
             stats.PreAdditionalInfo.Add(time);
 
-            var server = new Statistics.AdditionalInfo("Server", serverName);
-            stats.PostAdditionalInfo.Add(server);
-            var at = new Statistics.AdditionalInfo("At", DateTime.Now.ToLongTimeString());
-            stats.PostAdditionalInfo.Add(at);
+            FccSpeedTest2022.AddThroughputAdditionalPosts(stats, CurrentUsefulNetworkInfo, serverName, null);
 
             ShowProgressRing?.StartProgressIndeterminate();
             var result = new FccSpeedTest2022.ThroughputTestResult();

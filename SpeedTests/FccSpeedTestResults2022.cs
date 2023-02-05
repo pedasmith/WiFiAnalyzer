@@ -7,6 +7,28 @@ namespace SpeedTests
 {
     partial class FccSpeedTest2022
     {
+        public static void AddThroughputAdditionalPosts(Statistics stats, UsefulNetworkInformation info, string serverName, string port)
+        {
+            if (!string.IsNullOrEmpty(info.WlanSsid))
+            {
+                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("SSID", info.WlanSsidUser));
+            }
+            if (info.WlanFrequencyInKilohertz > 0)
+            {
+                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("GHz", info.WlanFrequencyUser));
+            }
+            stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Server", serverName));
+            if (!string.IsNullOrEmpty(port))
+            {
+                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Port", port));
+            }
+            stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("At", DateTime.Now.ToLongTimeString()));
+            if (!string.IsNullOrEmpty(info.Notes))
+            {
+                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Notes", info.Notes));
+            }
+        }
+
         public class LatencyTestResults
         {
             public LatencyTestResults(HostName server, String port, UsefulNetworkInformation info)
@@ -65,19 +87,11 @@ namespace SpeedTests
                 SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Sent", NSent.ToString()));
                 SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Recv", NRecv.ToString()));
 
-                if (!String.IsNullOrEmpty(Info.WlanSsid))
-                {
-                    SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("SSID", Info.WlanSsidUser));
-                }
-                if (Info.WlanFrequencyInKilohertz > 0)
-                {
-                    SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("GHz", Info.WlanFrequencyUser));
-                }
-                SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Server", Server.DisplayName));
-                SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Port", Port));
-                SpeedStatistics.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("At", StartTime.ToLongTimeString()));
+                AddThroughputAdditionalPosts(SpeedStatistics, Info, Server.DisplayName, Port);
             }
         }
+
+
 
         /// <summary>
         /// Convert Bytes/Second into Megabits / second (mega=1024*1024)

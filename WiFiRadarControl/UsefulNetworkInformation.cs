@@ -14,6 +14,9 @@ namespace WiFiRadarControl
             WlanSsid = "(no SSID)";
             WlanFrequencyInKilohertz = 0;
         }
+
+        public string Notes { get; set; }
+
         /// <summary>
         /// Often set in the UpdateConnectionInfo method
         /// </summary>
