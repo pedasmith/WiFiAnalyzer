@@ -47,7 +47,7 @@ namespace SpeedTests
         }
         public void SetStatistics(Statistics stats, bool isFull) //isFull is ignored for this
         {
-            // NEW: TODO: when not connected, stats is null
+            // When not connected, stats is null
             if (stats == null)
             {
                 return;
@@ -70,8 +70,16 @@ namespace SpeedTests
             statMedian.Y1 = Map(stats.Median, 0.0, domainMax, canvasMin, canvasMax);
             statMedian.Y2 = Map(stats.Median, 0.0, domainMax, canvasMin, canvasMax);
             statIqr.Height = Map(stats.IqrHigh - stats.IqrLow, 0.0, domainMax, 0, canvasHeight); // Height is relative to height of the canvas, not the flipped-around Y values
-            var iqh = Map(stats.IqrHigh, 0.0, domainMax, 0, canvasHeight);
-            Canvas.SetTop(statIqr, Map(stats.IqrHigh, 0.0, domainMax, canvasMin, canvasMax));
+            double addedHeight = statIqr.Height > 3.0 ? 0.0 : (3.0 - statIqr.Height);
+
+            // Otherwise the "box" for the IQR range is not visible, which looks terrible.
+            var newTop = Map(stats.IqrHigh, 0.0, domainMax, canvasMin, canvasMax);
+            if (addedHeight > 0.0)
+            {
+                statIqr.Height += addedHeight;
+                newTop -= (addedHeight / 2.0);
+            }
+            Canvas.SetTop(statIqr, newTop);
 
             uistatYAxisMin.Text = "0.00";
             uistatYAxisMax.Text = domainMax.ToString(format);

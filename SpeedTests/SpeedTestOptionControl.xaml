@@ -12,10 +12,11 @@
     <StackPanel Orientation="Horizontal">
         <ComboBox Header="Server" x:Name="uiServerList" IsEditable="True" Width="300">
         </ComboBox>
-        <ComboBox Header="Tests to run" x:Name="uiStatsType" MinWidth="200" SelectedIndex="2" >
+        <ComboBox Header="Tests to run" x:Name="uiStatsType" MinWidth="200" SelectedIndex="0" >
+            <ComboBoxItem Content="All Tests" Tag="Latency Download Upload" />
             <ComboBoxItem Content="Latency" Tag="Latency" />
             <ComboBoxItem Content="Download" Tag="Download" />
-            <ComboBoxItem Content="Both" Tag="Latency Download" />
+            <ComboBoxItem Content="Upload" Tag="Upload" />
         </ComboBox>
 
     </StackPanel>

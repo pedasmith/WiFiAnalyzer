@@ -245,7 +245,7 @@ namespace SmartWiFiControls
             {
                 // NOTE: Gotcha! the GetCurrentAccessPointConfiguration can throw!
                 apconfiguration = null;
-                Log($"Error: unable to set up access point configuration");
+                Log($"Error: unable to set up access point configuration; exception {ex.Message}");
             }
             if (apconfiguration != null)
             {
@@ -317,7 +317,8 @@ namespace SmartWiFiControls
         }
         private static void Log(string str)
         {
-            ; // TODO: actually have a log output :-)
+            Console.WriteLine(str);
+            System.Diagnostics.Debug.WriteLine(str);
         }
 
         public async Task SetupFromWiFiSetupUrl(WiFiUrl url)

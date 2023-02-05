@@ -138,7 +138,7 @@ namespace SpeedTests
             // Basic data
 
             /// <summary>
-            /// URL that the download is from (e.g., http://sp2-bdc-seattle-us.samknows.com/1000MB.bin )
+            /// URL that the download or upload is from (e.g., http://sp2-bdc-seattle-us.samknows.com/1000MB.bin )
             /// </summary>
             public string TransferUri { get; set; }
 
@@ -266,7 +266,7 @@ namespace SpeedTests
                 }
             }
 
-            public long SnapshotDownloadInBytes
+            public long SnapshotTransferInBytes
             {
                 get
                 {

@@ -19,7 +19,7 @@ Simple Wi-Fi Analyzer provides basic information about the Wi-Fi environment you
 # Status
 ## Project current status and todo
 
-* Add menu instead of silly buttons for copy?
+* **DONE** Add menu instead of silly buttons for copy?
 * **DONE** convert IANA network type
 * **DONE** Enable the progress ring while scanning
 * **DONE** Add status that shows which network user is connected to
@@ -34,9 +34,9 @@ Simple Wi-Fi Analyzer provides basic information about the Wi-Fi environment you
 * **DONE** notify the user on error e.g. the try/catch on ScanAsync
 
 ## Project far backlog
-* Create handy Hotspot tab
-* Create hotspot from WIFI: URL
-* Connect to network from WIFI: URL
+* **DONE** Create handy Hotspot tab
+* **DONE** Create hotspot from WIFI: URL
+* **DONE** Connect to network from WIFI: URL
 * Continuous scans add 2D location Map to map out physical strength of specific network
 
 User actions

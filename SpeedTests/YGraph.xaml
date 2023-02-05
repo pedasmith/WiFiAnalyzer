@@ -31,6 +31,7 @@
             <Line x:Name="statYAxisMax" X1="0" X2="10" Y1="5" Y2="5" />
             <TextBlock x:Name="uistatYAxisMax" Text="20.00" Canvas.Top="0" Canvas.Left="15" />
             <TextBlock x:Name="uistatYCurrValue" Text="?" Canvas.Top="80" Canvas.Left="55" FontSize="26" />
+            <TextBlock x:Name="uistatTitle" Text="Download" Canvas.Top="170" TextAlignment="Center" Canvas.Left="0" Width="150" FontSize="20" />
         </Canvas>
     </Grid>
 </UserControl>

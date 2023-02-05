@@ -55,13 +55,14 @@ namespace SpeedTests
                 switch (speedtype)
                 {
                     case SpeedTestType.Latency: await DoLatencyTest(); break;
-                    case SpeedTestType.Download: await DoThroughputTest(); break;
+                    case SpeedTestType.Download: await DoDownloadTest(); break;
+                    case SpeedTestType.Upload: await DoUploadTest(); break;
                 }
             }
         }
 
 
-        enum SpeedTestType {  Latency, Download, }
+        enum SpeedTestType {  Latency, Download, Upload, }
         private List<SpeedTestType> GetSpeedTestList()
         {
             var retval = new List<SpeedTestType>();
@@ -73,8 +74,9 @@ namespace SpeedTests
                 {
                     case "Latency": retval.Add(SpeedTestType.Latency); break;
                     case "Download": retval.Add(SpeedTestType.Download); break;
+                    case "Upload": retval.Add(SpeedTestType.Upload); break;
                     default:
-                        Log($"ERROR: unknown statistics type {stattype}; expected Latency or Download");
+                        Log($"ERROR: unknown statistics type {stattype}; expected Latency or Download or Upload");
                         break;
                 }
             }
@@ -95,7 +97,6 @@ namespace SpeedTests
             ShowProgressRing?.StopProgressIndeterminate();
             // TODO: this keeps on updating the latency display while other
             // items are selected.
-            //TODO: SPEED STAT can be null
             if (result.SpeedStatistics != null)
             {
                 graph.SetStatistics(result.SpeedStatistics, true);
@@ -104,23 +105,24 @@ namespace SpeedTests
             }
             else
             {
-                uiLog.Text += "TODO: no results";
+                uiLog.Text += "Error: no results";
             }
         }
 
         YGraph CurrThroughputGraph;
-        private async Task DoThroughputTest()
+        private async Task DoDownloadTest()
         {
             var serverName = SpeedTestOptions.GetServer();
 
             CurrThroughputGraph = new YGraph();
+            CurrThroughputGraph.UpdateTitle("Download");
             uiLatencyGraphPanel.Items.Insert(0, CurrThroughputGraph);
 
             var stats = new Statistics(new double[] { 0.0});
             CurrThroughputGraph.CurrStatistics = stats;
             var speed = new Statistics.AdditionalInfo("Throughput", "0.0");
             stats.PreAdditionalInfo.Add(speed);
-            var nbytes = new Statistics.AdditionalInfo("N Bytes", "0.0");
+            var nbytes = new Statistics.AdditionalInfo("Bytes", "0.0");
             stats.PreAdditionalInfo.Add(nbytes);
             var time = new Statistics.AdditionalInfo("Time (s)", "0.0");
             stats.PreAdditionalInfo.Add(time);
@@ -141,7 +143,7 @@ namespace SpeedTests
                 //uiThroughput.Text += $"{result}\n";
                 CurrThroughputGraph.AddValue(result.SnapshotSpeedInMbpsRounded);
                 speed.Value = result.SnapshotSpeedInMbpsRounded.ToString() + " Mbps";
-                nbytes.Value = result.SnapshotDownloadInBytes.ToString();
+                nbytes.Value = AsMBytes((double)result.SnapshotTransferInBytes);
                 time.Value = result.SnapshotTimeAverageInSeconds.ToString("N1");
 
                 if (uiLatencyGraphPanel.SelectedIndex < 1)
@@ -158,11 +160,73 @@ namespace SpeedTests
             CurrThroughputGraph.SetValue(result.SpeedInMbpsRounded);
 
             speed.Value = result.SpeedInMbpsRounded.ToString() + " Mbps";
-            nbytes.Value = result.NBytes.ToString();
+            nbytes.Value = AsMBytes(result.NBytes);
             time.Value = result.TimeAverageInSeconds.ToString("N1");
             uiLatencyStats.SetStatistics(stats, false); // not full stats
             ShowProgressRing?.StopProgressIndeterminate();
 
+        }
+        private async Task DoUploadTest()
+        {
+            var serverName = SpeedTestOptions.GetServer();
+
+            CurrThroughputGraph = new YGraph();
+            uiLatencyGraphPanel.Items.Insert(0, CurrThroughputGraph);
+            CurrThroughputGraph.UpdateTitle("Upload");
+
+            var stats = new Statistics(new double[] { 0.0 });
+            CurrThroughputGraph.CurrStatistics = stats;
+            var speed = new Statistics.AdditionalInfo("Throughput", "0.0");
+            stats.PreAdditionalInfo.Add(speed);
+            var nbytes = new Statistics.AdditionalInfo("Bytes", "0.0");
+            stats.PreAdditionalInfo.Add(nbytes);
+            var time = new Statistics.AdditionalInfo("Time (s)", "0.0");
+            stats.PreAdditionalInfo.Add(time);
+
+            var server = new Statistics.AdditionalInfo("Server", serverName);
+            stats.PostAdditionalInfo.Add(server);
+            var at = new Statistics.AdditionalInfo("At", DateTime.Now.ToLongTimeString());
+            stats.PostAdditionalInfo.Add(at);
+
+            ShowProgressRing?.StartProgressIndeterminate();
+            var result = new FccSpeedTest2022.ThroughputTestResult();
+            var task = SpeedTest.UploadTest(result, serverName);
+            var startTime = DateTimeOffset.UtcNow;
+            bool overTime = false;
+            while (!task.IsCompleted && !overTime)
+            {
+                await Task.Delay(250);
+                //uiThroughput.Text += $"{result}\n";
+                CurrThroughputGraph.AddValue(result.SnapshotSpeedInMbpsRounded);
+                speed.Value = result.SnapshotSpeedInMbpsRounded.ToString() + " Mbps";
+                nbytes.Value = AsMBytes(result.SnapshotTransferInBytes);
+                time.Value = result.SnapshotTimeAverageInSeconds.ToString("N1");
+
+                if (uiLatencyGraphPanel.SelectedIndex < 1)
+                {
+                    uiLatencyStats.SetStatistics(stats, false); // not full stats
+                }
+
+                var timeInSeconds = DateTimeOffset.UtcNow.Subtract(startTime).TotalSeconds;
+                if (timeInSeconds > 10.0) // the FCC upload test only runs for 8 seconds
+                {
+                    overTime = true;
+                }
+            }
+            CurrThroughputGraph.SetValue(result.SpeedInMbpsRounded);
+
+            speed.Value = result.SpeedInMbpsRounded.ToString() + " Mbps";
+            nbytes.Value = AsMBytes(result.NBytes);
+            time.Value = result.TimeAverageInSeconds.ToString("N1");
+            uiLatencyStats.SetStatistics(stats, false); // not full stats
+            ShowProgressRing?.StopProgressIndeterminate();
+
+        }
+
+        private static string AsMBytes(double nbytes)
+        {
+            var retval = (nbytes / (1024 * 1024)).ToString("N2") + " MBytes";
+            return retval;
         }
 
         FccSpeedTest2022 SpeedTest = new FccSpeedTest2022();
@@ -178,7 +242,7 @@ namespace SpeedTests
             }
             else if (e.AddedItems[0] is YGraph yg)
             {
-                fullStats = false; // I just know this -- the YGraph is the download data which doesn't incldue all of the stddev etc values.
+                fullStats = false; // I just know this -- the YGraph is the download or upload data which doesn't incldue all of the stddev etc values.
                 stats = yg.GetStatistics();
             }
             if (stats == null) return;

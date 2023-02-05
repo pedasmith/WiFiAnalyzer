@@ -1,8 +1,8 @@
 # Simple Wi-Fi Analyzer Versions
 
-## Version 1.4 + 1.5: Minor bug fixes
+## Version 1.4 + 1.5 + 1.6: Minor bug fixes
 
-A small number of people report crashing problems; this version should fix that. Clearly it didn't for version 1.4, and hence the version 1.5 :-)
+A small number of people report crashing problems; this version should fix that. Clearly it didn't for version 1.4, and hence the version 1.5 and later version 1.6 :-)
 
 ## Version 1.3: Add share for QR codes
 

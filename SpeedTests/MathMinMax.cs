@@ -6,12 +6,24 @@ namespace SpeedTests
 {
     public static class MathMinMax
     {
-        public static (double min, double max) MinMax(double[] values, double defaultMin = double.MaxValue, double defaultMax=double.MinValue)
+        public static (double min, double max) MinMax(double[] values, double defaultMin = double.MaxValue, double defaultMax = double.MinValue)
         {
             double minVal = double.MaxValue;
-            double maxVal = double.MinValue; 
+            double maxVal = double.MinValue;
             if (values.Length == 0) return (defaultMin, defaultMax);
-            for (int i=0; i<values.Length; i++)
+            for (int i = 0; i < values.Length; i++)
+            {
+                minVal = Math.Min(minVal, values[i]);
+                maxVal = Math.Max(maxVal, values[i]);
+            }
+            return (minVal, maxVal);
+        }
+        public static (double min, double max) MinMax(List<double> values, double defaultMin = double.MaxValue, double defaultMax = double.MinValue)
+        {
+            double minVal = double.MaxValue;
+            double maxVal = double.MinValue;
+            if (values.Count == 0) return (defaultMin, defaultMax);
+            for (int i = 0; i < values.Count; i++)
             {
                 minVal = Math.Min(minVal, values[i]);
                 maxVal = Math.Max(maxVal, values[i]);

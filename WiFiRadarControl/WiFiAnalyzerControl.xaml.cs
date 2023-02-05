@@ -794,7 +794,11 @@ namespace WiFiRadarControl
         static int NextUnlockIndex = 0;
         static string[] UnlockTags = new string[]
         {
-            "RADAR", // TODO: reset this for shipping! "Log", "RADAR", "Log",
+#if DEBUG
+        "RADAR", // NOTE: reset this for shipping! "Log", "RADAR", "Log",
+#else
+            "RADAR", "Log", "RADAR", "Log",
+#endif
         };
         /// <summary>
         /// Special unlocking code uses the NextUnlockIndex and UnlockTags. This method knows
@@ -820,7 +824,7 @@ namespace WiFiRadarControl
                     // 2. You can add a new pivot, but not from a OnPivotSelectionChanged
                     //    Indeed, the failure from adding a pivot there is pretty spectacular:
                     //    it's not just an exception, it's an exception that pops up a super
-                    //    old school exception and tries to open a differnt debugger.
+                    //    old school exception and tries to open a different debugger.
                     //uiSpeedTestControl.Visibility = Visibility.Visible;
                     //uiSpeedTest.IsEnabled = true;
                 }

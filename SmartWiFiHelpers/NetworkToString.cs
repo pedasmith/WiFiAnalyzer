@@ -24,8 +24,15 @@ namespace SmartWiFiHelpers
 
         public static string td(this string text)
         {
-            var escaped = text; // TODO: actually escape!
+            // See http://sunriseprogrammer.blogspot.com/2022/09/clipboard-data-for-excel.html for why!
+
+            var escaped = System.Net.WebUtility.HtmlEncode(text);
             return $"<td>{escaped}</td>";
+        }
+        public static string th(this string text)
+        {
+            var escaped = System.Net.WebUtility.HtmlEncode(text);
+            return $"<th>{escaped}</th>";
         }
 
         /// <summary>
@@ -55,22 +62,10 @@ namespace SmartWiFiHelpers
             retval += $"{indent}BytesReceived={value.BytesReceived}\n";
             retval += $"{indent}BytesSent={value.BytesSent}\n";
             retval += $"{indent}AttributionId={value.AttributionId}\n";
-            //TODO: Not including Thumbnail
+            //NOTE: Not including Thumbnail
 
             return retval;
         }
-
-#if NEVER_EVER_DEFINED
-        public static string ToCsvHeader_AttributedNetworkUsage()
-        {
-            return "AttributedNetworkUsageName,BytesReceived,BytesSent,AttributionId,";
-        }
-        public static string CsvData(AttributedNetworkUsage value)
-        {
-            var retval = $"{value.AttributionName},{value.BytesReceived},{value.BytesSent},{value.AttributionId},";
-            return retval;
-        }
-#endif
 
         public static string ToString(string indent, ConnectionCost value)
         {
@@ -84,18 +79,18 @@ namespace SmartWiFiHelpers
             retval += $"{indent}Roaming={value.Roaming}\n";
             return retval;
         }
-        public static string ToString(string indent, ConnectionProfile value) //TODO: so much more
+        public static string ToString(string indent, ConnectionProfile value) //NOTE: there are more items to get
         {
             if (value == null) return $"{indent}ConnectionProfile does not exist\n";
             var retval = $"{indent}ConnectionProfile {value.ProfileName}\n";
             indent += Tab;
-            // TODO: Get*() NetworkAdapter NetworkSecuritySettings
+            // NOTE: Get*() NetworkAdapter NetworkSecuritySettings
             retval += $"{indent}CanDelete={value.CanDelete}\n";
             retval += $"{indent}IsWlanConnectionProfile={value.IsWlanConnectionProfile}\n";
             retval += $"{indent}IsWwanConnectionProfile={value.IsWwanConnectionProfile}\n";
             retval += $"{indent}ServiceProviderGuid={value.ServiceProviderGuid}\n";
 
-            // TODO: missing a bunch of Get*()
+            // NOTE: missing a bunch of Get*()
             /* Only supported in Phone
             var now = DateTime.UtcNow;
             var start = now.AddDays(-7.0); // one week;
@@ -303,7 +298,7 @@ namespace SmartWiFiHelpers
         }
         public static string ToHtmlHeader_NetworkSecuritySettings()
         {
-            return "AuthenticationType".td()+"EncryptionType".td();
+            return "AuthenticationType".th()+"EncryptionType".th();
         }
 
         public static string ToCsvData(NetworkSecuritySettings value)
@@ -399,7 +394,7 @@ namespace SmartWiFiHelpers
         }
         public static string ToHtmlHeader_WiFiAvailableNetwork()
         {
-            return "WiFiSsid".td() + "Bssid".td() + "BeaconInterval".td() + "Frequency".td() + "IsWiFiDirect".td() + "NetworkKind".td() + "Rssi".td() + "PhyKind".td() + "SignalBars".td() + "Uptime".td()
+            return "WiFiSsid".th() + "Bssid".th() + "BeaconInterval".th() + "Frequency".th() + "IsWiFiDirect".th() + "NetworkKind".th() + "Rssi".th() + "PhyKind".th() + "SignalBars".th() + "Uptime".th()
                 + ToHtmlHeader_NetworkSecuritySettings();
         }
 
