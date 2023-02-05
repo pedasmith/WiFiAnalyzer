@@ -1,5 +1,9 @@
 # Simple Wi-Fi Analyzer Versions
 
+## Version 1.7 Tracks network changes
+
+This version will track network changes better. The Wi-Fi name is updated in the status area, and the 
+
 ## Version 1.4 + 1.5 + 1.6: Minor bug fixes
 
 A small number of people report crashing problems; this version should fix that. Clearly it didn't for version 1.4, and hence the version 1.5 and later version 1.6 :-)

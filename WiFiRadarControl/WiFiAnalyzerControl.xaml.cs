@@ -63,7 +63,14 @@ namespace WiFiRadarControl
             uiGrid.ItemsSource = CurrentNetworkInformationList;
             uiRadar.DisplayWifiNetworkInformation = this;
 
+            NetworkInformation.NetworkStatusChanged += NetworkInformation_NetworkStatusChanged;
+
             await DoCorrectScanTypeAsync();
+        }
+
+        private void NetworkInformation_NetworkStatusChanged(object sender)
+        {
+            Utilities.UIThreadHelper.CallOnUIThread(() => UpdateConnectionInfo());
         }
 
         private void Log(string text)
@@ -192,7 +199,8 @@ namespace WiFiRadarControl
                 var dg = uiGrid;
                 var smd = new ScanMetadata();
 
-                GetNetworkInfo();
+                UpdateNetworkInfo();
+                UpdateConnectionInfo();
 
                 var adapterList = await WiFiAdapter.FindAllAdaptersAsync();
                 CurrentCsv = NetworkToString.ToCsvHeader_WiFiNetworkReport() + "\n";
@@ -251,7 +259,7 @@ namespace WiFiRadarControl
         }
 
 
-        private void GetNetworkInfo()
+        private void UpdateNetworkInfo()
         {
             CurrentSsid = null;
             try
@@ -262,7 +270,19 @@ namespace WiFiRadarControl
                     Log(lanItem.InfrastructureId.ToString());
                 }
 
-                // https://docs.microsoft.com/en-us/uwp/api/Windows.Networking.Connectivity.ConnectionProfile?view=winrt-22621
+            }
+            catch (Exception e)
+            {
+                Log($"Error while getting network LAN info {e.Message}");
+            }
+        }
+
+        private void UpdateConnectionInfo()
+        {
+            // https://docs.microsoft.com/en-us/uwp/api/Windows.Networking.Connectivity.ConnectionProfile?view=winrt-22621
+            try
+            {
+
                 var cp = NetworkInformation.GetInternetConnectionProfile();
                 if (cp != null)
                 {
@@ -282,12 +302,14 @@ namespace WiFiRadarControl
                 else
                 {
                     Log("No internet connection");
+                    LogNetworkInfo($"No internet connection");
                     CurrentSsid = null;
                 }
             }
             catch (Exception e)
             {
-                Log($"Error while getting netowrk info {e.Message}");
+                LogNetworkInfo($"Error: unable to get internet connection {e.Message}");
+                Log($"Error while getting network connection info {e.Message}");
             }
         }
 
