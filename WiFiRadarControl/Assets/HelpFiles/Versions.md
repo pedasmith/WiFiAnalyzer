@@ -2,7 +2,11 @@
 
 ## Version 1.7 Tracks network changes
 
-This version will track network changes better. The Wi-Fi name is updated in the status area, and the 
+This version will track network changes better. The Wi-Fi name is updated in the status area. For networks with multiple access points (APs), the code will attempt to determine which AP the device is currently connected to and will highlight it in the RADAR screen.
+
+Additionally, the Log output include more information about the access points.
+
+The secret feature is more full-featured and allows for saving the resulting data as Excel or CSV.
 
 ## Version 1.4 + 1.5 + 1.6: Minor bug fixes
 

@@ -187,7 +187,7 @@ namespace SpeedTests
                 Lines[i].Y2 = y;
                 Lines[i + 1].Y1 = y;
 
-                int slot = (int)MathMinMax.Rescale(values[i], valueMin, valueMax, 0, NTextSlots);
+                int slot = (int)MathMinMax.Rescale(values[i], valueMin, valueMax, 0, NTextSlots-1);
                 TextSlotPoints[slot] += 1;
             }
             return valueMax;

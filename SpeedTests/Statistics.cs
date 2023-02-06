@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmartWiFiHelpers;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -10,6 +11,7 @@ namespace SpeedTests
         {
             return $"N={N} Average={Average} Median={Median} Range={Range}";
         }
+        public string TestType { get; set; }
         public double Average { get; internal set; }
         public double IqrLow { get; internal set; }
         public double IqrHigh { get; internal set; }
@@ -27,7 +29,7 @@ namespace SpeedTests
             public AdditionalInfo(string name, string value)
             {
                 Name = name;
-                Value = value;
+                Value = value ?? "";
             }
 
             public string Name { get; set; }
@@ -36,6 +38,103 @@ namespace SpeedTests
         public List<AdditionalInfo> PreAdditionalInfo { get; } = new List<AdditionalInfo>();
         public List<AdditionalInfo> PostAdditionalInfo { get; } = new List<AdditionalInfo>();
 
+        public string GetDataAsExcel()
+        {
+            string retval = TestType.td();
+            foreach (var item in PreAdditionalInfo)
+            {
+                retval += item.Value.Replace(" Mbps", "").Replace(" MBytes", "").td();
+            }
+            var format = "N3";
+
+            if (TestType != "Download" && TestType != "Upload")
+            {
+                retval += this.Max.ToString(format).td();
+                retval += this.IqrHigh.ToString(format).td();
+                retval += this.Median.ToString(format).td();
+                retval += this.Average.ToString(format).td();
+                retval += this.IqrLow.ToString(format).td();
+                retval += this.Min.ToString(format).td();
+                retval += this.Range.ToString(format).td();
+                retval += this.StdDev.ToString(format).td();
+            }
+
+
+            foreach (var item in PostAdditionalInfo)
+            {
+                retval += item.Value.td();
+            }
+            retval = retval.tr();
+            return retval;
+        }
+        public string GetDataAsExcelHeader()
+        {
+            string retval = "TestType".th();
+            foreach (var item in PreAdditionalInfo)
+            {
+                retval += item.Name.th();
+            }
+
+            if (TestType != "Download" && TestType != "Upload") //NOTE: icky code caused by over-using the Statistics
+            {
+                retval += "Maximum".th() + "IqrHigh".th() + "Median".th() + "Mean".th() + "IqrLow".th() + "Minimum".th() + "Range".th() + "StdDev".th();
+            }
+            foreach (var item in PostAdditionalInfo)
+            {
+                retval += item.Name.th();
+            }
+            retval = retval.tr();
+            return retval;
+        }
+
+        public string GetDataCsv()
+        {
+            string retval = TestType;
+            foreach (var item in PreAdditionalInfo)
+            {
+                retval += "," + item.Value.Replace(" Mbps", "").Replace(" MBytes", "").Replace("%","");
+            }
+            var format = "N3";
+
+            if (TestType != "Download" && TestType != "Upload")
+            {
+                retval += "," + this.Max.ToString(format);
+                retval += "," + this.IqrHigh.ToString(format);
+                retval += "," + this.Median.ToString(format);
+                retval += "," + this.Average.ToString(format);
+                retval += "," + this.IqrLow.ToString(format);
+                retval += "," + this.Min.ToString(format);
+                retval += "," + this.Range.ToString(format);
+                retval += "," + this.StdDev.ToString(format);
+            }
+
+
+            foreach (var item in PostAdditionalInfo)
+            {
+                retval += "," + item.Value;
+            }
+            retval = retval + "\n";
+            return retval;
+        }
+        public string GetDataCsvHeader()
+        {
+            string retval = "TestType";
+            foreach (var item in PreAdditionalInfo)
+            {
+                retval += ",\"" + item.Name + "\"";
+            }
+
+            if (TestType != "Download" && TestType != "Upload") //NOTE: icky code caused by over-using the Statistics
+            {
+                retval += ",Maximum,IqrHigh,Median,Mean,IqrLow,Minimum,Range,StdDev";
+            }
+            foreach (var item in PostAdditionalInfo)
+            {
+                retval += ","+item.Name;
+            }
+            retval += "\n";
+            return retval;
+        }
 
         public Statistics(double[] values)
         {

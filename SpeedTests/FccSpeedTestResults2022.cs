@@ -7,26 +7,14 @@ namespace SpeedTests
 {
     partial class FccSpeedTest2022
     {
-        public static void AddThroughputAdditionalPosts(Statistics stats, UsefulNetworkInformation info, string serverName, string port)
+        public static void AddAdditionalStatsPost(Statistics stats, UsefulNetworkInformation info, string serverName, string port)
         {
-            if (!string.IsNullOrEmpty(info.WlanSsid))
-            {
-                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("SSID", info.WlanSsidUser));
-            }
-            if (info.WlanFrequencyInKilohertz > 0)
-            {
-                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("GHz", info.WlanFrequencyUser));
-            }
+            stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("SSID", info.WlanSsidUser));
+            stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("GHz", info.WlanFrequencyUser));
             stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Server", serverName));
-            if (!string.IsNullOrEmpty(port))
-            {
-                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Port", port));
-            }
+            stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Port", port));
             stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("At", DateTime.Now.ToLongTimeString()));
-            if (!string.IsNullOrEmpty(info.Notes))
-            {
-                stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Notes", info.Notes));
-            }
+            stats.PostAdditionalInfo.Add(new Statistics.AdditionalInfo("Notes", info.Notes));
         }
 
         public class LatencyTestResults
@@ -87,7 +75,7 @@ namespace SpeedTests
                 SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Sent", NSent.ToString()));
                 SpeedStatistics.PreAdditionalInfo.Add(new Statistics.AdditionalInfo("Recv", NRecv.ToString()));
 
-                AddThroughputAdditionalPosts(SpeedStatistics, Info, Server.DisplayName, Port);
+                AddAdditionalStatsPost(SpeedStatistics, Info, Server.DisplayName, Port);
             }
         }
 

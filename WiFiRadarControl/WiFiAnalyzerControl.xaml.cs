@@ -219,6 +219,10 @@ namespace WiFiRadarControl
                 CurrentCsv = NetworkToString.ToCsvHeader_WiFiNetworkReport() + "\n";
                 CurrentHtml = NetworkToString.ToHtmlHeader_WiFiNetworkReport().tr();
                 CurrentNetworkInformationList.Clear();
+                CurrentUsefulNetworkInfo.WlanFrequencyInKilohertz = 0; // Reset to zero and then set to correct value.
+                // It's important that if we start with WiFi with a WLAN frequency and then switch to Ethernet
+                // that we zero out the frequency setting.
+
                 foreach (var wifiAdapter in adapterList)
                 {
                     Log(await NetworkToString.ToStringAsync("", wifiAdapter));
@@ -343,7 +347,7 @@ namespace WiFiRadarControl
                     else
                     {
                         CurrentSsid = null;
-                        CurrentUsefulNetworkInfo.WlanSsid = CurrentSsid;
+                        CurrentUsefulNetworkInfo.WlanSsid = null;
                     }
                 }
                 else

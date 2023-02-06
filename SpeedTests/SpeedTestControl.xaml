@@ -48,11 +48,29 @@
                 </ListView.ItemsPanel>
             </ListView>
             <ScrollViewer Grid.Row="1" >
-                <TextBlock x:Name="uiThroughput" IsTextSelectionEnabled="True" />
+                <TextBlock x:Name="uiLogging" IsTextSelectionEnabled="True" />
             </ScrollViewer>
         </Grid>
         <Grid Grid.Row="1" Grid.Column="2">
-            <local:StatisticsControl x:Name="uiLatencyStats" VerticalAlignment="Top" />
+            <StackPanel>
+                <local:StatisticsControl x:Name="uiLatencyStats" VerticalAlignment="Top" />
+                <TextBlock>Copy As Excel</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Latency" Click="OnCopyAsExcel" Tag="Latency" />
+                    <Button Content="Throughput" Click="OnCopyAsExcel" Tag="Throughput"/>
+                    <Button Content="All" Click="OnCopyAsExcel" Tag="Latency Throughput"/>
+                </StackPanel>
+                <TextBlock>Copy CSV</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Latency" Click="OnCopyCsv" Tag="Latency" />
+                    <Button Content="Throughput" Click="OnCopyCsv" Tag="Throughput"/>
+                    <Button Content="All" Click="OnCopyCsv" Tag="Latency Throughput"/>
+                </StackPanel>
+                <TextBlock>Control</TextBlock>
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="Clear" Click="OnClearData" />
+                </StackPanel>
+            </StackPanel>
         </Grid>
     </Grid>
 </UserControl>

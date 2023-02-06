@@ -618,6 +618,7 @@ namespace SpeedTests
 
             // Final stat calculation and UX update
             retval.Calculate(IndividualTests);
+            retval.SpeedStatistics.TestType = "Latency";
             foreach (var ux in uxlist)
             {
                 ux.SetStatistics(retval.SpeedStatistics, true);

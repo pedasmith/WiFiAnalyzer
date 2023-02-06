@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ColorCode.Compilation.Languages;
+using SmartWiFiHelpers;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using WiFiRadarControl;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Networking;
@@ -20,6 +23,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Windows.Web.Http;
 using Windows.Web.Http.Filters;
+using static System.Net.WebRequestMethods;
 
 // The User Control stattype template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -120,6 +124,7 @@ namespace SpeedTests
             uiLatencyGraphPanel.Items.Insert(0, CurrThroughputGraph);
 
             var stats = new Statistics(new double[] { 0.0});
+            stats.TestType = "Download";
             CurrThroughputGraph.CurrStatistics = stats;
             var speed = new Statistics.AdditionalInfo("Throughput", "0.0");
             stats.PreAdditionalInfo.Add(speed);
@@ -128,7 +133,7 @@ namespace SpeedTests
             var time = new Statistics.AdditionalInfo("Time (s)", "0.0");
             stats.PreAdditionalInfo.Add(time);
 
-            FccSpeedTest2022.AddThroughputAdditionalPosts(stats, CurrentUsefulNetworkInfo, serverName, null);
+            FccSpeedTest2022.AddAdditionalStatsPost(stats, CurrentUsefulNetworkInfo, serverName, null);
 
             ShowProgressRing?.StartProgressIndeterminate();
             var result = new FccSpeedTest2022.ThroughputTestResult();
@@ -138,7 +143,7 @@ namespace SpeedTests
             while (!task.IsCompleted && !overTime)
             {
                 await Task.Delay(250);
-                //uiThroughput.Text += $"{result}\n";
+                //uiLogging.Text += $"{result}\n";
                 CurrThroughputGraph.AddValue(result.SnapshotSpeedInMbpsRounded);
                 speed.Value = result.SnapshotSpeedInMbpsRounded.ToString() + " Mbps";
                 nbytes.Value = AsMBytes((double)result.SnapshotTransferInBytes);
@@ -173,6 +178,7 @@ namespace SpeedTests
             CurrThroughputGraph.UpdateTitle("Upload");
 
             var stats = new Statistics(new double[] { 0.0 });
+            stats.TestType = "Upload";
             CurrThroughputGraph.CurrStatistics = stats;
             var speed = new Statistics.AdditionalInfo("Throughput", "0.0");
             stats.PreAdditionalInfo.Add(speed);
@@ -181,7 +187,7 @@ namespace SpeedTests
             var time = new Statistics.AdditionalInfo("Time (s)", "0.0");
             stats.PreAdditionalInfo.Add(time);
 
-            FccSpeedTest2022.AddThroughputAdditionalPosts(stats, CurrentUsefulNetworkInfo, serverName, null);
+            FccSpeedTest2022.AddAdditionalStatsPost(stats, CurrentUsefulNetworkInfo, serverName, null);
 
             ShowProgressRing?.StartProgressIndeterminate();
             var result = new FccSpeedTest2022.ThroughputTestResult();
@@ -191,7 +197,7 @@ namespace SpeedTests
             while (!task.IsCompleted && !overTime)
             {
                 await Task.Delay(250);
-                //uiThroughput.Text += $"{result}\n";
+                //uiLogging.Text += $"{result}\n";
                 CurrThroughputGraph.AddValue(result.SnapshotSpeedInMbpsRounded);
                 speed.Value = result.SnapshotSpeedInMbpsRounded.ToString() + " Mbps";
                 nbytes.Value = AsMBytes(result.SnapshotTransferInBytes);
@@ -250,5 +256,93 @@ namespace SpeedTests
             Console.WriteLine(str);
             System.Diagnostics.Debug.WriteLine(str);
         }
+
+        #region COPY
+        private string GetAllAsExcel(string filter)
+        {
+            string html = "";
+            var list = uiLatencyGraphPanel.Items;
+            foreach (var item in list)
+            {
+                Statistics stats = null;
+                if (item is BoxWhiskerControl bwc && filter.Contains("Latency"))
+                {
+                    stats = bwc.GetStatistics();
+                }
+                if (item is YGraph yg && filter.Contains("Throughput"))
+                {
+                    stats = yg.GetStatistics();
+                }
+                if (stats == null) continue;
+                if (html == "")
+                {
+                    html = stats.GetDataAsExcelHeader();
+                }
+                html += stats.GetDataAsExcel();
+            }
+            return html;
+        }
+
+        private void OnCopyAsExcel(object sender, RoutedEventArgs e)
+        {
+            var filterList = (sender as Button).Tag as string;
+            string html = "";
+            foreach (var filter in filterList.Split(" "))
+            {
+                html += GetAllAsExcel(filter);
+            }
+            html = html.html(); // adds in the <csv><body><table> etc.
+
+            var dp = new DataPackage();
+            dp.SetText(html);
+            dp.Properties.Title = "Speed Test data";
+            Clipboard.SetContent(dp);
+        }
+
+        private string GetAllCsv(string filter)
+        {
+            string csv = "";
+            var list = uiLatencyGraphPanel.Items;
+            foreach (var item in list)
+            {
+                Statistics stats = null;
+                if (item is BoxWhiskerControl bwc && filter.Contains("Latency"))
+                {
+                    stats = bwc.GetStatistics();
+                }
+                if (item is YGraph yg && filter.Contains("Throughput"))
+                {
+                    stats = yg.GetStatistics();
+                }
+                if (stats == null) continue;
+                if (csv == "")
+                {
+                    csv = stats.GetDataCsvHeader();
+                }
+                csv += stats.GetDataCsv();
+            }
+            return csv;
+        }
+
+        private void OnCopyCsv(object sender, RoutedEventArgs e)
+        {
+            var filterList = (sender as Button).Tag as string;
+            string csv = "";
+            foreach (var filter in filterList.Split(" "))
+            {
+                csv += GetAllCsv(filter);
+            }
+
+            var dp = new DataPackage();
+            dp.SetText(csv);
+            dp.Properties.Title = "Speed Test data";
+            Clipboard.SetContent(dp);
+        }
+        private void OnClearData (object sender, RoutedEventArgs e)
+        {
+            uiLatencyGraphPanel.Items.Clear();
+        }
+
+        #endregion
     }
 }
