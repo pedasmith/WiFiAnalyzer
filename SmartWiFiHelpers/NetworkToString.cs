@@ -538,7 +538,11 @@ namespace SmartWiFiHelpers
                 case WiFiPhyKind.HT: return "Wi-Fi 4 (802.11n) High Throughput (HT)";
                 case WiFiPhyKind.Vht: return "Wi-Fi 5 (802.11ac) Very High Throughput (VHT)";
                 case WiFiPhyKind.Dmg: return "WiGig (802.11ad) Directional multi-gigabit (DMG)";
-                case WiFiPhyKind.HE: return "Wi-Fi 6 (802.11ax) High-Efficiency Wireless (HEW)";
+#if SUPPORT_LATEST_2023
+                case WiFiPhyKind.Eht: return "Wi-Fi 6 (802.11ax) High-Efficiency Wireless (HEW)";
+#else
+                case (WiFiPhyKind)11: return "Wi-Fi 7 (802.11be) Enhanced throughput (EHT)";
+#endif
 
             }
             return value.ToString();

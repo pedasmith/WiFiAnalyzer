@@ -162,8 +162,9 @@ namespace WiFiRadarControl
             var selectedTag = (selectedPivot?.Tag as string) ?? "";
             switch (selectedTag)
             {
+                default:
                 case "RADAR": await DoRadarScanAsync(); break;
-                case "Log": // Hiding it in the log because I can't make pivot items invisible (and I can't add them, either)
+
                 case "SpeedTest":
                     if (OptionalSpeedTestControl != null)
                     {
