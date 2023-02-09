@@ -1,5 +1,9 @@
 # Simple Wi-Fi Analyzer Versions
 
+## Version 1.8 Supports latest Wi-Fi standards
+
+The newest [MSDN](https://learn.microsoft.com/en-us/uwp/api/windows.devices.wifi.wifiphykind?view=winrt-22621&source=docs) lists  a new Wi-Fi PHY kind which the app now reports.
+
 ## Version 1.7 Tracks network changes
 
 This version will track network changes better. The Wi-Fi name is updated in the status area. For networks with multiple access points (APs), the code will attempt to determine which AP the device is currently connected to and will highlight it in the RADAR screen.
