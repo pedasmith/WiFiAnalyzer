@@ -177,8 +177,8 @@ namespace SmartWiFiHelpers
             {
                 case NetworkAuthenticationType.None: return "None";
                 case NetworkAuthenticationType.Unknown: return "Unknown";
-                case NetworkAuthenticationType.Open80211: return "Open 802.11(Open80211)";
-                case NetworkAuthenticationType.SharedKey80211: return "WEP Password(SharedKey80211)";
+                case NetworkAuthenticationType.Open80211: return "Open 802.11 (Open80211)";
+                case NetworkAuthenticationType.SharedKey80211: return "WEP Password (SharedKey80211)";
                 case NetworkAuthenticationType.Wpa: return "WPA Enterprise (Wpa)";
                 case NetworkAuthenticationType.WpaPsk: return "WPA Password (WpaPsk)";
                 case NetworkAuthenticationType.WpaNone: return "WPA None(WpaNone)";
