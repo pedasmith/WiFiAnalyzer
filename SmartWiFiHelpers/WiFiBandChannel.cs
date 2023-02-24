@@ -223,7 +223,7 @@ namespace SmartWiFiHelpers
             retval.Add(Create5GhChannel("149", 5745, BW20));
             retval.Add(Create5GhChannel("151", 5755, BW40));
             retval.Add(Create5GhChannel("153", 5765, BW20));
-            retval.Add(Create5GhChannel("155", 5675, BW80));
+            retval.Add(Create5GhChannel("155", 5775, BW80));
             retval.Add(Create5GhChannel("157", 5785, BW20));
             retval.Add(Create5GhChannel("159", 5795, BW40));
             retval.Add(Create5GhChannel("161", 5805, BW20));

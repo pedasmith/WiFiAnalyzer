@@ -371,7 +371,7 @@ namespace SmartWiFiHelpers
             retval += $"{indent}IsWiFiDirect={value.IsWiFiDirect}\n";
             retval += $"{indent}NetworkKind={value.NetworkKind}\n";
             retval += $"{indent}NetworkRssiInDecibelMilliwatts={value.NetworkRssiInDecibelMilliwatts}\n";
-            retval += $"{indent}PhyKind={value.PhyKind}\n";
+            retval += $"{indent}PhyKind={Decode(value.PhyKind)}\n";
             retval += $"{indent}SignalBars={value.SignalBars}\n";
             retval += $"{indent}Uptime={value.Uptime}\n";
 
@@ -428,7 +428,7 @@ namespace SmartWiFiHelpers
             if (value == null) return $",,,,,,,,,,,,";
             var ghz = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
             var retval = $"\"{value.Ssid}\",{value.Bssid},{value.BeaconInterval.TotalSeconds},{ghz},{value.IsWiFiDirect},{value.NetworkKind},";
-            retval += $"{value.NetworkRssiInDecibelMilliwatts},{value.PhyKind},{value.SignalBars},{value.Uptime},";
+            retval += $"{value.NetworkRssiInDecibelMilliwatts},{Decode(value.PhyKind)},{value.SignalBars},{value.Uptime},";
             retval += ToCsvData(value.SecuritySettings);
             return retval;
         }
@@ -437,7 +437,7 @@ namespace SmartWiFiHelpers
             if (value == null) return "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td();
             var ghz = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
             var retval = $"{value.Ssid.ToString().td()}{value.Bssid.ToString().td()}{value.BeaconInterval.TotalSeconds.ToString().td()}{ghz.ToString().td()}{value.IsWiFiDirect.ToString().td()}{value.NetworkKind.ToString().td()}";
-            retval += $"{value.NetworkRssiInDecibelMilliwatts.ToString().td()}{value.PhyKind.ToString().td()}{value.SignalBars.ToString().td()}{value.Uptime.ToString().td()}";
+            retval += $"{value.NetworkRssiInDecibelMilliwatts.ToString().td()}{Decode(value.PhyKind).td()}{value.SignalBars.ToString().td()}{value.Uptime.ToString().td()}";
             retval += ToHtmlData(value.SecuritySettings);
             return retval;
         }
@@ -538,8 +538,9 @@ namespace SmartWiFiHelpers
                 case WiFiPhyKind.HT: return "Wi-Fi 4 (802.11n) High Throughput (HT)";
                 case WiFiPhyKind.Vht: return "Wi-Fi 5 (802.11ac) Very High Throughput (VHT)";
                 case WiFiPhyKind.Dmg: return "WiGig (802.11ad) Directional multi-gigabit (DMG)";
+                case WiFiPhyKind.HE: return "Wi-Fi 6 (802.11ax) High-Efficiency Wireless (HEW)";
 #if SUPPORT_LATEST_2023
-                case WiFiPhyKind.Eht: return "Wi-Fi 6 (802.11ax) High-Efficiency Wireless (HEW)";
+                case WiFiPhyKind.Eht: return "Wi-Fi 7 (802.11be) Enhanced throughput (EHT)";
 #else
                 case (WiFiPhyKind)11: return "Wi-Fi 7 (802.11be) Enhanced throughput (EHT)";
 #endif
