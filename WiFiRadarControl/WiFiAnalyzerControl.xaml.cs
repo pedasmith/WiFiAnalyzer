@@ -151,8 +151,11 @@ namespace WiFiRadarControl
         /// Collection of useful network info that can be passed to e.g., the speed test for logging.
         /// </summary>
         UsefulNetworkInformation CurrentUsefulNetworkInfo { get; } = new UsefulNetworkInformation();
+        int ScanRange = -500; // include basically everything. //TODO: make this into some kind of setting
         private async void OnScanNow(object sender, RoutedEventArgs e)
         {
+            var tag = (sender as FrameworkElement).Tag as string;
+            Int32.TryParse(tag, out ScanRange);
             await DoCorrectScanTypeAsync();
         }
 
@@ -201,6 +204,7 @@ namespace WiFiRadarControl
 
         private async Task DoRadarScanAsync()
         {
+            int rssiMinimum = ScanRange; //TODO: using global variable isn't right.
             Utilities.UIThreadHelper.CallOnUIThread(() => uiReport.Text = $"Scan started at {DateTime.Now}\n\n");
             StartProgressIndeterminate();
             try
@@ -245,7 +249,7 @@ namespace WiFiRadarControl
 
                     CurrentCsv += NetworkToString.ToCsvData(wifiAdapter.NetworkReport);
                     CurrentHtml += NetworkToString.ToHtmlData(wifiAdapter.NetworkReport);
-                    NetworkToString.Fill(wifiAdapter, CurrentNetworkInformationList, wifiAdapter.NetworkReport, smd);
+                    NetworkToString.Fill(wifiAdapter, CurrentNetworkInformationList, wifiAdapter.NetworkReport, smd, rssiMinimum);
 
                     // Pull out the useful bits if possible.
                     foreach (var network in wifiAdapter.NetworkReport.AvailableNetworks)

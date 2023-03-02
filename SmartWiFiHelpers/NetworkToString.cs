@@ -175,6 +175,7 @@ namespace SmartWiFiHelpers
         {
             switch(value)
             {
+                default: return $"{value}(={(int)value})";
                 case NetworkAuthenticationType.None: return "None";
                 case NetworkAuthenticationType.Unknown: return "Unknown";
                 case NetworkAuthenticationType.Open80211: return "Open 802.11 (Open80211)";
@@ -198,7 +199,7 @@ namespace SmartWiFiHelpers
                 case (NetworkAuthenticationType)13: return "WPA3 Enterprise (Wpa3Enterprise)";
 #endif
             }
-            return value.ToString();
+            // No need for this since I have a default value in the switch: return value.ToString();
         }
         // NetworkEncryptionType
         public static string Decode(NetworkEncryptionType value)
@@ -554,14 +555,17 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
-        public static void Fill(WiFiAdapter wifiAdapter, IList<WiFiNetworkInformation> list, WiFiNetworkReport value, ScanMetadata smd)
+        public static void Fill(WiFiAdapter wifiAdapter, IList<WiFiNetworkInformation> list, WiFiNetworkReport value, ScanMetadata smd, int rssiMinimum=-1000)
         {
             foreach (var item in value.AvailableNetworks)
             {
-                var data = new WiFiNetworkInformation();
-                Fill(data, item, smd);
-                data.SetAdapter(wifiAdapter);
-                list.Add(data);
+                if (item.NetworkRssiInDecibelMilliwatts > rssiMinimum)
+                {
+                    var data = new WiFiNetworkInformation();
+                    Fill(data, item, smd);
+                    data.SetAdapter(wifiAdapter);
+                    list.Add(data);
+                }
             }
         }
 
