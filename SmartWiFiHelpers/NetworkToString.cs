@@ -412,33 +412,73 @@ namespace SmartWiFiHelpers
             dest.SetAvailableNetwork(source);
 
         }
+        private static string[] ColNames = new string[]
+        {
+            "SSID", "BSSID", "BandName", "ChannelName", "Bandwidth", "Frequency", 
+            "RSSI", "SignalBars", "PhyKind", "Uptime", "BeaconInterval", 
+            "AuthentictionType", "EncryptionType",  // From NetworkSecurity
+            "IsWiFiDirect", "NetworkKind"
+        };
         public static string ToCsvHeader_WiFiAvailableNetwork()
         {
-            return "WiFiSsid,Bssid,BeaconInterval,Frequency,IsWiFiDirect,NetworkKind,Rssi,PhyKind,SignalBars,Uptime,"
-                + ToCsvHeader_NetworkSecuritySettings();
+            var retval = "";
+            foreach (var name in ColNames)
+            {
+                if (retval != "") retval += ",";
+                retval += name;
+            }
+            return retval;
+            //return "WiFiSsid,Bssid,BeaconInterval,Frequency,IsWiFiDirect,NetworkKind,Rssi,PhyKind,SignalBars,Uptime,"
+            //    + ToCsvHeader_NetworkSecuritySettings();
         }
         public static string ToHtmlHeader_WiFiAvailableNetwork()
         {
-            return "WiFiSsid".th() + "Bssid".th() + "BeaconInterval".th() + "Frequency".th() + "IsWiFiDirect".th() + "NetworkKind".th() + "Rssi".th() + "PhyKind".th() + "SignalBars".th() + "Uptime".th()
-                + ToHtmlHeader_NetworkSecuritySettings();
+            var retval = "";
+            foreach (var name in ColNames)
+            {
+                retval += name.th();
+            }
+            return retval;
+            //return "WiFiSsid".th() + "Bssid".th() + "BeaconInterval".th() + "Frequency".th() + "IsWiFiDirect".th() + "NetworkKind".th() + "Rssi".th() + "PhyKind".th() + "SignalBars".th() + "Uptime".th()
+            //    + ToHtmlHeader_NetworkSecuritySettings();
         }
 
         public static string ToCsvData(WiFiAvailableNetwork value)
         {
             if (value == null) return $",,,,,,,,,,,,";
             var ghz = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
-            var retval = $"\"{value.Ssid}\",{value.Bssid},{value.BeaconInterval.TotalSeconds},{ghz},{value.IsWiFiDirect},{value.NetworkKind},";
-            retval += $"{value.NetworkRssiInDecibelMilliwatts},{Decode(value.PhyKind)},{value.SignalBars},{value.Uptime},";
+
+            WiFiNetworkInformation wifini = new WiFiNetworkInformation();
+            ScanMetadata smd = new ScanMetadata();
+            Fill(wifini, value, smd);
+
+            var retval = $"\"{value.Ssid}\",{value.Bssid},{wifini.BandName},{wifini.ChannelName},{wifini.Bandwidth},{ghz},";
+            retval += $"{value.NetworkRssiInDecibelMilliwatts},{value.SignalBars},{Decode(value.PhyKind)},{value.Uptime},{value.BeaconInterval.TotalSeconds},";
             retval += ToCsvData(value.SecuritySettings);
+            retval += $"{value.IsWiFiDirect},{value.NetworkKind}";
+
+            //var retval = $"\"{value.Ssid}\",{value.Bssid},{value.BeaconInterval.TotalSeconds},{ghz},{value.IsWiFiDirect},{value.NetworkKind},";
+            //retval += $"{value.NetworkRssiInDecibelMilliwatts},{Decode(value.PhyKind)},{value.SignalBars},{value.Uptime},";
+            //retval += ToCsvData(value.SecuritySettings);
             return retval;
         }
         public static string ToHtmlData(WiFiAvailableNetwork value)
         {
             if (value == null) return "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td();
             var ghz = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
-            var retval = $"{value.Ssid.ToString().td()}{value.Bssid.ToString().td()}{value.BeaconInterval.TotalSeconds.ToString().td()}{ghz.ToString().td()}{value.IsWiFiDirect.ToString().td()}{value.NetworkKind.ToString().td()}";
-            retval += $"{value.NetworkRssiInDecibelMilliwatts.ToString().td()}{Decode(value.PhyKind).td()}{value.SignalBars.ToString().td()}{value.Uptime.ToString().td()}";
+
+            WiFiNetworkInformation wifini = new WiFiNetworkInformation();
+            ScanMetadata smd = new ScanMetadata();
+            Fill(wifini, value, smd);
+
+            var retval = $"{value.Ssid.ToString().td()}{value.Bssid.ToString().td()}{wifini.BandName.td()}{wifini.ChannelName.td()}{wifini.Bandwidth.ToString().td()}{ghz.ToString().td()}";
+            retval += $"{value.NetworkRssiInDecibelMilliwatts.ToString().td()}{value.SignalBars.ToString().td()}{Decode(value.PhyKind).td()}{value.Uptime.ToString().td()}{value.BeaconInterval.TotalSeconds.ToString().td()}";
             retval += ToHtmlData(value.SecuritySettings);
+            retval += $"{value.IsWiFiDirect.ToString().td()}{value.NetworkKind.ToString().td()}";
+
+            //var retval = $"{value.Ssid.ToString().td()}{value.Bssid.ToString().td()}{value.BeaconInterval.TotalSeconds.ToString().td()}{ghz.ToString().td()}{value.IsWiFiDirect.ToString().td()}{value.NetworkKind.ToString().td()}";
+            //retval += $"{value.NetworkRssiInDecibelMilliwatts.ToString().td()}{Decode(value.PhyKind).td()}{value.SignalBars.ToString().td()}{value.Uptime.ToString().td()}";
+            //retval += ToHtmlData(value.SecuritySettings);
             return retval;
         }
         public static string ToString(string indent, WiFiNetworkInformation value)
