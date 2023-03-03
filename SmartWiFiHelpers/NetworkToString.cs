@@ -534,23 +534,29 @@ namespace SmartWiFiHelpers
         {
             return ToHtmlHeader_WiFiAvailableNetwork();
         }
-        public static string ToCsvData(WiFiNetworkReport value)
+        public static string ToCsvData(WiFiNetworkReport value, int rssiMinimum)
         {
             if (value == null) return $"NO_DATA_FOR_WIFI_NETWORK_REPORT\n";
             var retval = "";
             foreach (var item in value.AvailableNetworks)
             {
-                retval += ToCsvData(item) + "\n";
+                if (item.NetworkRssiInDecibelMilliwatts >= rssiMinimum)
+                {
+                    retval += ToCsvData(item) + "\n";
+                }
             }
             return retval;
         }
-        public static string ToHtmlData(WiFiNetworkReport value)
+        public static string ToHtmlData(WiFiNetworkReport value, int rssiMinimum)
         {
             if (value == null) return $"NO_DATA_FOR_WIFI_NETWORK_REPORT".td();
             var retval = "";
             foreach (var item in value.AvailableNetworks)
             {
-                retval += ToHtmlData(item).tr();
+                if (item.NetworkRssiInDecibelMilliwatts >= rssiMinimum)
+                {
+                    retval += ToHtmlData(item).tr();
+                }
             }
             return retval;
         }

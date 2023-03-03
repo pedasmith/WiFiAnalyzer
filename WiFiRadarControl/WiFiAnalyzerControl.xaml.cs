@@ -247,8 +247,8 @@ namespace WiFiRadarControl
                     //if (locatorTask.Status != AsyncStatus.Error) smd.Position = locatorTask.GetResults();
                     //Log($"DBG: location status={locatorTask.Status} position={smd.Position}");
 
-                    CurrentCsv += NetworkToString.ToCsvData(wifiAdapter.NetworkReport);
-                    CurrentHtml += NetworkToString.ToHtmlData(wifiAdapter.NetworkReport);
+                    CurrentCsv += NetworkToString.ToCsvData(wifiAdapter.NetworkReport, rssiMinimum);
+                    CurrentHtml += NetworkToString.ToHtmlData(wifiAdapter.NetworkReport, rssiMinimum);
                     NetworkToString.Fill(wifiAdapter, CurrentNetworkInformationList, wifiAdapter.NetworkReport, smd, rssiMinimum);
 
                     // Pull out the useful bits if possible.
