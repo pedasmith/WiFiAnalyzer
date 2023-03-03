@@ -478,7 +478,7 @@ namespace WiFiRadarControl
                 };
                 retval.Add(reflector);
             }
-            retval = retval.OrderBy(value => value.NetworkInformation.Rssi).ToList();
+            retval = retval.OrderByDescending(value => value.NetworkInformation.Rssi).ToList();
             return retval;
         }
 

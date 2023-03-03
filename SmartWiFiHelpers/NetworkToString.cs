@@ -561,7 +561,7 @@ namespace SmartWiFiHelpers
             return retval;
         }
 
-        public static void Fill(WiFiAdapter wifiAdapter, IList<WiFiNetworkInformation> list, WiFiNetworkReport value, ScanMetadata smd, int rssiMinimum=-1000)
+        public static void Fill(WiFiAdapter wifiAdapterSource, IList<WiFiNetworkInformation> listDest, WiFiNetworkReport value, ScanMetadata smd, int rssiMinimum=-1000)
         {
             foreach (var item in value.AvailableNetworks)
             {
@@ -569,8 +569,8 @@ namespace SmartWiFiHelpers
                 {
                     var data = new WiFiNetworkInformation();
                     Fill(data, item, smd);
-                    data.SetAdapter(wifiAdapter);
-                    list.Add(data);
+                    data.SetAdapter(wifiAdapterSource);
+                    listDest.Add(data);
                 }
             }
         }
