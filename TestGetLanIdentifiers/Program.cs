@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.WiFi;
 // Can't find "Windows"? It's probably because you need a new Windows SDK. You can get one
 // by running the Visual Studio installer, picking Visual Studio, and then under Options
 // select as many Windows SDKs as show up.
 // Failing that: look in the project file for "<HintPath>" for the exact Windows.Foundation.UniversalApiContract.winmd file.
 // These files are constantly and irritatingly being changed.
 using Windows.Networking.Connectivity;
+using Windows.Security.Credentials;
 
 namespace TestGetLanIdentifiers
 {
@@ -83,6 +86,7 @@ namespace TestGetLanIdentifiers
             }
         }
 
+ 
         static void Main(string[] args)
         {
             UpdateNetworkInfo();
