@@ -13,7 +13,7 @@ The Simple Wi-Fi Analyzer provides basic information about the Wi-Fi environment
 
 ![Sample display](../HelpImages/Mall-Radar-Connected-Found-Details.png)
 
-The sample display shows the results of a scan at a nearby shopping mall. Access points that are shown closer to the center have a strongs signal; ones further away have a weaker signal. Names in **bold** have an SSID which matches the SSID of the current Internet connection (in this case, it's called Collection Guest). In the sample, there are multiple access points advertising the same SSID.
+The sample display shows the results of a scan at a nearby shopping mall. Access points that are shown closer to the center have a strongs signal; ones further away have a weaker signal. Names in **bold** have an SSID which matches the SSID of the current Internet connection (in this case, it's called Collection Guest). In the sample, there are multiple access points advertising the same SSID. 
 
 Click on an access point to show details about the access point.
 

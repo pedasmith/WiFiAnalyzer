@@ -43,7 +43,11 @@ namespace MeCardParser
             {
             }
             ValidateAsWiFiDuplicates(retval);
-            ValidateAsWiFiOrder(retval);
+            // 2023-07-20: don't check this: ValidateAsWiFiOrder(retval);
+            // Per user report: Samsung phones will generate invalid wifi: URLS
+            // like wifi:S:iPhone;T:WPA;P:1111;H:false;; 
+            // the order in the Samsung is STPH but the correct order is TSHP
+
             foreach (var index in retval.Fields)
             {
                 if (retval.IsValidWiFi == Validity.Valid)

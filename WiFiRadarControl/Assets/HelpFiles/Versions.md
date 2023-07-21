@@ -1,8 +1,17 @@
 # Simple Wi-Fi Analyzer Versions
 
+## Version 1.9 supports technically invalid QR codes
+
+I've got reports that some devices are creating non-standard wifi: URLs where the fields are in the wrong order. This version will allow these incorrect URLs.
+
+
 ## Version 1.8 Supports latest Wi-Fi standards
 
-The newest [MSDN](https://learn.microsoft.com/en-us/uwp/api/windows.devices.wifi.wifiphykind?view=winrt-22621&source=docs) lists  a new Wi-Fi PHY kind which the app now reports.
+The newest [MSDN](https://learn.microsoft.com/en-us/uwp/api/windows.devices.wifi.wifiphykind?view=winrt-22621&source=docs) lists  a new Wi-Fi PHY kind which the app now reports. It also now handles the 6 GHz Wi-Fi bands.
+
+A new part of the user experience is that you can scan for "all" Wi-Fi access points, or just those "close" to you. This reduces the visual clutter when you are in an area with a lot of Wi-Fi access points.
+
+The Excel and CSV output in the Table now match the table display.
 
 ## Version 1.7 Tracks network changes
 
