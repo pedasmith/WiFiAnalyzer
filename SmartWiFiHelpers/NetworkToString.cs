@@ -175,10 +175,11 @@ namespace SmartWiFiHelpers
         {
             switch(value)
             {
+                default: return $"{value}(={(int)value})";
                 case NetworkAuthenticationType.None: return "None";
                 case NetworkAuthenticationType.Unknown: return "Unknown";
-                case NetworkAuthenticationType.Open80211: return "Open 802.11(Open80211)";
-                case NetworkAuthenticationType.SharedKey80211: return "WEP Password(SharedKey80211)";
+                case NetworkAuthenticationType.Open80211: return "Open 802.11 (Open80211)";
+                case NetworkAuthenticationType.SharedKey80211: return "WEP Password (SharedKey80211)";
                 case NetworkAuthenticationType.Wpa: return "WPA Enterprise (Wpa)";
                 case NetworkAuthenticationType.WpaPsk: return "WPA Password (WpaPsk)";
                 case NetworkAuthenticationType.WpaNone: return "WPA None(WpaNone)";
@@ -198,7 +199,7 @@ namespace SmartWiFiHelpers
                 case (NetworkAuthenticationType)13: return "WPA3 Enterprise (Wpa3Enterprise)";
 #endif
             }
-            return value.ToString();
+            // No need for this since I have a default value in the switch: return value.ToString();
         }
         // NetworkEncryptionType
         public static string Decode(NetworkEncryptionType value)
@@ -371,7 +372,7 @@ namespace SmartWiFiHelpers
             retval += $"{indent}IsWiFiDirect={value.IsWiFiDirect}\n";
             retval += $"{indent}NetworkKind={value.NetworkKind}\n";
             retval += $"{indent}NetworkRssiInDecibelMilliwatts={value.NetworkRssiInDecibelMilliwatts}\n";
-            retval += $"{indent}PhyKind={value.PhyKind}\n";
+            retval += $"{indent}PhyKind={Decode(value.PhyKind)}\n";
             retval += $"{indent}SignalBars={value.SignalBars}\n";
             retval += $"{indent}Uptime={value.Uptime}\n";
 
@@ -412,33 +413,73 @@ namespace SmartWiFiHelpers
             dest.SetAvailableNetwork(source);
 
         }
+        private static string[] ColNames = new string[]
+        {
+            "SSID", "BSSID", "BandName", "ChannelName", "Bandwidth", "Frequency", 
+            "RSSI", "SignalBars", "PhyKind", "Uptime", "BeaconInterval", 
+            "AuthentictionType", "EncryptionType",  // From NetworkSecurity
+            "IsWiFiDirect", "NetworkKind"
+        };
         public static string ToCsvHeader_WiFiAvailableNetwork()
         {
-            return "WiFiSsid,Bssid,BeaconInterval,Frequency,IsWiFiDirect,NetworkKind,Rssi,PhyKind,SignalBars,Uptime,"
-                + ToCsvHeader_NetworkSecuritySettings();
+            var retval = "";
+            foreach (var name in ColNames)
+            {
+                if (retval != "") retval += ",";
+                retval += name;
+            }
+            return retval;
+            //return "WiFiSsid,Bssid,BeaconInterval,Frequency,IsWiFiDirect,NetworkKind,Rssi,PhyKind,SignalBars,Uptime,"
+            //    + ToCsvHeader_NetworkSecuritySettings();
         }
         public static string ToHtmlHeader_WiFiAvailableNetwork()
         {
-            return "WiFiSsid".th() + "Bssid".th() + "BeaconInterval".th() + "Frequency".th() + "IsWiFiDirect".th() + "NetworkKind".th() + "Rssi".th() + "PhyKind".th() + "SignalBars".th() + "Uptime".th()
-                + ToHtmlHeader_NetworkSecuritySettings();
+            var retval = "";
+            foreach (var name in ColNames)
+            {
+                retval += name.th();
+            }
+            return retval;
+            //return "WiFiSsid".th() + "Bssid".th() + "BeaconInterval".th() + "Frequency".th() + "IsWiFiDirect".th() + "NetworkKind".th() + "Rssi".th() + "PhyKind".th() + "SignalBars".th() + "Uptime".th()
+            //    + ToHtmlHeader_NetworkSecuritySettings();
         }
 
         public static string ToCsvData(WiFiAvailableNetwork value)
         {
             if (value == null) return $",,,,,,,,,,,,";
             var ghz = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
-            var retval = $"\"{value.Ssid}\",{value.Bssid},{value.BeaconInterval.TotalSeconds},{ghz},{value.IsWiFiDirect},{value.NetworkKind},";
-            retval += $"{value.NetworkRssiInDecibelMilliwatts},{value.PhyKind},{value.SignalBars},{value.Uptime},";
+
+            WiFiNetworkInformation wifini = new WiFiNetworkInformation();
+            ScanMetadata smd = new ScanMetadata();
+            Fill(wifini, value, smd);
+
+            var retval = $"\"{value.Ssid}\",{value.Bssid},{wifini.BandName},{wifini.ChannelName},{wifini.Bandwidth},{ghz},";
+            retval += $"{value.NetworkRssiInDecibelMilliwatts},{value.SignalBars},{Decode(value.PhyKind)},{value.Uptime},{value.BeaconInterval.TotalSeconds},";
             retval += ToCsvData(value.SecuritySettings);
+            retval += $"{value.IsWiFiDirect},{value.NetworkKind}";
+
+            //var retval = $"\"{value.Ssid}\",{value.Bssid},{value.BeaconInterval.TotalSeconds},{ghz},{value.IsWiFiDirect},{value.NetworkKind},";
+            //retval += $"{value.NetworkRssiInDecibelMilliwatts},{Decode(value.PhyKind)},{value.SignalBars},{value.Uptime},";
+            //retval += ToCsvData(value.SecuritySettings);
             return retval;
         }
         public static string ToHtmlData(WiFiAvailableNetwork value)
         {
             if (value == null) return "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td() + "".td();
             var ghz = (double)value.ChannelCenterFrequencyInKilohertz / 1000000.0;
-            var retval = $"{value.Ssid.ToString().td()}{value.Bssid.ToString().td()}{value.BeaconInterval.TotalSeconds.ToString().td()}{ghz.ToString().td()}{value.IsWiFiDirect.ToString().td()}{value.NetworkKind.ToString().td()}";
-            retval += $"{value.NetworkRssiInDecibelMilliwatts.ToString().td()}{value.PhyKind.ToString().td()}{value.SignalBars.ToString().td()}{value.Uptime.ToString().td()}";
+
+            WiFiNetworkInformation wifini = new WiFiNetworkInformation();
+            ScanMetadata smd = new ScanMetadata();
+            Fill(wifini, value, smd);
+
+            var retval = $"{value.Ssid.ToString().td()}{value.Bssid.ToString().td()}{wifini.BandName.td()}{wifini.ChannelName.td()}{wifini.Bandwidth.ToString().td()}{ghz.ToString().td()}";
+            retval += $"{value.NetworkRssiInDecibelMilliwatts.ToString().td()}{value.SignalBars.ToString().td()}{Decode(value.PhyKind).td()}{value.Uptime.ToString().td()}{value.BeaconInterval.TotalSeconds.ToString().td()}";
             retval += ToHtmlData(value.SecuritySettings);
+            retval += $"{value.IsWiFiDirect.ToString().td()}{value.NetworkKind.ToString().td()}";
+
+            //var retval = $"{value.Ssid.ToString().td()}{value.Bssid.ToString().td()}{value.BeaconInterval.TotalSeconds.ToString().td()}{ghz.ToString().td()}{value.IsWiFiDirect.ToString().td()}{value.NetworkKind.ToString().td()}";
+            //retval += $"{value.NetworkRssiInDecibelMilliwatts.ToString().td()}{Decode(value.PhyKind).td()}{value.SignalBars.ToString().td()}{value.Uptime.ToString().td()}";
+            //retval += ToHtmlData(value.SecuritySettings);
             return retval;
         }
         public static string ToString(string indent, WiFiNetworkInformation value)
@@ -493,35 +534,44 @@ namespace SmartWiFiHelpers
         {
             return ToHtmlHeader_WiFiAvailableNetwork();
         }
-        public static string ToCsvData(WiFiNetworkReport value)
+        public static string ToCsvData(WiFiNetworkReport value, int rssiMinimum)
         {
             if (value == null) return $"NO_DATA_FOR_WIFI_NETWORK_REPORT\n";
             var retval = "";
             foreach (var item in value.AvailableNetworks)
             {
-                retval += ToCsvData(item) + "\n";
+                if (item.NetworkRssiInDecibelMilliwatts >= rssiMinimum)
+                {
+                    retval += ToCsvData(item) + "\n";
+                }
             }
             return retval;
         }
-        public static string ToHtmlData(WiFiNetworkReport value)
+        public static string ToHtmlData(WiFiNetworkReport value, int rssiMinimum)
         {
             if (value == null) return $"NO_DATA_FOR_WIFI_NETWORK_REPORT".td();
             var retval = "";
             foreach (var item in value.AvailableNetworks)
             {
-                retval += ToHtmlData(item).tr();
+                if (item.NetworkRssiInDecibelMilliwatts >= rssiMinimum)
+                {
+                    retval += ToHtmlData(item).tr();
+                }
             }
             return retval;
         }
 
-        public static void Fill(WiFiAdapter wifiAdapter, IList<WiFiNetworkInformation> list, WiFiNetworkReport value, ScanMetadata smd)
+        public static void Fill(WiFiAdapter wifiAdapterSource, IList<WiFiNetworkInformation> listDest, WiFiNetworkReport value, ScanMetadata smd, int rssiMinimum=-1000)
         {
             foreach (var item in value.AvailableNetworks)
             {
-                var data = new WiFiNetworkInformation();
-                Fill(data, item, smd);
-                data.SetAdapter(wifiAdapter);
-                list.Add(data);
+                if (item.NetworkRssiInDecibelMilliwatts > rssiMinimum)
+                {
+                    var data = new WiFiNetworkInformation();
+                    Fill(data, item, smd);
+                    data.SetAdapter(wifiAdapterSource);
+                    listDest.Add(data);
+                }
             }
         }
 
@@ -538,8 +588,9 @@ namespace SmartWiFiHelpers
                 case WiFiPhyKind.HT: return "Wi-Fi 4 (802.11n) High Throughput (HT)";
                 case WiFiPhyKind.Vht: return "Wi-Fi 5 (802.11ac) Very High Throughput (VHT)";
                 case WiFiPhyKind.Dmg: return "WiGig (802.11ad) Directional multi-gigabit (DMG)";
+                case WiFiPhyKind.HE: return "Wi-Fi 6 (802.11ax) High-Efficiency Wireless (HEW)";
 #if SUPPORT_LATEST_2023
-                case WiFiPhyKind.Eht: return "Wi-Fi 6 (802.11ax) High-Efficiency Wireless (HEW)";
+                case WiFiPhyKind.Eht: return "Wi-Fi 7 (802.11be) Enhanced throughput (EHT)";
 #else
                 case (WiFiPhyKind)11: return "Wi-Fi 7 (802.11be) Enhanced throughput (EHT)";
 #endif

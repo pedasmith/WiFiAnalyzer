@@ -234,10 +234,15 @@ namespace WiFiRadarControl
             var maxRadius = 0.0;
             var minRadius = 100.0;
             var minDistance = Math.Min(center.X, center.Y);
-            if (minDistance < 300)
+            if (minDistance < 100)
             {
                 minRadius = 0;
                 maxRadius = minDistance;
+            }
+            else if (minDistance < 300)
+            {
+                minRadius = 100;
+                maxRadius = minDistance - 30;
             }
             else
             {

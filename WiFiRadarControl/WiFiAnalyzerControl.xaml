@@ -195,7 +195,10 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="0" Content="Scan" Click="OnScanNow" VerticalAlignment="Bottom" />
+            <StackPanel Orientation="Horizontal" Grid.Column="0" VerticalAlignment="Bottom">
+                <Button Content="Scan" Click="OnScanNow" VerticalAlignment="Bottom" Tag="-500" />
+                <Button Content="Scan Close" Click="OnScanNow" VerticalAlignment="Bottom" Tag="-50" />
+            </StackPanel>
             <speedtests:SpeedTestOptionControl x:Name="uiSpeedTestOptions" Grid.Column="1" Visibility="Collapsed" />
             <TextBlock Grid.Column="2" x:Name="uiNetworkInfo" 
                        Margin="8,0,0,0"
