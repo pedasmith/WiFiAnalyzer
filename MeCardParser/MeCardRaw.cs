@@ -154,11 +154,30 @@ namespace MeCardParser
             switch (field.Opcode)
             {
                 case "H":
-                    if (field.Value != "true")
+                    // 2023-08-12: Android is setting H to "false"
+                    int strictLevel = 2; // 0=true 1=true/false 2=anything
+                    bool fieldIsTrue = field.Value == "true";
+                    bool fieldIsFalse = field.Value == "false";
+                    switch (strictLevel)
                     {
-                        retval.IsValidWiFi = Validity.InvalidNotTrue;
-                        retval.ErrorMessage = $"Item type {field.Opcode} can only be true";
-                        return;
+                        case 0:
+                            if (!fieldIsTrue)
+                            {
+                                retval.IsValidWiFi = Validity.InvalidNotTrue;
+                                retval.ErrorMessage = $"Item type {field.Opcode} can only be true";
+                                return;
+                            }
+                            break;
+                        case 1:
+                            if (!(fieldIsTrue || fieldIsFalse))
+                            {
+                                retval.IsValidWiFi = Validity.InvalidNotTrue;
+                                retval.ErrorMessage = $"Item type {field.Opcode} can only be true or false";
+                                return;
+                            }
+                            break;
+                        case 2: // accept anything
+                            break;
                     }
                     break;
                 case "I":

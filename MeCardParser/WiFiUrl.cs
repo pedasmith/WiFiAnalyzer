@@ -181,6 +181,10 @@ namespace MeCardParser
             nerror += TestOneFailure("WIFI:S:starpainter;;", Validity.Valid, "starpainter", null);
             nerror += TestOneFailure("wifi:S:starpainter;;", Validity.Valid, "starpainter", null, TestFlags.NoRoundtrip); // WIFI: is a valid scheme.
 
+            // real-world parsing
+            nerror += TestOneFailure("WIFI:S:ORBI36;T:WPA2;P:mypassword;SN:2WEMC;SK:RBK22-100NAS;MAC:21FF5394D278;;", Validity.Valid, "ORBI36", "mypassword", TestFlags.NoRoundtrip);
+
+
             // Test all of the opcodes. S and P are already tested.
             nerror += TestOneFailure("WIFI:T:WPA;S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts"); // verify one T
             nerror += TestOneFailure("WIFI:R:Af01;S:starpainter;P:deeznuts;;", Validity.Valid, "starpainter", "deeznuts"); // verify one R
@@ -198,14 +202,17 @@ namespace MeCardParser
             nerror += TestOneFailure("WIFI:S:starpainter;P:has\rcr;;", Validity.InvalidNotUrlEncoded);
             nerror += TestOneFailure("WIFI:T:*;S:starpainter;P:deeznuts;;", Validity.InvalidNotUnreserved); 
             nerror += TestOneFailure("WIFI:R:ZZ;S:starpainter;P:has\rcr;;", Validity.InvalidNotHex);
-            nerror += TestOneFailure("WIFI:S:starpainter;H:t;P:deeznuts;;", Validity.InvalidNotTrue);
+
+            // 2023-08-12 loosen H field to allow anything. Androi sets H:false
+            // nerror += TestOneFailure("WIFI:S:starpainter;H:t;P:deeznuts;;", Validity.InvalidNotTrue);
             nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;K:(not64);;", Validity.InvalidNotBase64); 
 
             nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;", Validity.InvalidEndSemicolons); // needs two, not one
             nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts", Validity.InvalidEndSemicolons); // needs two, not none
 
             // Catch higher level issues
-            nerror += TestOneFailure("WIFI:P:deeznuts;S:starpainter;;", Validity.InvalidOpcodeOrder);
+            //2023-08-12 don't test for order any more; android is making out-of-order URLs
+            //nerror += TestOneFailure("WIFI:P:deeznuts;S:starpainter;;", Validity.InvalidOpcodeOrder);
             nerror += TestOneFailure("WIFI:S:starpainter;S:starpainter;P:deeznuts;;", Validity.InvalidOpcodeDuplicate);
             nerror += TestOneFailure("WIFI:P:deeznuts;;", Validity.InvalidNoSsid);
 
