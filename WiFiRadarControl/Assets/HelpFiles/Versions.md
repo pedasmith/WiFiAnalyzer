@@ -1,8 +1,8 @@
 # Simple Wi-Fi Analyzer Versions
 
-## Version 1.9 supports technically invalid QR codes
+## Version 1.9 and 1.10 supports technically invalid QR codes
 
-I've got reports that some devices are creating non-standard wifi: URLs where the fields are in the wrong order. This version will allow these incorrect URLs.
+I've got reports that some devices are creating non-standard wifi: URLs where the fields are in the wrong order. This version will allow these incorrect URLs. I've also got reports of URLs that don't end with two semicolons; these are also now allowed.
 
 
 ## Version 1.8 Supports latest Wi-Fi standards

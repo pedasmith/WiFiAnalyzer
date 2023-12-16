@@ -205,10 +205,14 @@ namespace MeCardParser
 
             // 2023-08-12 loosen H field to allow anything. Androi sets H:false
             // nerror += TestOneFailure("WIFI:S:starpainter;H:t;P:deeznuts;;", Validity.InvalidNotTrue);
-            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;K:(not64);;", Validity.InvalidNotBase64); 
+            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;K:(not64);;", Validity.InvalidNotBase64);
 
-            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;", Validity.InvalidEndSemicolons); // needs two, not one
-            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts", Validity.InvalidEndSemicolons); // needs two, not none
+            // 2023-12-16 loosen semicolon requirements. There are QR code generators that don't include them (!)
+            // (like qrcreator.com)
+            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;", Validity.Valid, "starpainter", "deeznuts", TestFlags.NoRoundtrip); // needs two, not one
+            nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts", Validity.Valid, "starpainter", "deeznuts", TestFlags.NoRoundtrip); // needs two, not none
+            //nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts;", Validity.InvalidEndSemicolons); // needs two, not one
+            //nerror += TestOneFailure("WIFI:S:starpainter;P:deeznuts", Validity.InvalidEndSemicolons); // needs two, not none
 
             // Catch higher level issues
             //2023-08-12 don't test for order any more; android is making out-of-order URLs

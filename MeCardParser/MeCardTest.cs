@@ -12,6 +12,8 @@ namespace MeCardParser
             int nerror = 0;
 
             nerror += Test_RawMeCard_One("WIFI:s:myssid;;", new MeCardRaw("WIFI", "s", "myssid"));
+
+            nerror += StringUtility.TestNEndChars();
             return nerror;
         }
 
