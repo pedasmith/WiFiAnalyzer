@@ -1,5 +1,9 @@
 # Simple Wi-Fi Analyzer Versions
 
+## Version 1.11 adds in "notes" for some Wi-Fi bands
+
+Some Wi-Fi bands have additional "special" abilities. For example, in the Wi-Fi 2.4 GHz band, only channels 1, 6, and 11 are the right channels to use; the rest will all interfere with those channels. The less-preferred channels are now all marked as "inefficient". In the 6 GHz band, some channels are "Preferred Scanning Channels". These are noted in the output. You have to have a 6 GHz chipset in order to see 6 Ghz channels!
+
 ## Version 1.9 and 1.10 supports technically invalid QR codes
 
 I've got reports that some devices are creating non-standard wifi: URLs where the fields are in the wrong order. This version will allow these incorrect URLs. I've also got reports of URLs that don't end with two semicolons; these are also now allowed.

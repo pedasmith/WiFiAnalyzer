@@ -405,6 +405,7 @@ namespace SmartWiFiHelpers
                 dest.ChannelName = wbc.ChannelName;
                 dest.Bandwidth = wbc.BandwidthInKilohertzList[0] / 1000.0; // It's only a list because of the 900 MHz 802.11ah bands
                 // Must convert khz to mhz to be more useful for people
+                dest.Notes = wbc.Notes;
             }
             else
             {

@@ -22,7 +22,7 @@ namespace SmartWiFiHelpers
         /// <param name="bandName"></param>
         /// <param name="minOverlappingFrequencyInMegahertz"></param>
         /// <param name="maxOverlappingFrequencyInMegahertz"></param>
-        public WiFiBandChannel(int channelCenterFrequencyInMegahertz, int bandwidthInKilohertz, string wifiVersion, string channelName, string bandName, int minOverlappingFrequencyInMegahertz, int maxOverlappingFrequencyInMegahertz)
+        public WiFiBandChannel(int channelCenterFrequencyInMegahertz, int bandwidthInKilohertz, string wifiVersion, string channelName, string bandName, int minOverlappingFrequencyInMegahertz, int maxOverlappingFrequencyInMegahertz, string notes = "")
         {
             ChannelCenterFrequencyInKilohertz = channelCenterFrequencyInMegahertz * 1000;
             BandwidthInKilohertzList.Add(bandwidthInKilohertz); // if more are needed, they can be added
@@ -32,6 +32,8 @@ namespace SmartWiFiHelpers
 
             MinOverlappingFrequencyInKilohertz = minOverlappingFrequencyInMegahertz*1000;
             MaxOverlappingFrequencyInKilohertz = maxOverlappingFrequencyInMegahertz*1000;
+
+            Notes = notes;
         }
 
         public int ChannelCenterFrequencyInKilohertz { get; internal set; } = 0;
@@ -45,10 +47,11 @@ namespace SmartWiFiHelpers
         public string BandName { get; internal set; }
         public int MinOverlappingFrequencyInKilohertz { get; internal set; }
         public int MaxOverlappingFrequencyInKilohertz { get; internal set; }
+        public string Notes { get; internal set; } = "";
 
         public override string ToString()
         {
-            return $"Channel={ChannelName} Freq={ChannelCenterFrequencyInKilohertz} Band={BandName} ";
+            return $"Channel={ChannelName} Freq={ChannelCenterFrequencyInKilohertz} Band={BandName} {Notes}";
         }
 
         public static int Find(List<WiFiBandChannel> list, int frequencyInKilohertz)
@@ -152,15 +155,15 @@ namespace SmartWiFiHelpers
             const string GH24 = "2.4 GHz";
             const string BGNAX = "802.11b/g/n/ax";
             retval.Add(new WiFiBandChannel(2412, BW24, BGNAX,  "1", GH24, 2401, 2423));
-            retval.Add(new WiFiBandChannel(2417, BW24, BGNAX,  "2", GH24, 2406, 2428));
-            retval.Add(new WiFiBandChannel(2422, BW24, BGNAX,  "3", GH24, 2411, 2433));
-            retval.Add(new WiFiBandChannel(2427, BW24, BGNAX,  "4", GH24, 2416, 2438));
-            retval.Add(new WiFiBandChannel(2432, BW24, BGNAX,  "5", GH24, 2421, 2443));
+            retval.Add(new WiFiBandChannel(2417, BW24, BGNAX,  "2", GH24, 2406, 2428, "(inefficient 2.4 channel)"));
+            retval.Add(new WiFiBandChannel(2422, BW24, BGNAX,  "3", GH24, 2411, 2433, "(inefficient 2.4 channel)"));
+            retval.Add(new WiFiBandChannel(2427, BW24, BGNAX,  "4", GH24, 2416, 2438, "(inefficient 2.4 channel)"));
+            retval.Add(new WiFiBandChannel(2432, BW24, BGNAX,  "5", GH24, 2421, 2443, "(inefficient 2.4 channel)"));
             retval.Add(new WiFiBandChannel(2437, BW24, BGNAX,  "6", GH24, 2426, 2448));
-            retval.Add(new WiFiBandChannel(2442, BW24, BGNAX,  "7", GH24, 2431, 2453));
-            retval.Add(new WiFiBandChannel(2447, BW24, BGNAX,  "8", GH24, 2436, 2458));
-            retval.Add(new WiFiBandChannel(2452, BW24, BGNAX,  "9", GH24, 2441, 2463));
-            retval.Add(new WiFiBandChannel(2457, BW24, BGNAX, "10", GH24, 2446, 2468));
+            retval.Add(new WiFiBandChannel(2442, BW24, BGNAX,  "7", GH24, 2431, 2453, "(inefficient 2.4 channel)"));
+            retval.Add(new WiFiBandChannel(2447, BW24, BGNAX,  "8", GH24, 2436, 2458, "(inefficient 2.4 channel)"));
+            retval.Add(new WiFiBandChannel(2452, BW24, BGNAX,  "9", GH24, 2441, 2463, "(inefficient 2.4 channel)"));
+            retval.Add(new WiFiBandChannel(2457, BW24, BGNAX, "10", GH24, 2446, 2468, "(inefficient 2.4 channel)"));
             retval.Add(new WiFiBandChannel(2462, BW24, BGNAX, "11", GH24, 2451, 2473));
             retval.Add(new WiFiBandChannel(2467, BW24, BGNAX, "12", GH24, 2456, 2478));
             retval.Add(new WiFiBandChannel(2472, BW24, BGNAX, "13", GH24, 2461, 2483));
@@ -244,9 +247,12 @@ namespace SmartWiFiHelpers
             retval.Add(Create5GhChannel("192", 5960, BW20));
             retval.Add(Create5GhChannel("196", 5980, BW20));
 
+            //
+            // 6 GHz channels
+            //
             retval.Add(Create6GHzChannel("1", 5955, BW20));
             retval.Add(Create6GHzChannel("3", 5965, BW40));
-            retval.Add(Create6GHzChannel("5", 5975, BW20));
+            retval.Add(Create6GHzChannel("5", 5975, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("7", 5985, BW80));
             retval.Add(Create6GHzChannel("9", 5995, BW20));
             retval.Add(Create6GHzChannel("11", 6005, BW40));
@@ -254,7 +260,7 @@ namespace SmartWiFiHelpers
             retval.Add(Create6GHzChannel("15", 6025, BW160));
             retval.Add(Create6GHzChannel("17", 6035, BW20));
             retval.Add(Create6GHzChannel("19", 6045, BW40));
-            retval.Add(Create6GHzChannel("21", 6055, BW20));
+            retval.Add(Create6GHzChannel("21", 6055, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("23", 6065, BW80));
             retval.Add(Create6GHzChannel("25", 6075, BW20));
             retval.Add(Create6GHzChannel("27", 6085, BW40));
@@ -262,7 +268,7 @@ namespace SmartWiFiHelpers
             //retval.Add(Create6GHzCHannel( "31", 6105, BW20));
             retval.Add(Create6GHzChannel("33", 6115, BW20));
             retval.Add(Create6GHzChannel("35", 6125, BW40));
-            retval.Add(Create6GHzChannel("37", 6135, BW20));
+            retval.Add(Create6GHzChannel("37", 6135, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("39", 6145, BW80));
             retval.Add(Create6GHzChannel("41", 6155, BW20));
             retval.Add(Create6GHzChannel("43", 6165, BW40));
@@ -270,7 +276,7 @@ namespace SmartWiFiHelpers
             retval.Add(Create6GHzChannel("47", 6185, BW160));
             retval.Add(Create6GHzChannel("49", 6195, BW20));
             retval.Add(Create6GHzChannel("51", 6205, BW40));
-            retval.Add(Create6GHzChannel("53", 6215, BW20));
+            retval.Add(Create6GHzChannel("53", 6215, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("55", 6225, BW80));
             retval.Add(Create6GHzChannel("57", 6235, BW20));
             retval.Add(Create6GHzChannel("59", 6245, BW40));
@@ -278,7 +284,7 @@ namespace SmartWiFiHelpers
             //retval.Add(Create6GHzCHannel( "63", 6265, BW20));
             retval.Add(Create6GHzChannel("65", 6275, BW20));
             retval.Add(Create6GHzChannel("67", 6285, BW40));
-            retval.Add(Create6GHzChannel("69", 6295, BW20));
+            retval.Add(Create6GHzChannel("69", 6295, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("71", 6305, BW80));
             retval.Add(Create6GHzChannel("73", 6315, BW20));
             retval.Add(Create6GHzChannel("75", 6325, BW40));
@@ -286,7 +292,7 @@ namespace SmartWiFiHelpers
             retval.Add(Create6GHzChannel("79", 6345, BW160));
             retval.Add(Create6GHzChannel("81", 6355, BW20));
             retval.Add(Create6GHzChannel("83", 6365, BW40));
-            retval.Add(Create6GHzChannel("85", 6375, BW20));
+            retval.Add(Create6GHzChannel("85", 6375, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("87", 6385, BW80));
             retval.Add(Create6GHzChannel("89", 6395, BW20));
             retval.Add(Create6GHzChannel("91", 6405, BW40));
@@ -294,7 +300,7 @@ namespace SmartWiFiHelpers
             //retval.Add(Create6GHzCHannel( "95", 6425, BW20));
             retval.Add(Create6GHzChannel("97", 6435, BW20));
             retval.Add(Create6GHzChannel("99", 6455, BW40));
-            retval.Add(Create6GHzChannel("101", 6455, BW20));
+            retval.Add(Create6GHzChannel("101", 6455, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("103", 6465, BW80));
             retval.Add(Create6GHzChannel("105", 6475, BW20));
             retval.Add(Create6GHzChannel("107", 6485, BW40));
@@ -302,7 +308,7 @@ namespace SmartWiFiHelpers
             retval.Add(Create6GHzChannel("111", 6505, BW160));
             retval.Add(Create6GHzChannel("113", 6515, BW20));
             retval.Add(Create6GHzChannel("115", 6525, BW40));
-            retval.Add(Create6GHzChannel("117", 6535, BW20));
+            retval.Add(Create6GHzChannel("117", 6535, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("119", 6545, BW80));
             retval.Add(Create6GHzChannel("121", 6555, BW20));
             retval.Add(Create6GHzChannel("123", 6565, BW40));
@@ -310,7 +316,7 @@ namespace SmartWiFiHelpers
             //retval.Add(Create6GHzCHannel("127", 6585, BW20));
             retval.Add(Create6GHzChannel("129", 6595, BW20));
             retval.Add(Create6GHzChannel("131", 6605, BW40));
-            retval.Add(Create6GHzChannel("133", 6615, BW20));
+            retval.Add(Create6GHzChannel("133", 6615, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("135", 6625, BW80));
             retval.Add(Create6GHzChannel("137", 6635, BW20));
             retval.Add(Create6GHzChannel("139", 6645, BW40));
@@ -318,7 +324,7 @@ namespace SmartWiFiHelpers
             retval.Add(Create6GHzChannel("143", 6665, BW160));
             retval.Add(Create6GHzChannel("145", 6675, BW20));
             retval.Add(Create6GHzChannel("147", 6685, BW40));
-            retval.Add(Create6GHzChannel("149", 6695, BW20));
+            retval.Add(Create6GHzChannel("149", 6695, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("151", 6705, BW80));
             retval.Add(Create6GHzChannel("153", 6715, BW20));
             retval.Add(Create6GHzChannel("155", 6725, BW40));
@@ -326,7 +332,7 @@ namespace SmartWiFiHelpers
             //retval.Add(Create6GHzCHannel("159", 6745, BW20));
             retval.Add(Create6GHzChannel("161", 6755, BW20));
             retval.Add(Create6GHzChannel("163", 6765, BW40));
-            retval.Add(Create6GHzChannel("165", 6775, BW20));
+            retval.Add(Create6GHzChannel("165", 6775, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("167", 6785, BW80));
             retval.Add(Create6GHzChannel("169", 6795, BW20));
             retval.Add(Create6GHzChannel("171", 6805, BW40));
@@ -334,7 +340,7 @@ namespace SmartWiFiHelpers
             retval.Add(Create6GHzChannel("175", 6825, BW160));
             retval.Add(Create6GHzChannel("177", 6835, BW20));
             retval.Add(Create6GHzChannel("179", 6845, BW40));
-            retval.Add(Create6GHzChannel("181", 6855, BW20));
+            retval.Add(Create6GHzChannel("181", 6855, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("183", 6865, BW80));
             retval.Add(Create6GHzChannel("185", 6875, BW20));
             retval.Add(Create6GHzChannel("187", 6885, BW40));
@@ -342,7 +348,7 @@ namespace SmartWiFiHelpers
             //retval.Add(Create6GHzCHannel("191", 6905, BW20));
             retval.Add(Create6GHzChannel("193", 6915, BW20));
             retval.Add(Create6GHzChannel("195", 6925, BW40));
-            retval.Add(Create6GHzChannel("197", 6935, BW20));
+            retval.Add(Create6GHzChannel("197", 6935, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("199", 6945, BW80));
             retval.Add(Create6GHzChannel("201", 6955, BW20));
             retval.Add(Create6GHzChannel("203", 6965, BW40));
@@ -350,7 +356,7 @@ namespace SmartWiFiHelpers
             retval.Add(Create6GHzChannel("207", 6985, BW160));
             retval.Add(Create6GHzChannel("209", 6995, BW20));
             retval.Add(Create6GHzChannel("211", 7005, BW40));
-            retval.Add(Create6GHzChannel("213", 7015, BW20));
+            retval.Add(Create6GHzChannel("213", 7015, BW20, "(psc)"));
             retval.Add(Create6GHzChannel("215", 7025, BW80));
             retval.Add(Create6GHzChannel("217", 7035, BW20));
             retval.Add(Create6GHzChannel("219", 7045, BW40));
@@ -373,13 +379,13 @@ namespace SmartWiFiHelpers
             return new WiFiBandChannel(centerFrequencyInMegahertz, bandwidthInKilohertz, AHJNACAX, channelName, GH5, minFrequencyInMegahertz, maxFrequencyInMegahertz);
         }
 
-        private static WiFiBandChannel Create6GHzChannel(string channelName, int centerFrequencyInMegahertz, int bandwidthInKilohertz)
+        private static WiFiBandChannel Create6GHzChannel(string channelName, int centerFrequencyInMegahertz, int bandwidthInKilohertz, string notes="")
         {
             const string GH6 = "6 GHz";
             const string AHJNACAX = "802.11ax";
             int minFrequencyInMegahertz = (centerFrequencyInMegahertz) - (bandwidthInKilohertz / 1000) / 2;
             int maxFrequencyInMegahertz = (centerFrequencyInMegahertz) + (bandwidthInKilohertz / 1000) / 2;
-            return new WiFiBandChannel(centerFrequencyInMegahertz, bandwidthInKilohertz, AHJNACAX, channelName, GH6, minFrequencyInMegahertz, maxFrequencyInMegahertz);
+            return new WiFiBandChannel(centerFrequencyInMegahertz, bandwidthInKilohertz, AHJNACAX, channelName, GH6, minFrequencyInMegahertz, maxFrequencyInMegahertz, notes);
         }
     }
 }

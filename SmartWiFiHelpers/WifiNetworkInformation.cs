@@ -32,6 +32,7 @@ namespace SmartWiFiHelpers
         public string EncryptionType { get; set; }
         public string IsWiFiDirect { get; set; }
         public string NetworkKind { get; set; }
+        public string Notes { get; set; }
         public DateTimeOffset ScanTimeStamp { get; set; }
 
         // These can't be fields because they shouldn't be part of the grid.
