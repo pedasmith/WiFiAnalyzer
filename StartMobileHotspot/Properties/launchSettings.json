@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "StartMobileHotspot": {
+      "commandName": "Project",
+      "commandLineArgs": "-action report"
+    }
+  }
+}
