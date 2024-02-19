@@ -23,7 +23,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLanBSSID", "TestLanBSSI
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StartHotspot", "StartHotspot\StartHotspot.csproj", "{AA4500EE-3592-4D8A-9DFA-1DCD0DA7760F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StartMobileHotspot", "StartMobileHotspot\StartMobileHotspot.csproj", "{26A0157E-AEBF-4AE4-9B35-ED66BB9A2FE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StartMobileHotspot", "StartMobileHotspot\StartMobileHotspot.csproj", "{26A0157E-AEBF-4AE4-9B35-ED66BB9A2FE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkSetup", "NetworkSetup\NetworkSetup.csproj", "{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -159,6 +161,36 @@ Global
 		{26A0157E-AEBF-4AE4-9B35-ED66BB9A2FE9}.Release|x64.Build.0 = Release|Any CPU
 		{26A0157E-AEBF-4AE4-9B35-ED66BB9A2FE9}.Release|x86.ActiveCfg = Release|Any CPU
 		{26A0157E-AEBF-4AE4-9B35-ED66BB9A2FE9}.Release|x86.Build.0 = Release|Any CPU
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|Any CPU.Build.0 = Debug|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|Any CPU.Deploy.0 = Debug|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|ARM.ActiveCfg = Debug|ARM
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|ARM.Build.0 = Debug|ARM
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|ARM.Deploy.0 = Debug|ARM
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|ARM64.Build.0 = Debug|ARM64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|ARM64.Deploy.0 = Debug|ARM64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|x64.ActiveCfg = Debug|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|x64.Build.0 = Debug|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|x64.Deploy.0 = Debug|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|x86.ActiveCfg = Debug|x86
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|x86.Build.0 = Debug|x86
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Debug|x86.Deploy.0 = Debug|x86
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|Any CPU.ActiveCfg = Release|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|Any CPU.Build.0 = Release|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|Any CPU.Deploy.0 = Release|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|ARM.ActiveCfg = Release|ARM
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|ARM.Build.0 = Release|ARM
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|ARM.Deploy.0 = Release|ARM
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|ARM64.ActiveCfg = Release|ARM64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|ARM64.Build.0 = Release|ARM64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|ARM64.Deploy.0 = Release|ARM64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|x64.ActiveCfg = Release|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|x64.Build.0 = Release|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|x64.Deploy.0 = Release|x64
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|x86.ActiveCfg = Release|x86
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|x86.Build.0 = Release|x86
+		{E0CA50CC-3980-495A-BDE2-1C54BB93D68B}.Release|x86.Deploy.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -179,5 +211,9 @@ Global
 		Utilities\Utilities.projitems*{6bf226a6-b00f-4b85-a495-ac2e94c8565e}*SharedItemsImports = 13
 		SmartWiFiControls\SmartWiFiControls.projitems*{7e076244-f346-46d1-b152-b9bc542bed85}*SharedItemsImports = 13
 		WiFiRadarControl\WiFiRadarControl.projitems*{c3870ebf-59d6-4abb-bfae-be394698e32a}*SharedItemsImports = 13
+		MeCardParser\MeCardParser.projitems*{e0ca50cc-3980-495a-bde2-1c54bb93d68b}*SharedItemsImports = 4
+		SmartWiFiControls\SmartWiFiControls.projitems*{e0ca50cc-3980-495a-bde2-1c54bb93d68b}*SharedItemsImports = 4
+		SmartWiFiHelpers\SmartWiFiHelpers.projitems*{e0ca50cc-3980-495a-bde2-1c54bb93d68b}*SharedItemsImports = 4
+		Utilities\Utilities.projitems*{e0ca50cc-3980-495a-bde2-1c54bb93d68b}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

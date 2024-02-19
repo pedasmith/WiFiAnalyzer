@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
@@ -14,6 +15,7 @@ using Windows.Networking.Connectivity;
 using Windows.Networking.NetworkOperators;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Data;
@@ -101,13 +103,41 @@ namespace SmartWiFiControls
             }
             return TetheringManager != null;
         }
+
+        private string GetBandString(string defaultValue = "2.4")
+        {
+            var retval = (uiTetheringBand.SelectedItem as FrameworkElement)?.Tag as string ?? defaultValue;
+            return retval;
+        }
+        private string GetAuthString(string defaultValue = "WPA2")
+        {
+            var retval = (uiTetheringAuth.SelectedItem as FrameworkElement)?.Tag as string ?? defaultValue;
+            return retval;
+        }
+
         private NetworkOperatorTetheringAccessPointConfiguration CreateAPConfiguration()
         {
+            var band = WiFiEnumConverter.BandFromString(GetBandString());
             var configure = new NetworkOperatorTetheringAccessPointConfiguration()
             {
                 Ssid = uiTetheringSsid.Text,
                 Passphrase = uiTetheringPassphrase.Text,
-                Band = TetheringWiFiBand.FiveGigahertz, //TODO: select band, too?
+                Band = band,
+            };
+            return configure;
+        }
+
+        private NetworkOperatorTetheringSessionAccessPointConfiguration CreateAPSessionConfiguration()
+        {
+            var band = WiFiEnumConverter.BandFromString(GetBandString());
+            var auth = WiFiEnumConverter.AuthFromString(GetAuthString());
+            var configure = new NetworkOperatorTetheringSessionAccessPointConfiguration()
+            {
+                Ssid = uiTetheringSsid.Text,
+                Passphrase = uiTetheringPassphrase.Text,
+                Band = band,
+                AuthenticationKind = auth,
+                PerformancePriority = TetheringWiFiPerformancePriority.TetheringOverStation, // TODO: get from URL + UX
             };
             return configure;
         }
@@ -122,11 +152,16 @@ namespace SmartWiFiControls
         }
         private async void OnTetheringConfigureOnly(object sender, RoutedEventArgs e)
         {
-            if (!EnsureTetheringManager()) return ;
+            if (!EnsureTetheringManager()) return;
             uiTetheringLog.Text = "";
             var configure = CreateAPConfiguration();
             await DoTetheringConfigureAsync(configure);
             await ShowAsync(TetheringManager);
+        }
+
+        private void SelectAuth()
+        {
+
         }
 
         public async Task<bool> DoTetheringConfigureAsync(NetworkOperatorTetheringAccessPointConfiguration configure)
@@ -145,6 +180,7 @@ namespace SmartWiFiControls
             TetheringLog("Complete");
             return retval;
         }
+
 
         private async void OnTetheringStart(object sender, RoutedEventArgs e)
         {
@@ -176,6 +212,31 @@ namespace SmartWiFiControls
             await ShowAsync(TetheringManager);
             return retval;
         }
+
+
+        private async Task<bool> DoTetheringStartSessionAsync(NetworkOperatorTetheringSessionAccessPointConfiguration config)
+        {
+            if (!EnsureTetheringManager()) return false;
+
+            var retval = false;
+            TetheringLog("Starting mobile hotspot");
+            try
+            {
+                var result = await TetheringManager.StartTetheringAsync(config);
+                TetheringLog($"Tether: {result.Status} {result.AdditionalErrorMessage}");
+                retval = result.Status == TetheringOperationStatus.Success;
+            }
+            catch (Exception ex)
+            {
+                TetheringLog($"ERROR: {ex.Message}");
+                retval = false;
+            }
+            TetheringLog("Complete");
+            await ShowAsync(TetheringManager);
+            return retval;
+        }
+
+
         private async void OnTetheringStop(object sender, RoutedEventArgs e)
         {
             if (TetheringManager == null) return;
@@ -216,6 +277,7 @@ namespace SmartWiFiControls
         {
             uiTetheringLog.Text = "";
         }
+
         private async Task ShowAsync(NetworkOperatorTetheringManager manager = null)
         {
             if (manager == null)
@@ -315,12 +377,138 @@ namespace SmartWiFiControls
                 }
             }
         }
-        private static void Log(string str)
+
+        private void Log(string str)
         {
+            TetheringLog(str);
             Console.WriteLine(str);
             System.Diagnostics.Debug.WriteLine(str);
         }
 
+        public async Task DoMeCardActionAsync(MeCardRaw mecard)
+        {
+            var context = mecard.GetFieldValue("context", "unknown");
+            var action = mecard.GetFieldValue("action", "unknown");
+            // Mecard values:
+            // action: start start-session stop report
+            // S:ssid
+            // P:password
+            // T:WPA2 WPA3 WPA3+2
+            // band: 2.4 5 6 auto
+            // priority: normal tethering
+            // 
+            switch (context)
+            {
+                case "hotspot":
+                    {
+                        switch (action)
+                        {
+                            case "start":
+                                {
+                                    UpdateUXFromMecard(mecard);
+
+                                    // Code taken from OnTetheringConfigureOnly
+                                    if (!EnsureTetheringManager()) return;
+                                    uiTetheringLog.Text = "";
+                                    var configure = CreateAPConfiguration();
+                                    // Important note: if you configure an invalid SSID or Password (or whatever),
+                                    // there's no error code that comes back. The configuration won't be accepted
+                                    await DoTetheringConfigureAsync(configure);
+                                    await DoTetheringStartAsync();
+
+                                    // Update the UX
+                                    await ShowAsync(TetheringManager);
+                                }
+                                break;
+                            case "start-session":
+                                {
+                                    UpdateUXFromMecard(mecard);
+
+                                    // Code taken from OnTetheringConfigureOnly
+                                    if (!EnsureTetheringManager()) return;
+                                    uiTetheringLog.Text = "";
+                                    var configureSession = CreateAPSessionConfiguration();
+                                    // Important note: if you configure an invalid SSID or Password (or whatever),
+                                    // there's no error code that comes back. The configuration won't be accepted
+                                    await DoTetheringStartSessionAsync(configureSession);
+
+                                    // Update the UX
+                                    await ShowAsync(TetheringManager);
+                                }
+                                break;
+                            case "stop":
+                                if (!EnsureTetheringManager()) return;
+                                uiTetheringLog.Text = "";
+
+                                // Code from OnTetheringStop
+                                TetheringLog("Stopping");
+                                var step = "Stopping";
+                                try
+                                {
+                                    var result = await TetheringManager.StopTetheringAsync();
+                                    TetheringLog($"Tether: {result.Status} {result.AdditionalErrorMessage}");
+                                }
+                                catch (Exception ex)
+                                {
+                                    TetheringLog($"ERROR: {step}: {ex.Message}");
+                                }
+                                TetheringLog("Complete");
+                                // Update the UX
+                                await ShowAsync(TetheringManager);
+                                break;
+                        }
+                    }
+                    break;
+                default:
+                    Log($"Error: unknown context:{context};action:{action}");
+                    break;
+            }
+        }
+
+        private void UpdateUXFromMecard(MeCardRaw mecard)
+        {
+            uiTetheringSsid.Text = mecard.GetFieldValue("S", "notsetup");
+            uiTetheringPassphrase.Text = mecard.GetFieldValue("P", "notsetup");
+            var bandstr = mecard.GetFieldValue("band", "2.4");
+            SelectBand(bandstr);
+            var authstr = mecard.GetFieldValue("T", "WPA2");
+            SelectAuth(authstr);
+        }
+
+        private void SelectAuth(string authstr)
+        {
+            var combo = uiTetheringAuth;
+            foreach (var item in combo.Items)
+            {
+                var tagstr = (item as FrameworkElement)?.Tag as string ?? "";
+                if (tagstr == authstr)
+                {
+                    combo.SelectedItem = item;
+                    return;
+                }
+            }
+            Log($"Unknown auth (T) type {authstr}");
+        }
+        private void SelectBand(string bandstr)
+        {
+            var combo = uiTetheringBand;
+            foreach (var item in combo.Items)
+            {
+                var tagstr = (item as FrameworkElement)?.Tag as string ?? "";
+                if (tagstr == bandstr)
+                {
+                    combo.SelectedItem = item;
+                    return;
+                }
+            }
+            Log($"Unknown band {bandstr}");
+        }
+        /// <summary>
+        /// Mostly obsolete; from when I added a SETUP as an "action" for a WIFI: URL. This is not something
+        /// I want to support going forward. It's still in code, but should be removed.
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public async Task SetupFromWiFiSetupUrl(WiFiUrl url)
         {
             if (url == null || url.Action != "SETUP") return;

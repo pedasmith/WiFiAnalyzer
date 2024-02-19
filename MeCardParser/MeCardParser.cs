@@ -58,7 +58,7 @@ namespace MeCardParser
             System.Diagnostics.Debug.WriteLine(str);
         }
     }
-    internal class MeCardParser
+    public class MeCardParser
     {
         public static MeCardRaw Parse(string urlString)
         {

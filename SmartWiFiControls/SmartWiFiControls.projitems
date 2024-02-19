@@ -18,6 +18,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)TetheringControl.xaml.cs">
       <DependentUpon>TetheringControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)WiFiEnumConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WiFiUrlToQRCode.cs" />
   </ItemGroup>
 </Project>
