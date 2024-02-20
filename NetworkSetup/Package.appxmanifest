@@ -16,7 +16,7 @@
   <Properties>
     <DisplayName>NetworkSetup</DisplayName>
     <PublisherDisplayName>toomr</PublisherDisplayName>
-    <Logo>Assets\StoreLogo.png</Logo>
+    <Logo>Assets\Icons\StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
@@ -33,12 +33,17 @@
       EntryPoint="NetworkSetup.App">
       <uap:VisualElements
         DisplayName="NetworkSetup"
-        Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\Square44x44Logo.png"
+        Square150x150Logo="Assets\Icons\Square150x150Logo.png"
+        Square44x44Logo="Assets\Icons\Square44x44Logo.png"
         Description="NetworkSetup"
         BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"/>
-        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        <uap:DefaultTile Wide310x150Logo="Assets\Icons\Wide310x150Logo.png">
+          <uap:ShowNameOnTiles>
+            <uap:ShowOn Tile="square150x150Logo"/>
+            <uap:ShowOn Tile="wide310x150Logo"/>
+          </uap:ShowNameOnTiles>
+        </uap:DefaultTile >
+        <uap:SplashScreen Image="Assets\Icons\SplashScreen.png" />
       </uap:VisualElements>
       <Extensions>
         <uap:Extension Category="windows.protocol">
