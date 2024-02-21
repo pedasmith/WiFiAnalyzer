@@ -118,6 +118,7 @@
                             </Style>
                         </StackPanel.Resources>
                         <Button Content="Configure" Click="OnTetheringConfigureOnly" />
+                        <Button Content="Start Session" Click="OnTetheringStartSession" />
                     </StackPanel>
                 </Grid>
                 <StackPanel Orientation="Horizontal" Visibility="Collapsed">
