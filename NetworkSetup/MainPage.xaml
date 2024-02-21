@@ -33,5 +33,9 @@
                 <TextBlock x:Name="uiLog" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
             </StackPanel>
         </ScrollViewer>
+
+        <StackPanel Grid.Row="2">
+            <CheckBox Content="Keep screen on" IsChecked="True" Checked="OnCheckScreenOn" Unchecked="OnCheckScreenOff" />
+        </StackPanel>
     </Grid>
 </Page>
