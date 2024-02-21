@@ -18,6 +18,7 @@ namespace SmartWiFiControls
             return TetheringWiFiAuthenticationKind.Wpa2;
         }
 
+
         public static TetheringWiFiBand BandFromString(string value)
         {
             switch (value)
@@ -30,7 +31,17 @@ namespace SmartWiFiControls
             return TetheringWiFiBand.TwoPointFourGigahertz;
         }
 
-        public static string StringFromBand(TetheringWiFiBand value)
+        public static TetheringWiFiPerformancePriority PriorityFromString(string value)
+        {
+            switch (value)
+            {
+                case "default": return TetheringWiFiPerformancePriority.Default;
+                case "tethering": return TetheringWiFiPerformancePriority.TetheringOverStation;
+            }
+            return TetheringWiFiPerformancePriority.TetheringOverStation;
+        }
+
+        public static string ZZZStringFromBand(TetheringWiFiBand value)
         {
             switch (value)
             {

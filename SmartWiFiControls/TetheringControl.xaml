@@ -92,6 +92,7 @@
                         <ColumnDefinition Width="auto" MaxWidth="300"/>
                         <ColumnDefinition Width="auto" MaxWidth="300"/>
                         <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
                     <TextBox Grid.Column="0" Header="SSID" Text="starpainter"  x:Name="uiTetheringSsid"  />
                     <TextBox Grid.Column="1" Header="Password" Text="deeznuts" x:Name="uiTetheringPassphrase"  />
@@ -105,6 +106,10 @@
                         <ComboBoxItem Content="2.4 ㎓" Tag="2.4" />
                         <ComboBoxItem Content="5 ㎓" Tag="5" />
                         <ComboBoxItem Content="6 ㎓" Tag="6" />
+                    </ComboBox>
+                    <ComboBox Grid.Column="4" Header="Priority" x:Name="uiTetheringPriority" MinWidth="120" SelectedIndex="0">
+                        <ComboBoxItem Content="Default" Tag="default" />
+                        <ComboBoxItem Content="Tethering" Tag="tethering" />
                     </ComboBox>
                     <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Bottom">
                         <StackPanel.Resources>

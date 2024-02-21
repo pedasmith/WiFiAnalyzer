@@ -104,24 +104,33 @@ namespace SmartWiFiControls
             return TetheringManager != null;
         }
 
-        private string GetBandString(string defaultValue = "2.4")
-        {
-            var retval = (uiTetheringBand.SelectedItem as FrameworkElement)?.Tag as string ?? defaultValue;
-            return retval;
-        }
         private string GetAuthString(string defaultValue = "WPA2")
         {
             var retval = (uiTetheringAuth.SelectedItem as FrameworkElement)?.Tag as string ?? defaultValue;
             return retval;
         }
 
+        private string GetBandString(string defaultValue = "2.4")
+        {
+            var retval = (uiTetheringBand.SelectedItem as FrameworkElement)?.Tag as string ?? defaultValue;
+            return retval;
+        }
+
+        private string GetPriorityString(string defaultValue = "default")
+        {
+            var retval = (uiTetheringPriority.SelectedItem as FrameworkElement)?.Tag as string ?? defaultValue;
+            return retval;
+        }
+
         private NetworkOperatorTetheringAccessPointConfiguration CreateAPConfiguration()
         {
+            var auth = WiFiEnumConverter.AuthFromString(GetAuthString());
             var band = WiFiEnumConverter.BandFromString(GetBandString());
             var configure = new NetworkOperatorTetheringAccessPointConfiguration()
             {
                 Ssid = uiTetheringSsid.Text,
                 Passphrase = uiTetheringPassphrase.Text,
+                //Auth = auth,
                 Band = band,
             };
             return configure;
@@ -473,36 +482,56 @@ namespace SmartWiFiControls
             SelectBand(bandstr);
             var authstr = mecard.GetFieldValue("T", "WPA2");
             SelectAuth(authstr);
+            var prioritystr = mecard.GetFieldValue("priority", "default");
+            SelectPriority(prioritystr);
         }
 
-        private void SelectAuth(string authstr)
+        private void SelectAuth(string value)
         {
             var combo = uiTetheringAuth;
             foreach (var item in combo.Items)
             {
                 var tagstr = (item as FrameworkElement)?.Tag as string ?? "";
-                if (tagstr == authstr)
+                if (tagstr == value)
                 {
                     combo.SelectedItem = item;
                     return;
                 }
             }
-            Log($"Unknown auth (T) type {authstr}");
+            Log($"Unknown auth (T) type {value}");
         }
-        private void SelectBand(string bandstr)
+
+        private void SelectBand(string value)
         {
             var combo = uiTetheringBand;
             foreach (var item in combo.Items)
             {
                 var tagstr = (item as FrameworkElement)?.Tag as string ?? "";
-                if (tagstr == bandstr)
+                if (tagstr == value)
                 {
                     combo.SelectedItem = item;
                     return;
                 }
             }
-            Log($"Unknown band {bandstr}");
+            Log($"Unknown band {value}");
         }
+
+        private void SelectPriority(string value)
+        {
+            var combo = uiTetheringPriority;
+            foreach (var item in combo.Items)
+            {
+                var tagstr = (item as FrameworkElement)?.Tag as string ?? "";
+                if (tagstr == value)
+                {
+                    combo.SelectedItem = item;
+                    return;
+                }
+            }
+            Log($"Unknown priority {value}");
+        }
+
+
         /// <summary>
         /// Mostly obsolete; from when I added a SETUP as an "action" for a WIFI: URL. This is not something
         /// I want to support going forward. It's still in code, but should be removed.
