@@ -140,13 +140,14 @@ namespace SmartWiFiControls
         {
             var band = WiFiEnumConverter.BandFromString(GetBandString());
             var auth = WiFiEnumConverter.AuthFromString(GetAuthString());
+            var priority = WiFiEnumConverter.PriorityFromString(GetPriorityString());
             var configure = new NetworkOperatorTetheringSessionAccessPointConfiguration()
             {
                 Ssid = uiTetheringSsid.Text,
                 Passphrase = uiTetheringPassphrase.Text,
                 Band = band,
                 AuthenticationKind = auth,
-                PerformancePriority = TetheringWiFiPerformancePriority.TetheringOverStation, // TODO: get from URL + UX
+                PerformancePriority = priority,
             };
             return configure;
         }
@@ -168,11 +169,26 @@ namespace SmartWiFiControls
             await ShowAsync(TetheringManager);
         }
 
+        // TODO: start as session
+        private async void OnTetheringStartSession(object sender, RoutedEventArgs e)
+        {
+            if (!EnsureTetheringManager()) return;
+            uiTetheringLog.Text = "";
+            var configure = CreateAPSessionConfiguration();
+            await DoTetheringStartSessionAsync(configure);
+            await ShowAsync(TetheringManager);
+        }
+
         private void SelectAuth()
         {
 
         }
 
+        /// <summary>
+        /// Wraps TetheringManager.ConfigureAccessPointAsync with logging + try/catch
+        /// </summary>
+        /// <param name="configure"></param>
+        /// <returns></returns>
         public async Task<bool> DoTetheringConfigureAsync(NetworkOperatorTetheringAccessPointConfiguration configure)
         {
             var retval = true;
@@ -190,7 +206,11 @@ namespace SmartWiFiControls
             return retval;
         }
 
-
+        /// <summary>
+        /// Calls TetheringStartAsync and ShowAsync
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void OnTetheringStart(object sender, RoutedEventArgs e)
         {
             if (!EnsureTetheringManager()) return;
@@ -200,6 +220,10 @@ namespace SmartWiFiControls
             await ShowAsync(TetheringManager);
         }
 
+        /// <summary>
+        /// Wraps StartTetheringAsync with logging and try/catch
+        /// </summary>
+        /// <returns></returns>
         private async Task<bool> DoTetheringStartAsync()
         {
             if (!EnsureTetheringManager()) return false;
@@ -222,7 +246,11 @@ namespace SmartWiFiControls
             return retval;
         }
 
-
+        /// <summary>
+        /// Wraps StartTetheringAsync with logging and try/catch 
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
         private async Task<bool> DoTetheringStartSessionAsync(NetworkOperatorTetheringSessionAccessPointConfiguration config)
         {
             if (!EnsureTetheringManager()) return false;
@@ -247,6 +275,12 @@ namespace SmartWiFiControls
 
 
         private async void OnTetheringStop(object sender, RoutedEventArgs e)
+        {
+            await DoTetheringStop();
+            await ShowAsync(TetheringManager);
+        }
+
+        private async Task DoTetheringStop()
         {
             if (TetheringManager == null) return;
             TetheringLog("Stopping");
@@ -416,7 +450,6 @@ namespace SmartWiFiControls
                                 {
                                     UpdateUXFromMecard(mecard);
 
-                                    // Code taken from OnTetheringConfigureOnly
                                     if (!EnsureTetheringManager()) return;
                                     uiTetheringLog.Text = "";
                                     var configure = CreateAPConfiguration();
@@ -433,7 +466,6 @@ namespace SmartWiFiControls
                                 {
                                     UpdateUXFromMecard(mecard);
 
-                                    // Code taken from OnTetheringConfigureOnly
                                     if (!EnsureTetheringManager()) return;
                                     uiTetheringLog.Text = "";
                                     var configureSession = CreateAPSessionConfiguration();
