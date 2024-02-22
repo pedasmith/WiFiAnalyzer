@@ -130,7 +130,7 @@ namespace SmartWiFiControls
             {
                 Ssid = uiTetheringSsid.Text,
                 Passphrase = uiTetheringPassphrase.Text,
-                //Auth = auth,
+                AuthenticationKind = auth,
                 Band = band,
             };
             return configure;
