@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Foundation.Metadata;
 using Windows.Networking.Connectivity;
 using Windows.Networking.NetworkOperators;
 using Windows.Storage.Streams;
@@ -60,6 +61,29 @@ namespace SmartWiFiControls
 
         String[] AnimationTimerStringsCat = { "🐱", "😸", "😺", "😼", "😻", };
         String[] AnimationTimerStrings = { "🪐", "🪨", "🌌", "🌑", };
+
+        enum ApiLevelSupported {  NotChecked, Normal, AuthPriority6GHz };
+        ApiLevelSupported ApiLevel = ApiLevelSupported.NotChecked;
+        /// <summary>
+        /// Get the 'ApiLevel' of the underlying platform. The hotspot added support in 24H2 for AuthenticationKind, Priority, 
+        /// and the 6 GHz band. This is also when the Session support was added.
+        /// </summary>
+        /// <returns></returns>
+        private ApiLevelSupported GetApiLevel()
+        {
+            if (ApiLevel == ApiLevelSupported.NotChecked)
+            {
+                if (ApiInformation.IsPropertyPresent("Windows.Networking.NetworkOperators.NetworkOperatorTetheringAccessPointConfiguration", "AuthenticationKind"))
+                {
+                    ApiLevel = ApiLevelSupported.AuthPriority6GHz;
+                }
+                else
+                {
+                    ApiLevel = ApiLevelSupported.Normal;
+                }
+            }
+            return ApiLevel;
+        }
 
         long AnimationTimerCount = 0;
         private void RefreshTimer_Tick(object sender, object e)
@@ -130,9 +154,16 @@ namespace SmartWiFiControls
             {
                 Ssid = uiTetheringSsid.Text,
                 Passphrase = uiTetheringPassphrase.Text,
-                AuthenticationKind = auth,
+                // AuthenticationKind = auth,
                 Band = band,
             };
+            // Added for the 2024H2 release
+            switch (GetApiLevel())
+            {
+                case ApiLevelSupported.AuthPriority6GHz:
+                    configure.AuthenticationKind = auth;
+                    break;
+            }
             return configure;
         }
 

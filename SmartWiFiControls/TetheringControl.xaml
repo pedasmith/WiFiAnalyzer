@@ -16,53 +16,62 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0">
-                <TextBlock Style="{StaticResource styleHelpHeader}">About Mobile Hotspot (SoftAP)</TextBlock>
-                <TextBlock Style="{StaticResource styleHelpText}">
+    <Grid >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Grid.ColumnSpan="2">
+            <TextBlock Style="{StaticResource styleHelpHeader}">About Mobile Hotspot (SoftAP)</TextBlock>
+            <TextBlock Style="{StaticResource styleHelpText}">
                     <Run>Mobile Hotspot lets you create a temporary Wi-Fi access point (AP), also called 
                         a Mobile Hotspot or SoftAP. This page will show you the current status of your
                         hotspot: whether or not it's turned on, its name and passphrase (password),
                         and lists the clients that are connected.
                     </Run><LineBreak />
                     <Run>You can also configure your Mobile Hotspot here, and turn it on and off (start/stop)</Run><LineBreak />
-                </TextBlock>
-            </StackPanel>
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="auto" MinWidth="50"  />
-                </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock x:Name="uiSsid" FontWeight="Bold" FontSize="20" Text="SSID" IsTextSelectionEnabled="True" />
-                    <TextBlock x:Name="uiStatus" FontWeight="Bold" FontSize="20" Text="--" Margin="10,0,0,0" />
-                    <TextBlock FontSize="20" Margin="10,0,0,0" >
+            </TextBlock>
+        </StackPanel>
+        <Grid Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" MinWidth="50"  />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                <TextBlock x:Name="uiSsid" FontWeight="Bold" FontSize="20" Text="SSID" IsTextSelectionEnabled="True" />
+                <TextBlock x:Name="uiStatus" FontWeight="Bold" FontSize="20" Text="--" Margin="10,0,0,0" />
+                <TextBlock FontSize="20" Margin="10,0,0,0" >
                     <Run Text="Client count:" />
                     <Run x:Name="uiCount" FontWeight="Bold" Text="____"  />
                     <Run  Text=" / "  />
                     <Run x:Name="uiMaxCount" Text="____"  />
-                    </TextBlock>
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="10,0,0,0">
-                        <StackPanel.Resources>
-                            <Style TargetType="FrameworkElement">
-                                <Setter Property="Margin" Value="10,4,0,0" />
-                            </Style>
-                        </StackPanel.Resources>
-                        <Button Content="Turn On" x:Name="uiTetherStartButton" Visibility="Collapsed" Click="OnTetheringStart" />
-                        <Button Content="Turn Off" x:Name="uiTetherStopButton" Visibility="Collapsed" Click="OnTetheringStop" />
-                    </StackPanel>
+                </TextBlock>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" Margin="10,0,0,0">
+                    <StackPanel.Resources>
+                        <Style TargetType="FrameworkElement">
+                            <Setter Property="Margin" Value="10,4,0,0" />
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Content="Turn On" x:Name="uiTetherStartButton" Visibility="Collapsed" Click="OnTetheringStart" />
+                    <Button Content="Turn Off" x:Name="uiTetherStopButton" Visibility="Collapsed" Click="OnTetheringStop" />
                 </StackPanel>
-                <TextBlock x:Name="uiAnimationTimer" Grid.Column="1" Text="" />
-            </Grid>
-            <controls:Expander Grid.Row="2" Header="Details" IsExpanded="True" HorizontalContentAlignment="Left" VerticalContentAlignment="Top">
+            </StackPanel>
+            <TextBlock x:Name="uiAnimationTimer" Grid.Column="1" Text="" />
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <controls:Expander Grid.Row="0" Header="Details" IsExpanded="True" HorizontalContentAlignment="Left" VerticalContentAlignment="Top">
                 <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Auto" >
                     <StackPanel MinWidth="350">
                         <TextBlock IsTextSelectionEnabled="True" >
@@ -79,39 +88,33 @@
                     </StackPanel>
                 </ScrollViewer>
             </controls:Expander>
-            <TextBlock Grid.Row="3" x:Name="uiTetheringLog" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
-            <StackPanel Grid.Row="4">
+            <TextBlock Grid.Row="1" x:Name="uiTetheringLog" IsTextSelectionEnabled="True" TextWrapping="Wrap" />
+            <StackPanel Grid.Row="2">
                 <TextBlock>
                     <Run>------------------------------------------------------------</Run><LineBreak/>
                     <Run FontSize="16" FontWeight="Bold">Configure Mobile Hotspot</Run>
                 </TextBlock>
-                <Grid HorizontalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" MaxWidth="200"/>
-                        <ColumnDefinition Width="*" MaxWidth="200"/>
-                        <ColumnDefinition Width="auto" MaxWidth="300"/>
-                        <ColumnDefinition Width="auto" MaxWidth="300"/>
-                        <ColumnDefinition Width="auto" />
-                        <ColumnDefinition Width="auto" />
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0" Header="SSID" Text="starpainter"  x:Name="uiTetheringSsid"  />
-                    <TextBox Grid.Column="1" Header="Password" Text="deeznuts" x:Name="uiTetheringPassphrase"  />
-                    <ComboBox Grid.Column="2" Header="Auth" x:Name="uiTetheringAuth" MinWidth="140" SelectedIndex="0">
+                
+                <!-- The configure toolbar at the bottom -->
+                <controls:WrapPanel HorizontalAlignment="Stretch">
+                    <TextBox MinWidth="150" MaxWidth="200" Header="SSID" Text="starpainter"  x:Name="uiTetheringSsid"  />
+                    <TextBox MinWidth="150" MaxWidth="200"  Header="Password" Text="deeznuts" x:Name="uiTetheringPassphrase"  />
+                    <ComboBox Header="Auth" x:Name="uiTetheringAuth" MinWidth="140" SelectedIndex="0">
                         <ComboBoxItem Content="WPA2" Tag="WPA2" />
                         <ComboBoxItem Content="WPA3 (or 2)" Tag="WPA3+2" />
                         <ComboBoxItem Content="WPA3" Tag="WPA3" />
                     </ComboBox>
-                    <ComboBox Grid.Column="3" Header="Band" x:Name="uiTetheringBand" MinWidth="100" SelectedIndex="0">
+                    <ComboBox Header="Band" x:Name="uiTetheringBand" MinWidth="100" SelectedIndex="0">
                         <ComboBoxItem Content="Auto" Tag="auto" />
                         <ComboBoxItem Content="2.4 ㎓" Tag="2.4" />
                         <ComboBoxItem Content="5 ㎓" Tag="5" />
                         <ComboBoxItem Content="6 ㎓" Tag="6" />
                     </ComboBox>
-                    <ComboBox Grid.Column="4" Header="Priority" x:Name="uiTetheringPriority" MinWidth="120" SelectedIndex="0">
+                    <ComboBox Header="Priority" x:Name="uiTetheringPriority" MinWidth="120" SelectedIndex="0">
                         <ComboBoxItem Content="Default" Tag="default" />
                         <ComboBoxItem Content="Tethering" Tag="tethering" />
                     </ComboBox>
-                    <StackPanel Grid.Column="5" Orientation="Horizontal" VerticalAlignment="Bottom">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
                         <StackPanel.Resources>
                             <Style TargetType="FrameworkElement">
                                 <Setter Property="Margin" Value="10,4,0,0" />
@@ -120,7 +123,7 @@
                         <Button Content="Configure" Click="OnTetheringConfigureOnly" />
                         <Button Content="Start Session" Click="OnTetheringStartSession" />
                     </StackPanel>
-                </Grid>
+                </controls:WrapPanel>
                 <StackPanel Orientation="Horizontal" Visibility="Collapsed">
                     <StackPanel.Resources>
                         <Style TargetType="FrameworkElement">
@@ -131,14 +134,19 @@
                     <Button Content="List Profiles" Click="OnTetheringListProfiles" />
                 </StackPanel>
             </StackPanel>
-            <!-- At the bottom of the XAML so it lays on top of the other UI elements. -->
-            <StackPanel x:Name="uiConnectQRPanel" Visibility="Collapsed" Grid.Row="2" Grid.RowSpan="3" VerticalAlignment="Top" HorizontalAlignment="Right" >
-                <Image x:Name="uiConnectQR" Stretch="Uniform"  Margin="0,10,0,0" Width="200" Height="200" />
-                <TextBlock Style="{StaticResource styleWifiUrl}" x:Name="uiConnectWifiUrl" Width="200" />
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="Share" Click="OnConnectShare" />
-                    <Button Content="Copy" Click="OnConnectCopy" />
-                </StackPanel>
+        </Grid>
+
+        <Grid x:Name="uiConnectQRPanel" Visibility="Collapsed" Grid.Column="1" Grid.Row="2"  >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
+            <Image Grid.Row="0" x:Name="uiConnectQR" Stretch="Uniform"  Margin="0,10,0,0" Width="200" Height="200" />
+            <TextBlock Grid.Row="1" Style="{StaticResource styleWifiUrl}" x:Name="uiConnectWifiUrl" Width="200" />
+            <StackPanel Grid.Row="2" Orientation="Horizontal">
+                <Button Content="Share" Click="OnConnectShare" />
+                <Button Content="Copy" Click="OnConnectCopy" />
             </StackPanel>
         </Grid>
     </Grid>
