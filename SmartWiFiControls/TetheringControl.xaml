@@ -79,6 +79,8 @@
                             <Run FontWeight="Bold" Text="Password: " /><Run x:Name="uiPassword" /><LineBreak />
                             <Run FontWeight="Bold" Text="Band: " /><Run x:Name="uiBand" /><LineBreak />
                             <Run FontWeight="Bold" Text="Supported bands: " /><Run x:Name="uiSupportedBand" /><LineBreak />
+                            <Run FontWeight="Bold" Text="Authentication: " /><Run x:Name="uiAuthentication" /><LineBreak />
+                            <Run FontWeight="Bold" Text="Supported Authentication: " /><Run x:Name="uiSupportedAuthentication" /><LineBreak />
                             <Run FontWeight="Bold" Text="Tethering enabled: " /><Run x:Name="uiTetheringEnabled" /><LineBreak />
                         </TextBlock>
                         <TextBlock x:Name="uiConnectedClientsTitle" FontWeight="Bold" Visibility="Collapsed">Connected Clients</TextBlock>
@@ -108,7 +110,7 @@
                         <ComboBoxItem Content="Auto" Tag="auto" />
                         <ComboBoxItem Content="2.4 ㎓" Tag="2.4" />
                         <ComboBoxItem Content="5 ㎓" Tag="5" />
-                        <ComboBoxItem Content="6 ㎓" Tag="6" />
+                        <ComboBoxItem Content="6 ㎓" Tag="6" x:Name="uiTetheringBand6GHz"/>
                     </ComboBox>
                     <ComboBox Header="Priority" x:Name="uiTetheringPriority" MinWidth="120" SelectedIndex="0">
                         <ComboBoxItem Content="Default" Tag="default" />
@@ -121,7 +123,7 @@
                             </Style>
                         </StackPanel.Resources>
                         <Button Content="Configure" Click="OnTetheringConfigureOnly" />
-                        <Button Content="Start Session" Click="OnTetheringStartSession" />
+                        <Button Content="Start Session" Click="OnTetheringStartSession" x:Name="uiStartSession" />
                     </StackPanel>
                 </controls:WrapPanel>
                 <StackPanel Orientation="Horizontal" Visibility="Collapsed">

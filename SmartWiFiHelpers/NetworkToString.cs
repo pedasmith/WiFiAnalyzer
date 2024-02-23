@@ -347,6 +347,16 @@ namespace SmartWiFiHelpers
             return value.ToString(); // handles any other case that might come up.
         }
 
+        public static string ToString(TetheringWiFiAuthenticationKind value)
+        {
+            switch (value)
+            {
+                case TetheringWiFiAuthenticationKind.Wpa2: return "WPA2";
+                case TetheringWiFiAuthenticationKind.Wpa3TransitionMode: return "WPA3+2";
+                case TetheringWiFiAuthenticationKind.Wpa3: return "WPA3";
+            }
+            return value.ToString(); // handles any other case that might come up.
+        }
 
         public static async Task<string> ToStringAsync(string indent, WiFiAdapter value)
         {

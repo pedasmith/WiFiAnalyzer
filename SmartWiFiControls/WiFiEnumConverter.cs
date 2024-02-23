@@ -40,17 +40,5 @@ namespace SmartWiFiControls
             }
             return TetheringWiFiPerformancePriority.TetheringOverStation;
         }
-
-        public static string ZZZStringFromBand(TetheringWiFiBand value)
-        {
-            switch (value)
-            {
-                case TetheringWiFiBand.TwoPointFourGigahertz: return "2.4";
-                case TetheringWiFiBand.FiveGigahertz: return "5";
-                case TetheringWiFiBand.SixGigahertz: return "6";
-                case TetheringWiFiBand.Auto: return "Auto";
-            }
-            return "2.4";
-        }
     }
 }

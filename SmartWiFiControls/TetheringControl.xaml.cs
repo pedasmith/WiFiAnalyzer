@@ -34,7 +34,23 @@ namespace SmartWiFiControls
         public TetheringControl()
         {
             this.InitializeComponent();
+            this.Loaded += TetheringControl_Loaded;
         }
+
+        private void TetheringControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            var level = GetApiLevel();
+            switch (level)
+            {
+                case ApiLevelSupported.Normal:
+                    uiTetheringAuth.Visibility = Visibility.Collapsed;
+                    uiTetheringPriority.Visibility = Visibility.Collapsed;
+                    uiTetheringBand6GHz.Visibility = Visibility.Collapsed;
+                    uiStartSession.Visibility = Visibility.Collapsed;
+                    break;
+            }
+        }
+
         DispatcherTimer RefreshTimer = null;
         static int NLoaded = 0;
         const double RefreshTimerPeriodInSeconds = 5;
@@ -43,6 +59,13 @@ namespace SmartWiFiControls
             NLoaded++;
             //TetheringLog($"✨Loaded={NLoaded}");
 
+            EnsureTimerStart();
+            if (!EnsureTetheringManager()) return;
+            await ShowAsync(TetheringManager);
+        }
+
+        private void EnsureTimerStart()
+        {
             if (RefreshTimer == null)
             {
                 // Pause a little and then get data?
@@ -55,12 +78,10 @@ namespace SmartWiFiControls
                 RefreshTimer.Tick += RefreshTimer_Tick;
             }
             RefreshTimer.Start();
-            if (!EnsureTetheringManager()) return;
-            await ShowAsync(TetheringManager);
         }
 
-        String[] AnimationTimerStringsCat = { "🐱", "😸", "😺", "😼", "😻", };
-        String[] AnimationTimerStrings = { "🪐", "🪨", "🌌", "🌑", };
+        String[] AnimationTimerStrings = { "🐱", "😸", "😺", "😼", "😻", };
+        String[] AnimationTimerStringsSpace = { "🪐", "🪨", "🌌", "🌑", };
 
         enum ApiLevelSupported {  NotChecked, Normal, AuthPriority6GHz };
         ApiLevelSupported ApiLevel = ApiLevelSupported.NotChecked;
@@ -198,6 +219,7 @@ namespace SmartWiFiControls
             var configure = CreateAPConfiguration();
             await DoTetheringConfigureAsync(configure);
             await ShowAsync(TetheringManager);
+            EnsureTimerStart();
         }
 
         // TODO: start as session
@@ -388,6 +410,16 @@ namespace SmartWiFiControls
                 uiSsid.Text = apconfiguration.Ssid;
                 uiPassword.Text = apconfiguration.Passphrase;
                 uiBand.Text = NetworkToString.ToString(apconfiguration.Band);
+                var level = GetApiLevel();
+                switch (level)
+                {
+                    case ApiLevelSupported.Normal:
+                        uiAuthentication.Text = "WPA2";
+                        break;
+                    case ApiLevelSupported.AuthPriority6GHz:
+                        uiAuthentication.Text = NetworkToString.ToString(apconfiguration.AuthenticationKind);
+                        break;
+                }
 
                 var url = new WiFiUrl(apconfiguration);
                 await ShowWiFiQRCodeAsync(url); // Note that the url is modified
@@ -406,8 +438,31 @@ namespace SmartWiFiControls
                     }
                 }
                 uiSupportedBand.Text = bandstr;
-            }
 
+
+                switch (level)
+                {
+                    case ApiLevelSupported.Normal:
+                        uiSupportedAuthentication.Text = "WPA2";
+                        break;
+                    case ApiLevelSupported.AuthPriority6GHz:
+                        var authstr = "";
+                        var authlist = new List<TetheringWiFiAuthenticationKind>() { TetheringWiFiAuthenticationKind.Wpa2, TetheringWiFiAuthenticationKind.Wpa3TransitionMode, TetheringWiFiAuthenticationKind.Wpa3 };
+                        foreach (var auth in authlist)
+                        {
+                            try
+                            {
+                                if (apconfiguration.IsAuthenticationKindSupported(auth)) authstr += NetworkToString.ToString(auth) + " ";
+                            }
+                            catch (Exception)
+                            {
+                                ; // TODO: this failed at work -- why?
+                            }
+                        }
+                        uiSupportedAuthentication.Text = authstr;
+                        break;
+                }
+            }
             var profile = NetworkInformation.GetInternetConnectionProfile();
             if (profile != null)
             {
