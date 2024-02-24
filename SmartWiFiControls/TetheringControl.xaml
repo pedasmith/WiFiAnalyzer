@@ -82,6 +82,7 @@
                             <Run FontWeight="Bold" Text="Authentication: " /><Run x:Name="uiAuthentication" /><LineBreak />
                             <Run FontWeight="Bold" Text="Supported Authentication: " /><Run x:Name="uiSupportedAuthentication" /><LineBreak />
                             <Run FontWeight="Bold" Text="Tethering enabled: " /><Run x:Name="uiTetheringEnabled" /><LineBreak />
+                            <Run FontWeight="Bold" Text="Power saving: " /><Run x:Name="uiTetheringNoConnectionsTimeoutEnabled" /><LineBreak />
                         </TextBlock>
                         <TextBlock x:Name="uiConnectedClientsTitle" FontWeight="Bold" Visibility="Collapsed">Connected Clients</TextBlock>
                         <StackPanel x:Name="uiConnectedClients" Visibility="Collapsed">

@@ -2,28 +2,14 @@
 using SmartWiFiHelpers;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Security.Cryptography;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
 using Windows.Networking.Connectivity;
 using Windows.Networking.NetworkOperators;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Automation.Peers;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using static QRCoder.PayloadGenerator;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -470,6 +456,8 @@ namespace SmartWiFiControls
                 uiTetheringEnabled.Text = tcap.ToString(); // NOTE: weirdly, some connection profiles say that tething is enabled, but it's not actually allowed.
                 uiConnectedToProfileName.Text = profile.ProfileName;
             }
+            var timeout = NetworkOperatorTetheringManager.IsNoConnectionsTimeoutEnabled();
+            uiTetheringNoConnectionsTimeoutEnabled.Text = timeout ? "Enabled" : "Disabled";
 
             var clients = manager.GetTetheringClients();
             if (clients.Count == 0)
@@ -525,6 +513,7 @@ namespace SmartWiFiControls
             // T:WPA2 WPA3 WPA3+2
             // band: 2.4 5 6 auto
             // priority: normal tethering
+            // timeoutenabled: true false
             // 
             switch (context)
             {
@@ -538,11 +527,22 @@ namespace SmartWiFiControls
 
                                     if (!EnsureTetheringManager()) return;
                                     uiTetheringLog.Text = "";
-                                    var configure = CreateAPConfiguration();
+                                    var configure = CreateAPConfiguration(); // config from UX
                                     // Important note: if you configure an invalid SSID or Password (or whatever),
                                     // there's no error code that comes back. The configuration won't be accepted
                                     await DoTetheringConfigureAsync(configure);
                                     await DoTetheringStartAsync();
+
+                                    var timeoutenabled = mecard.GetFieldValue("timeoutenabled", "");
+                                    switch (timeoutenabled)
+                                    {
+                                        case "false":
+                                            NetworkOperatorTetheringManager.DisableNoConnectionsTimeout();
+                                            break;
+                                        case "true":
+                                            NetworkOperatorTetheringManager.EnableNoConnectionsTimeout();
+                                            break;
+                                    }
 
                                     // Update the UX
                                     await ShowAsync(TetheringManager);
@@ -558,6 +558,17 @@ namespace SmartWiFiControls
                                     // Important note: if you configure an invalid SSID or Password (or whatever),
                                     // there's no error code that comes back. The configuration won't be accepted
                                     await DoTetheringStartSessionAsync(configureSession);
+
+                                    var timeoutenabled = mecard.GetFieldValue("timeoutenabled", "");
+                                    switch (timeoutenabled)
+                                    {
+                                        case "false":
+                                            NetworkOperatorTetheringManager.DisableNoConnectionsTimeout();
+                                            break;
+                                        case "true":
+                                            NetworkOperatorTetheringManager.EnableNoConnectionsTimeout();
+                                            break;
+                                    }
 
                                     // Update the UX
                                     await ShowAsync(TetheringManager);
@@ -582,6 +593,10 @@ namespace SmartWiFiControls
                                 TetheringLog("Complete");
                                 // Update the UX
                                 await ShowAsync(TetheringManager);
+                                break;
+
+                            case "report":
+                                // No need to do anything. The display will automatically update.
                                 break;
                         }
                     }

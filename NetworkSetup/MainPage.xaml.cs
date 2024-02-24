@@ -44,6 +44,10 @@ namespace NetworkSetup
         {
             var accessStatus = await Geolocator.RequestAccessAsync();
             Log($"NOTE: Location request status:{accessStatus}");
+            // default is to see the Tethering control. Need to TabToAsync to start the timer so that
+            // we can see the tethering being updated.
+            await uiMobileHotspot.TabToAsync();
+
 
             // Set up the help system
             var pagename = "NetworkSetupHelp.md";
