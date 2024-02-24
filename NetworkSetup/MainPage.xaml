@@ -27,12 +27,39 @@
 
         <TextBlock Style="{StaticResource styleTitle}">Network Setup</TextBlock>
 
-        <ScrollViewer Grid.Row="1">
-            <StackPanel>
-                <smartwificontrols:TetheringControl Grid.Row="1" x:Name="uiMobileHotspot" />
-                <TextBlock x:Name="uiLog" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
-            </StackPanel>
-        </ScrollViewer>
+        <Pivot Style="{StaticResource PivotStyleNoStupidBorder}" x:Name="uiPivot" Grid.Row="1" SelectionChanged="OnPivotSelectionChanged"
+               >
+
+            <PivotItem Header="Setup and Control" Tag="Settings">
+                <ScrollViewer >
+                    <StackPanel>
+                        <smartwificontrols:TetheringControl Grid.Row="1" x:Name="uiMobileHotspot" />
+                        <TextBlock x:Name="uiLog" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
+                    </StackPanel>
+                </ScrollViewer>
+            </PivotItem>
+            <PivotItem Header="Help">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Content="🡨" Click="OnHelpBack" Padding="0" Margin="0" Background="White"                    />
+                        <TextBlock Grid.Column="1" Style="{StaticResource styleHelpHeader}" Text="Help for Network Setup"  />
+                        <TextBlock Grid.Column="2" x:Name="uiHelpVersion" TextAlignment="Right"  Text="version"  />
+                    </Grid>
+                    <ScrollViewer Grid.Row="1">
+                        <controls:MarkdownTextBlock x:Name="uiHelpText" FontFamily="Segoe UI,Segoe MDL2 Assets" />
+                    </ScrollViewer>
+                </Grid>
+            </PivotItem>
+        </Pivot>
 
         <StackPanel Grid.Row="2">
             <CheckBox Content="Keep screen on" IsChecked="True" Checked="OnCheckScreenOn" Unchecked="OnCheckScreenOff" />

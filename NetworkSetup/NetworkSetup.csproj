@@ -119,6 +119,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="HelpPageHistory.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -130,6 +131,9 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\HelpImages\Help_Header.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Icons\UrlIcon44x44.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\Icons\LockScreenLogo.scale-200.png" />
@@ -174,6 +178,20 @@
       <Version>4.3.0</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\HelpFiles\NetworkSetupHelp.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Assets\HelpFiles\NetworkSetupUrl.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\HelpFiles\Versions.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="..\MeCardParser\MeCardParser.projitems" Label="Shared" />
   <Import Project="..\SmartWiFiControls\SmartWiFiControls.projitems" Label="Shared" />
   <Import Project="..\SmartWiFiHelpers\SmartWiFiHelpers.projitems" Label="Shared" />

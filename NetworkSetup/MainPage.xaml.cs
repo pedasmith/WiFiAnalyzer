@@ -1,4 +1,5 @@
 ﻿using MeCardParser;
+using Microsoft.Toolkit.Uwp.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 using Windows.Devices.Geolocation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 using Windows.System.Display;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -42,7 +44,28 @@ namespace NetworkSetup
         {
             var accessStatus = await Geolocator.RequestAccessAsync();
             Log($"NOTE: Location request status:{accessStatus}");
+
+            // Set up the help system
+            var pagename = "NetworkSetupHelp.md";
+            uiHelpText.UriPrefix = "ms-appx:///Assets/HelpFiles/";
+            uiHelpText.LinkClicked += UiHelpText_LinkClicked;
+            var version = SystemInformation.Instance.ApplicationVersion;
+            uiHelpVersion.Text = $"Version {version.Major}.{version.Minor}";
+
+            const string StartPage = "NetworkSetupHelp.md";
+            //pagename = this.DataContext as string;
+            if (String.IsNullOrEmpty(pagename))
+            {
+                pagename = StartPage;
+            }
+            await HelpGotoAsync(pagename);
+
         }
+
+        private void OnPivotSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+        }
+
 
         public async Task NavigateToMeCard(MeCardRaw mecard)
         {
@@ -66,6 +89,67 @@ namespace NetworkSetup
             }
         }
 
+
+        HelpPageHistory HelpHistory = new HelpPageHistory();
+        public static string HelpNavigatedTo = "";
+        private void SetNavigatedTo(string place)
+        {
+            HelpHistory.NavigatedTo(place);
+            HelpNavigatedTo = place;
+        }
+
+        #region HELP
+        private async Task<bool> HelpGotoAsync(string filename)
+        {
+            if (filename.StartsWith("http://") || filename.StartsWith("https://"))
+            {
+                // Pop out to a browser window!
+                try
+                {
+                    Uri uri = new Uri(filename);
+                    var launched = await Windows.System.Launcher.LaunchUriAsync(uri);
+                }
+                catch (Exception)
+                {
+                    ; // do thing?
+                }
+                return true;
+            }
+
+
+            try
+            {
+                StorageFolder InstallationFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
+                string fname = @"Assets\HelpFiles\" + filename;
+                var f = await InstallationFolder.GetFileAsync(fname);
+                var fcontents = File.ReadAllText(f.Path);
+                uiHelpText.Text = fcontents;
+                SetNavigatedTo(filename);
+                return true;
+            }
+            catch (Exception)
+            {
+            }
+            const string ErrorName = "Error.md";
+            if (filename != ErrorName)
+            {
+                await HelpGotoAsync(ErrorName);
+            }
+            return false; // If I'm showing the error, return false.
+        }
+        private async void UiHelpText_LinkClicked(object sender, Microsoft.Toolkit.Uwp.UI.Controls.LinkClickedEventArgs e)
+        {
+            var ok = await HelpGotoAsync(e.Link);
+        }
+        private async void OnHelpBack(object sender, RoutedEventArgs e)
+        {
+            var page = HelpHistory.PopLastPage();
+            await HelpGotoAsync(page);
+        }
+
+        #endregion
+
+        #region DisplayRequest_RequestActive
         DisplayRequest CurrDisplayRequest = null;
         private void OnCheckScreenOff(object sender, RoutedEventArgs e)
         {
@@ -78,5 +162,6 @@ namespace NetworkSetup
             }
             CurrDisplayRequest.RequestActive();
         }
+        #endregion
     }
 }
