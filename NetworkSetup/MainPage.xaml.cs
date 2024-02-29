@@ -81,11 +81,27 @@ namespace NetworkSetup
                         // potential actions includes start stop report
                         var context = mecard.GetFieldValue("context", "unknown");
                         var action = mecard.GetFieldValue("action", "unknown");
-                        await uiMobileHotspot.TabToAsync();
+
+                        foreach (var item in uiPivot.Items)
+                        {
+                            var pivot = item as PivotItem;
+                            if (pivot == null) continue;
+                            if (pivot.Tag as string == context)
+                            {
+                                uiPivot.SelectedItem = item;
+                            }
+                        }
+
+
                         switch (context)
                         {
                             case "hotspot":
+                                await uiMobileHotspot.TabToAsync();
                                 await uiMobileHotspot.DoMeCardActionAsync(mecard);
+                                break;
+                            case "vpn":
+                                await uiVpn.UpdateVpnList();
+                                // await uiMobileHotspot.DoMeCardActionAsync(mecard);
                                 break;
                         }
                     }

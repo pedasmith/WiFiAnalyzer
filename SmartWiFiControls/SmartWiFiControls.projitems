@@ -13,10 +13,17 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="$(MSBuildThisFileDirectory)VpnControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)TetheringControl.xaml.cs">
       <DependentUpon>TetheringControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="$(MSBuildThisFileDirectory)VpnControl.xaml.cs">
+      <DependentUpon>VpnControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="$(MSBuildThisFileDirectory)WiFiEnumConverter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WiFiUrlToQRCode.cs" />

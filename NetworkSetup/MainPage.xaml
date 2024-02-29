@@ -30,13 +30,16 @@
         <Pivot Style="{StaticResource PivotStyleNoStupidBorder}" x:Name="uiPivot" Grid.Row="1" SelectionChanged="OnPivotSelectionChanged"
                >
 
-            <PivotItem Header="Setup and Control" Tag="Settings">
+            <PivotItem Header="Hotspot" Tag="hotspot">
                 <ScrollViewer >
                     <StackPanel>
-                        <smartwificontrols:TetheringControl Grid.Row="1" x:Name="uiMobileHotspot" />
+                        <smartwificontrols:TetheringControl x:Name="uiMobileHotspot" />
                         <TextBlock x:Name="uiLog" TextWrapping="Wrap" IsTextSelectionEnabled="True" />
                     </StackPanel>
                 </ScrollViewer>
+            </PivotItem>
+            <PivotItem Header="VPN" Tag="vpn" Visibility="Collapsed">
+                <smartwificontrols:VpnControl x:Name="uiVpn" />
             </PivotItem>
             <PivotItem Header="Help">
                 <Grid>
